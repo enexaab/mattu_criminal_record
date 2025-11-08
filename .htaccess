@@ -1,0 +1,3 @@
+Options -Indexes
+ErrorDocument 404 /mattupolice/404.php
+ErrorDocument 403 /mattupolice/403.php
