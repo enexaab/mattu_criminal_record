@@ -3,6 +3,134 @@
 require '../includes/database.php';
 require '../includes/auth.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+$translations = [
+    'en' => [
+        'title' => '{name} - Criminal Record - Mattu City Criminal Management System',
+        'mattu_criminal_records' => 'Mattu Criminal Records',
+        'dashboard' => 'Dashboard',
+        'search' => 'Search',
+        'view_record' => 'View Record',
+        'logout' => 'Logout',
+        'criminal_record_details' => 'Criminal Record Details',
+        'add_case' => 'Add Case',
+        'back_to_search' => 'Back to Search',
+        'record_id' => 'Record ID',
+        'full_name' => 'Full Name',
+        'national_id' => 'National ID',
+        'date_of_birth' => 'Date of Birth',
+        'gender' => 'Gender',
+        'status' => 'Status',
+        'height' => 'Height',
+        'weight' => 'Weight',
+        'eye_color' => 'Eye Color',
+        'hair_color' => 'Hair Color',
+        'distinguishing_marks' => 'Distinguishing Marks',
+        'record_created' => 'Record Created',
+        'last_updated' => 'Last Updated',
+        'not_specified' => 'Not specified',
+        'none_recorded' => 'None recorded',
+        'unknown' => 'Unknown',
+        'linked_cases' => 'Linked Cases ({count})',
+        'case_number' => 'Case Number',
+        'case_type' => 'Case Type',
+        'date_reported' => 'Date Reported',
+        'view_case' => 'View Case',
+        'unknown_type' => 'Unknown Type',
+        'unknown_date' => 'Unknown date',
+    ],
+    'am' => [
+        'title' => '{name} - የወደንጀላዊ መዝገብ - ማቱ ከተማ የወደንጀል አስተዳደር ስርዓት',
+        'mattu_criminal_records' => 'ማቱ የወደንጀላዊ መዝገቦች',
+        'dashboard' => 'ጃሽባር',
+        'search' => 'ፍለጋ',
+        'view_record' => 'መዝገብ ይመልከቱ',
+        'logout' => 'ውጣ',
+        'criminal_record_details' => 'የወደንጀላዊ መዝገብ ዝርዝሮች',
+        'add_case' => 'ጉዳይ ጨምር',
+        'back_to_search' => 'ወደ ፍለጋ',
+        'record_id' => 'የመዝገብ መለዤ',
+        'full_name' => 'ሙሉ ስም',
+        'national_id' => 'ብሔራዊ መለያ',
+        'date_of_birth' => 'የልደት ቀን',
+        'gender' => 'ጾታ',
+        'status' => 'ሁኔታ',
+        'height' => 'ጭነት',
+        'weight' => 'ክብደት',
+        'eye_color' => 'የዓይን ቀለም',
+        'hair_color' => 'የሰውር ቀለም',
+        'distinguishing_marks' => 'የማወቅ ምልክቶች',
+        'record_created' => 'መዝገብ ተፈጠረ',
+        'last_updated' => 'የመጨረሻ ዝውውር',
+        'not_specified' => 'የሉም',
+        'none_recorded' => 'የሉም የተመዘገበ',
+        'unknown' => 'የለም የሚታወቅ',
+        'linked_cases' => 'የተገናኙ ጉዳዮች ({count})',
+        'case_number' => 'የጉዳይ ቁጥር',
+        'case_type' => 'የጉዳይ አይነት',
+        'date_reported' => 'የተአስረው ቀን',
+        'view_case' => 'ጉዳይ ይመልከቱ',
+        'unknown_type' => 'የለም አይነት',
+        'unknown_date' => 'የለም ቀን',
+    ],
+    'om' => [
+        'title' => '{name} - Qoricha Diinagdee - Sisteemi Diinagdee Mattu Kuta',
+        'mattu_criminal_records' => 'Qoricha Diinagdee Mattu',
+        'dashboard' => 'Dashiboard',
+        'search' => 'Gammachuu',
+        'view_record' => 'Qoricha Argisi',
+        'logout' => 'Deebii',
+        'criminal_record_details' => 'Qoricha Zariya',
+        'add_case' => 'Caasaa Qabuu',
+        'back_to_search' => 'Deebii Gammachuu',
+        'record_id' => 'ID Qoricha',
+        'full_name' => 'Maatii',
+        'national_id' => 'ID Naamaa',
+        'date_of_birth' => 'Guyyaa Guyyaa',
+        'gender' => 'Aangoo',
+        'status' => 'Hakkina',
+        'height' => 'Guyyaa',
+        'weight' => 'Guyyaa Guyyaa',
+        'eye_color' => 'Ija Guyyaa',
+        'hair_color' => 'Ija Guyyaa',
+        'distinguishing_marks' => 'Guyyaa Guyyaa',
+        'record_created' => 'Qoricha Qabuu',
+        'last_updated' => 'Guyyaa Guyyaa',
+        'not_specified' => 'Hin Taane',
+        'none_recorded' => 'Hin Qabne',
+        'unknown' => 'Hin Beekamu',
+        'linked_cases' => 'Qoricha Gammachu ({count})',
+        'case_number' => 'Naama Caasaa',
+        'case_type' => 'Aangoo Caasaa',
+        'date_reported' => 'Guyyaa Guyyaa',
+        'view_case' => 'Caasaa Argisi',
+        'unknown_type' => 'Aangoo Hin Beekamu',
+        'unknown_date' => 'Guyyaa Hin Beekamu',
+    ],
+];
+function t($key, $params = []) {
+    global $translations, $current_lang;
+    $trans = $translations[$current_lang][$key] ?? $key;
+    // Replace placeholders if any
+    if (strpos($trans, '{') !== false) {
+        foreach ($params as $placeholder => $value) {
+            $trans = str_replace('{' . $placeholder . '}', $value, $trans);
+        }
+    }
+    return $trans;
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -79,27 +207,38 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
- 
     <!-- Add these cache control meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>view crimanl</title>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?> - Criminal Record - Mattu City Criminal Management System</title>
+    <title><?php echo t('title', ['name' => htmlspecialchars($record['first_name'] . ' ' . $record['last_name'])]); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic and Oromo support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
         }
         
@@ -213,24 +352,28 @@ try {
         <div class="container">
             <a class="navbar-brand" href="dashboard.php">
                 <i class="fas fa-shield-alt me-2"></i>
-                Mattu Criminal Records
+                <?php echo t('mattu_criminal_records'); ?>
             </a>
             
-            <div class="collapse navbar-collapse">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link-custom" href="dashboard.php">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            <i class="fas fa-tachometer-alt me-1"></i> <?php echo t('dashboard'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="search_records.php">
-                            <i class="fas fa-search me-1"></i> Search
+                            <i class="fas fa-search me-1"></i> <?php echo t('search'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom active" href="#">
-                            <i class="fas fa-user me-1"></i> View Record
+                            <i class="fas fa-user me-1"></i> <?php echo t('view_record'); ?>
                         </a>
                     </li>
                 </ul>
@@ -241,7 +384,7 @@ try {
                         <?php echo htmlspecialchars($current_user['full_name']); ?>
                     </span>
                     <a href="../logout.php" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
                     </a>
                 </div>
             </div>
@@ -258,14 +401,14 @@ try {
                         <div class="card-header-custom d-flex justify-content-between align-items-center">
                             <span>
                                 <i class="fas fa-user me-2"></i>
-                                Criminal Record Details
+                                <?php echo t('criminal_record_details'); ?>
                             </span>
                             <div>
                                 <a href="create_case.php?record_id=<?php echo $record['id']; ?>" class="btn btn-success btn-sm me-2">
-                                    <i class="fas fa-plus me-1"></i> Add Case
+                                    <i class="fas fa-plus me-1"></i> <?php echo t('add_case'); ?>
                                 </a>
                                 <a href="search_records.php" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-arrow-left me-1"></i> Back to Search
+                                    <i class="fas fa-arrow-left me-1"></i> <?php echo t('back_to_search'); ?>
                                 </a>
                             </div>
                         </div>
@@ -284,12 +427,12 @@ try {
                                     
                                     <div class="mb-3">
                                         <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $record['status'] ?? 'first-offender')); ?>">
-                                            <?php echo htmlspecialchars($record['status'] ?? 'First Offender'); ?>
+                                            <?php echo htmlspecialchars($record['status'] ?? t('status')); ?>
                                         </span>
                                     </div>
                                     
                                     <div class="text-muted small">
-                                        Record ID: #<?php echo $record['id']; ?>
+                                        <?php echo t('record_id'); ?>: #<?php echo $record['id']; ?>
                                     </div>
                                 </div>
                                 
@@ -297,13 +440,13 @@ try {
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="info-label">Full Name</div>
+                                            <div class="info-label"><?php echo t('full_name'); ?></div>
                                             <div class="info-value h5">
                                                 <?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="info-label">National ID</div>
+                                            <div class="info-label"><?php echo t('national_id'); ?></div>
                                             <div class="info-value h5 text-primary">
                                                 <?php echo htmlspecialchars($record['national_id']); ?>
                                             </div>
@@ -314,72 +457,72 @@ try {
                                     
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="info-label">Date of Birth</div>
+                                            <div class="info-label"><?php echo t('date_of_birth'); ?></div>
                                             <div class="info-value">
-                                                <?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : 'Not specified'; ?>
+                                                <?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : t('not_specified'); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="info-label">Gender</div>
+                                            <div class="info-label"><?php echo t('gender'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['gender'] ?? 'Not specified'); ?>
+                                                <?php echo htmlspecialchars($record['gender'] ?? t('not_specified')); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="info-label">Status</div>
+                                            <div class="info-label"><?php echo t('status'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['status'] ?? 'First Offender'); ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-3">
-                                        <div class="col-md-4">
-                                            <div class="info-label">Height</div>
-                                            <div class="info-value">
-                                                <?php echo !empty($record['height']) ? htmlspecialchars($record['height']) . ' cm' : 'Not specified'; ?>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="info-label">Weight</div>
-                                            <div class="info-value">
-                                                <?php echo !empty($record['weight']) ? htmlspecialchars($record['weight']) . ' kg' : 'Not specified'; ?>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="info-label">Eye Color</div>
-                                            <div class="info-value">
-                                                <?php echo htmlspecialchars($record['eye_color'] ?? 'Not specified'); ?>
+                                                <?php echo htmlspecialchars($record['status'] ?? t('status')); ?>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="row mt-3">
                                         <div class="col-md-4">
-                                            <div class="info-label">Hair Color</div>
+                                            <div class="info-label"><?php echo t('height'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['hair_color'] ?? 'Not specified'); ?>
+                                                <?php echo !empty($record['height']) ? htmlspecialchars($record['height']) . ' cm' : t('not_specified'); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('weight'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo !empty($record['weight']) ? htmlspecialchars($record['weight']) . ' kg' : t('not_specified'); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('eye_color'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo htmlspecialchars($record['eye_color'] ?? t('not_specified')); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('hair_color'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo htmlspecialchars($record['hair_color'] ?? t('not_specified')); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-8">
-                                            <div class="info-label">Distinguishing Marks</div>
+                                            <div class="info-label"><?php echo t('distinguishing_marks'); ?></div>
                                             <div class="info-value">
-                                                <?php echo !empty($record['distinguishing_marks']) ? htmlspecialchars($record['distinguishing_marks']) : 'None recorded'; ?>
+                                                <?php echo !empty($record['distinguishing_marks']) ? htmlspecialchars($record['distinguishing_marks']) : t('none_recorded'); ?>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="row mt-3">
                                         <div class="col-md-6">
-                                            <div class="info-label">Record Created</div>
+                                            <div class="info-label"><?php echo t('record_created'); ?></div>
                                             <div class="info-value text-muted">
-                                                <?php echo !empty($record['created_at']) ? date('F j, Y g:i A', strtotime($record['created_at'])) : 'Unknown'; ?>
+                                                <?php echo !empty($record['created_at']) ? date('F j, Y g:i A', strtotime($record['created_at'])) : t('unknown'); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="info-label">Last Updated</div>
+                                            <div class="info-label"><?php echo t('last_updated'); ?></div>
                                             <div class="info-value text-muted">
-                                                <?php echo !empty($record['updated_at']) ? date('F j, Y g:i A', strtotime($record['updated_at'])) : 'Unknown'; ?>
+                                                <?php echo !empty($record['updated_at']) ? date('F j, Y g:i A', strtotime($record['updated_at'])) : t('unknown'); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -397,7 +540,7 @@ try {
                     <div class="record-card">
                         <div class="card-header-custom">
                             <i class="fas fa-folder me-2"></i>
-                            Linked Cases (<?php echo count($cases); ?>)
+                            <?php echo t('linked_cases', ['count' => count($cases)]); ?>
                         </div>
                         <div class="card-body-custom">
                             <?php foreach ($cases as $case): ?>
@@ -407,7 +550,7 @@ try {
                                             <strong><?php echo htmlspecialchars($case['case_number']); ?></strong>
                                         </div>
                                         <div class="col-md-3">
-                                            <?php echo htmlspecialchars($case['case_type'] ?? 'Unknown Type'); ?>
+                                            <?php echo htmlspecialchars($case['case_type'] ?? t('unknown_type')); ?>
                                         </div>
                                         <div class="col-md-2">
                                             <span class="badge bg-<?php echo ($case['status'] === 'Closed') ? 'success' : 'warning'; ?>">
@@ -415,11 +558,11 @@ try {
                                             </span>
                                         </div>
                                         <div class="col-md-2">
-                                            <?php echo !empty($case['date_reported']) ? htmlspecialchars($case['date_reported']) : 'Unknown date'; ?>
+                                            <?php echo !empty($case['date_reported']) ? htmlspecialchars($case['date_reported']) : t('unknown_date'); ?>
                                         </div>
                                         <div class="col-md-2 text-end">
                                             <a href="view_case.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> View Case
+                                                <i class="fas fa-eye"></i> <?php echo t('view_case'); ?>
                                             </a>
                                         </div>
                                     </div>

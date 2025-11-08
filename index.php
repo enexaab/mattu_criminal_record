@@ -4,6 +4,127 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 session_start(); 
+
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+$translations = [
+    'en' => [
+        'title' => 'Mattu Criminal Record System - Secure Login',
+        'mattu_city_criminal_record_system' => 'Mattu City Criminal Record System',
+        'secure_authentication_portal' => 'Secure Authentication Portal',
+        'security_policy_enforced' => 'Security Policy Enforced',
+        'username_or_user_id' => 'Username or User ID',
+        'enter_your_username_or_id' => 'Enter your username or ID',
+        'password' => 'Password',
+        'enter_your_password' => 'Enter your password',
+        'remember_me' => 'Remember me',
+        'forgot_password' => 'Forgot password?',
+        'sign_in_securely' => 'Sign In Securely',
+        'minimum_character_password' => 'Minimum {min} character password',
+        'account_lock_after_failed_attempts' => 'Account lock after {max} failed attempts',
+        'auto_logout_after_minutes' => 'Auto-logout after {timeout} minutes of inactivity',
+        'system_status' => 'System Status',
+        'security_policy_active' => 'Security Policy Active',
+        'failed_logins_today' => 'Failed Logins Today',
+        'security_level' => 'Security Level',
+        'high' => 'HIGH',
+        'please_fill_in_all_required_fields' => 'Please fill in all required fields.',
+        'invalid_credentials' => 'Invalid credentials. {remaining} attempts remaining.',
+        'account_locked' => 'Account locked due to too many failed attempts.',
+        'account_deactivated' => 'Account is deactivated. Please contact administrator.',
+        'login_blocked' => 'Login blocked due to too many failed attempts.',
+        'database_error' => 'Database error during login preparation: {error}',
+        'contact_admin_for_reset' => 'Please contact your system administrator for password reset assistance.',
+        'password_must_be_at_least' => 'Password must be at least {min} characters',
+    ],
+    'am' => [
+        'title' => 'ማቱ የወደንጀላዊ መዝገብ ስርዓት - ደህንነቱ የተጠበቀ መግቢያ',
+        'mattu_city_criminal_record_system' => 'ማቱ ከተማ የወደንጀላዊ መዝገብ ስርዓት',
+        'secure_authentication_portal' => 'ደህንነቱ የተጠበቀ ማረጋገጫ ቦታ',
+        'security_policy_enforced' => 'ደህንነት ፖሊሲ ተደፈረ',
+        'username_or_user_id' => 'የተጠቃሚ ስም ወይም የተጠቃሚ ID',
+        'enter_your_username_or_id' => 'የተጠቃሚ ስምዎ ወይም ID ያስገቡ',
+        'password' => 'የይለፍ ቃል',
+        'enter_your_password' => 'የይለፍ ቃልዎን ያስገቡ',
+        'remember_me' => 'እኔን አስታውሱ',
+        'forgot_password' => 'የይለፍ ቃል ረስተው?',
+        'sign_in_securely' => 'በደህንነት ይግቡ',
+        'minimum_character_password' => 'ቢያንስ {min} ቁምፊ የይለፍ ቃል',
+        'account_lock_after_failed_attempts' => 'በ{ max} የላቀ ሙከራ ግብር አካውንት ይቆርጠዋል',
+        'auto_logout_after_minutes' => 'በ{timeout} ደቂቃ ውስጥ ያለ እንቅስቃሴ በአውቶማቲክ ይወጣል',
+        'system_status' => 'ስርዓት ሁኔታ',
+        'security_policy_active' => 'ደህንነት ፖሊሲ አክቲቭ',
+        'failed_logins_today' => 'ዛሬ የላቀ መግቢያዎች',
+        'security_level' => 'ደህንነት ደረጃ',
+        'high' => 'ከፍተኛ',
+        'please_fill_in_all_required_fields' => 'የሚያስፈልጉ አካባቢዎችን ይሙሉ።',
+        'invalid_credentials' => 'የላቀ የማረጋገጫ መረጃዎች። {remaining} ሙከራዎች ቀርተዋል።',
+        'account_locked' => 'በብዙ የላቀ ሙከራዎች ምክንያት አካውንት ተቆለፈ።',
+        'account_deactivated' => 'አካውንት ተቀልሎ ተገለጠው ነው። አስተዳዳሪን ያነጋግሩ።',
+        'login_blocked' => 'በብዙ የላቀ ሙከራዎች ምክንያት መግቢያ ተቆለፈ።',
+        'database_error' => 'በመግቢያ ወቅት የዳታቤዝ ስህተት: {error}',
+        'contact_admin_for_reset' => 'የይለፍ ቃል ለመድል ስርዓት አስተዳዳሪዎን ያነጋግሩ።',
+        'password_must_be_at_least' => 'የይለፍ ቃል ቢያንስ {min} ቁምፊ መሆን አለበት',
+    ],
+    'om' => [
+        'title' => 'Sisteemi Diinagdee Mattu Kuta - Meegbiin Dhiinagdee',
+        'mattu_city_criminal_record_system' => 'Sisteemi Diinagdee Mattu Kuta',
+        'secure_authentication_portal' => 'Meegbiin Dhiinagdee',
+        'security_policy_enforced' => 'Polisii Dhiinagdee Deebii',
+        'username_or_user_id' => 'Naama Userii ykn ID',
+        'enter_your_username_or_id' => 'Naama userii ykn ID argisi',
+        'password' => 'Qoricha',
+        'enter_your_password' => 'Qoricha argisi',
+        'remember_me' => 'Na hin deebii',
+        'forgot_password' => 'Qoricha Deebii?',
+        'sign_in_securely' => 'Meegbiin Dhiinagdee',
+        'minimum_character_password' => 'Qoricha {min} qoricha',
+        'account_lock_after_failed_attempts' => '{max} qoricha deebii akka qoricha',
+        'auto_logout_after_minutes' => '{timeout} deeqii akka qoricha',
+        'system_status' => 'Hakkina Sisteemi',
+        'security_policy_active' => 'Polisii Dhiinagdee',
+        'failed_logins_today' => 'Guyyaa Deebii Meegbiin',
+        'security_level' => 'Deerja Dhiinagdee',
+        'high' => 'Keessaa',
+        'please_fill_in_all_required_fields' => 'Qoricha qabuu argisi.',
+        'invalid_credentials' => 'Qoricha hin taane. {remaining} qoricha.',
+        'account_locked' => 'Qoricha qoricha deebii.',
+        'account_deactivated' => 'Qoricha qoricha deebii.',
+        'login_blocked' => 'Meegbiin qoricha deebii.',
+        'database_error' => 'Sisteemi qoricha: {error}',
+        'contact_admin_for_reset' => 'Qoricha deebii argisi.',
+        'password_must_be_at_least' => 'Qoricha {min} qoricha.',
+    ],
+];
+function t($key, $params = []) {
+    global $translations, $current_lang, $securitySettings;
+    $trans = $translations[$current_lang][$key] ?? $key;
+    // Replace placeholders if any
+    if (strpos($trans, '{') !== false) {
+        $params = array_merge($params, [
+            'min' => $securitySettings['password_min_length'] ?? 6,
+            'max' => $securitySettings['max_login_attempts'] ?? 5,
+            'timeout' => $securitySettings['session_timeout'] ?? 60,
+            'remaining' => $params['remaining'] ?? '',
+            'error' => $params['error'] ?? ''
+        ]);
+        foreach ($params as $placeholder => $value) {
+            $trans = str_replace('{' . $placeholder . '}', $value, $trans);
+        }
+    }
+    return $trans;
+}
+
 require 'db_connect.php';
 require 'includes/security_enforcer.php'; // Add security enforcer
 
@@ -36,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $conn->prepare("SELECT user_id, username, password, role, first_name, last_name, login_attempts, is_active FROM users WHERE username = ?");
         
         if ($stmt === false) {
-             $error = "Database error during login preparation: " . $conn->error;
+             $error = t('database_error', ['error' => $conn->error]);
         } else {
             $stmt->bind_param("s", $username);
             $stmt->execute();
@@ -46,12 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 // SECURITY CHECK 1: Check if account is active
                 if (!$user['is_active']) {
-                    $error = "Account is deactivated. Please contact administrator.";
+                    $error = t('account_deactivated');
                     $securityEnforcer->logSecurityEvent('login_attempt', "Attempted login to deactivated account: $username");
                 }
                 // SECURITY CHECK 2: Check login attempts
                 elseif ($securityEnforcer->checkLoginAttempts($user['user_id']) !== true) {
                     $error = $securityEnforcer->checkLoginAttempts($user['user_id']);
+                    $error = t('login_blocked');
                     $securityEnforcer->logSecurityEvent('login_blocked', "Login blocked for locked account: $username", $user['user_id']);
                 }
                 // SECURITY CHECK 3: Verify password
@@ -127,23 +249,25 @@ elseif (password_verify($password, $user['password'])) {
                     $attemptResult = $attemptStmt->get_result();
                     $attemptData = $attemptResult->fetch_assoc();
                     
-                    $max_attempts = 5; // Default, should come from security settings
+                    $max_attempts = $securitySettings['max_login_attempts'] ?? 5; // Default, should come from security settings
                     $remaining_attempts = $max_attempts - $attemptData['login_attempts'];
                     
-                    $error = "Invalid credentials. " . ($remaining_attempts > 0 ? 
-                        "$remaining_attempts attempts remaining." : 
-                        "Account locked due to too many failed attempts.");
+                    if ($remaining_attempts > 0) {
+                        $error = t('invalid_credentials', ['remaining' => $remaining_attempts . ' ']);
+                    } else {
+                        $error = t('account_locked');
+                    }
                         
                     $securityEnforcer->logSecurityEvent('failed_login', "Failed login attempt for user: $username", $user['user_id']);
                 }
             } else {
-                $error = "Invalid credentials. Please check your username and password.";
+                $error = t('invalid_credentials', ['remaining' => '']);
                 $securityEnforcer->logSecurityEvent('failed_login', "Attempted login with non-existent username: $username");
             }
             $stmt->close();
         }
     } else {
-        $error = "Please fill in all required fields.";
+        $error = t('please_fill_in_all_required_fields');
     }
 }
 
@@ -170,12 +294,23 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mattu Criminal Record System - Secure Login</title>
+    <title><?php echo t('title'); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Amharic and Oromo support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
+    
     <style>
         body {
             box-sizing: border-box;
@@ -400,9 +535,36 @@ try {
             margin-top: 8px;
             display: none;
         }
+
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .lang-select {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #333;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <form method="POST" style="display: inline;">
+            <select name="lang" class="lang-select" onchange="this.form.submit()">
+                <option value="en" <?php echo $current_lang == 'en' ? 'selected' : ''; ?>>English</option>
+                <option value="am" <?php echo $current_lang == 'am' ? 'selected' : ''; ?>>አማርኛ</option>
+                <option value="om" <?php echo $current_lang == 'om' ? 'selected' : ''; ?>>Afaan Oromoo</option>
+            </select>
+        </form>
+    </div>
+
     <div class="login-container">
         <!-- Floating Background Elements -->
         <div class="floating-elements">
@@ -423,14 +585,14 @@ try {
                             </svg>
                         </div>
                     </div>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Mattu City Criminal Record System</h1>
-                    <p class="text-gray-600">Secure Authentication Portal</p>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2"><?php echo t('mattu_city_criminal_record_system'); ?></h1>
+                    <p class="text-gray-600"><?php echo t('secure_authentication_portal'); ?></p>
                     
                     <div class="security-badge">
                         <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
-                        Security Policy Enforced
+                        <?php echo t('security_policy_enforced'); ?>
                     </div>
                 </div>
                 
@@ -458,7 +620,7 @@ try {
                     <!-- Username Field -->
                     <div class="mb-6">
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            Username or User ID
+                            <?php echo t('username_or_user_id'); ?>
                         </label>
                         <div class="relative">
                             <input 
@@ -466,7 +628,7 @@ try {
                                 id="username" 
                                 name="username" 
                                 class="form-input pl-12" 
-                                placeholder="Enter your username or ID"
+                                placeholder="<?php echo t('enter_your_username_or_id'); ?>"
                                 required
                                 autocomplete="username"
                                 value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>"
@@ -482,7 +644,7 @@ try {
                     <!-- Password Field -->
                     <div class="mb-4">
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password
+                            <?php echo t('password'); ?>
                         </label>
                         <div class="relative">
                             <input 
@@ -490,10 +652,10 @@ try {
                                 id="password" 
                                 name="password" 
                                 class="form-input pl-12 pr-12" 
-                                placeholder="Enter your password"
+                                placeholder="<?php echo t('enter_your_password'); ?>"
                                 required
                                 autocomplete="current-password"
-                                minlength="<?php echo $securitySettings['password_min_length']; ?>"
+                                minlength="<?php echo $securitySettings['min_password_length'] ?? 6; ?>"
                             >
                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -521,19 +683,19 @@ try {
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                             </svg>
-                            Minimum <?php echo $securitySettings['password_min_length']; ?> character password
+                            <?php echo t('minimum_character_password'); ?>
                         </div>
                         <div class="security-feature">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
-                            Account lock after <?php echo $securitySettings['max_login_attempts']; ?> failed attempts
+                            <?php echo t('account_lock_after_failed_attempts'); ?>
                         </div>
                         <div class="security-feature">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Auto-logout after <?php echo $securitySettings['session_timeout']; ?> minutes of inactivity
+                            <?php echo t('auto_logout_after_minutes'); ?>
                         </div>
                     </div>
                     
@@ -541,16 +703,16 @@ try {
                     <div class="flex items-center justify-between mb-6 mt-4">
                         <label class="flex items-center">
                             <input type="checkbox" id="rememberMe" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            <span class="ml-2 text-sm text-gray-600"><?php echo t('remember_me'); ?></span>
                         </label>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition-colors" onclick="alert('Please contact your system administrator for password reset assistance.')">
-                            Forgot password?
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition-colors" onclick="alert('<?php echo t('contact_admin_for_reset'); ?>')">
+                            <?php echo t('forgot_password'); ?>
                         </a>
                     </div>
                     
                     <!-- Login Button -->
                     <button type="submit" class="btn-login">
-                        Sign In Securely
+                        <?php echo t('sign_in_securely'); ?>
                     </button>
                 </form>
                 
@@ -558,14 +720,14 @@ try {
                 <div class="system-info">
                     <div class="text-white text-sm">
                         <div class="flex justify-between items-center mb-2">
-                            <span>System Status:</span>
+                            <span><?php echo t('system_status'); ?>:</span>
                             <span class="flex items-center">
                                 <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                Security Policy Active
+                                <?php echo t('security_policy_active'); ?>
                             </span>
                         </div>
                         <div class="flex justify-between items-center mb-2">
-                            <span>Failed Logins Today:</span>
+                            <span><?php echo t('failed_logins_today'); ?>:</span>
                             <span><?php 
                                 try {
                                     $failStmt = $conn->prepare("SELECT COUNT(*) as count FROM security_logs WHERE event_type = 'failed_login' AND DATE(created_at) = CURDATE()");
@@ -584,8 +746,8 @@ try {
                             ?></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span>Security Level:</span>
-                            <span>HIGH</span>
+                            <span><?php echo t('security_level'); ?>:</span>
+                            <span><?php echo t('high'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -624,12 +786,12 @@ try {
 
         document.getElementById('password').addEventListener('input', function() {
             const value = this.value;
-            const minLength = <?php echo $securitySettings['password_min_length']; ?>;
+            const minLength = <?php echo $securitySettings['min_password_length'] ?? 6; ?>;
             
             if (value.length > 0 && value.length < minLength) {
                 this.classList.add('error');
                 document.getElementById('attemptWarning').style.display = 'block';
-                document.getElementById('attemptMessage').textContent = `Password must be at least ${minLength} characters`;
+                document.getElementById('attemptMessage').textContent = `<?php echo t('password_must_be_at_least', ['min' => '{min}']); ?>`.replace('{min}', minLength);
             } else {
                 this.classList.remove('error');
                 document.getElementById('attemptWarning').style.display = 'none';

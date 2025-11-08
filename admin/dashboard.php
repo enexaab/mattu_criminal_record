@@ -4,6 +4,132 @@ require '../includes/auth.php';
 require '../includes/database.php';
 require '../includes/admin_functions.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'Administrator Dashboard - Mattu Criminal Record System',
+        'sidebar_title' => 'Admin Panel',
+        'sidebar_subtitle' => 'Mattu Criminal Records',
+        'nav_dashboard' => 'Dashboard',
+        'nav_manage_users' => 'Manage Users',
+        'nav_reports' => 'Generate Reports',
+        'nav_security' => 'Security Center',
+        'nav_logout' => 'Logout',
+        'top_title' => 'Administrator Dashboard',
+        'welcome_back' => 'Welcome back, ',
+        'user_role' => 'System Administrator',
+        'content_dashboard_overview' => 'Dashboard Overview',
+        'kpi_total_users' => 'Total Users',
+        'kpi_total_records' => 'Criminal Records',
+        'kpi_active_cases' => 'Active Cases',
+        'kpi_system_health' => 'System Health',
+        'security_alerts' => 'Security Alerts',
+        'loading_alerts' => 'Loading security alerts...',
+        'recent_activity' => 'Recent System Activity',
+        'refresh' => 'Refresh',
+        'loading_activity' => 'Loading recent activities...',
+        'system_statistics' => 'System Statistics',
+        'today_logins' => "Today's Logins",
+        'active_users' => 'Active Users',
+        'confirm_logout' => 'Are you sure you want to logout?',
+        'system_operational' => 'System Operational',
+        'systems_normal' => 'All systems are running normally',
+        'dashboard_loaded' => 'Dashboard loaded successfully',
+        'by_system' => 'by system',
+        'just_now' => 'Just now',
+        'confirm_backup' => 'Are you sure you want to start a database backup?',
+        'backup_started' => 'Database backup started successfully!',
+        'back_to_dashboard' => 'Back to Dashboard',
+    ],
+    'am' => [
+        'title' => 'የአስተዳዳሪ ዳሽቦርድ - ማቱ የወንጀል መዝገብ ስርዓት',
+        'sidebar_title' => 'አስተዳዳሪ ፓኔል',
+        'sidebar_subtitle' => 'ማቱ የወንጀል መዝገቦች',
+        'nav_dashboard' => 'ዳሽቦርድ',
+        'nav_manage_users' => 'ተጠቃሚዎችን አስተዳደር',
+        'nav_reports' => 'ሪፖርቶች ይፍጠሩ',
+        'nav_security' => 'ደህንነት ማዕከል',
+        'nav_logout' => 'ውጣ',
+        'top_title' => 'የአስተዳዳሪ ዳሽቦርድ',
+        'welcome_back' => 'እንኳን ተመልሰሃል፣ ',
+        'user_role' => 'ስርዓት አስተዳዳሪ',
+        'content_dashboard_overview' => 'የዳሽቦርድ አጠቃቀም',
+        'kpi_total_users' => 'ጠቃሚዎች ጠቅላላ',
+        'kpi_total_records' => 'የወንጀል መዝገቦች',
+        'kpi_active_cases' => 'ንቁ ጉዳዮች',
+        'kpi_system_health' => 'ስርዓት ጤና',
+        'security_alerts' => 'ደህንነት ማስጠንቀቂያዎች',
+        'loading_alerts' => 'ደህንነት ማስጠንቀቂያዎች ይሰማሉ...',
+        'recent_activity' => 'የቅርብ ጊዜ ስርዓት እንቅስቃሴ',
+        'refresh' => 'አድስ',
+        'loading_activity' => 'የቅርብ ጊዜ እንቅስቃሴዎች ይሰማሉ...',
+        'system_statistics' => 'ስርዓት ስታቲስቲክስ',
+        'today_logins' => 'ዛሬ የግባ',
+        'active_users' => 'ንቁ ተጠቃሚዎች',
+        'confirm_logout' => 'በእርግጠኝነት ይወጣሉ?',
+        'system_operational' => 'ስርዓቱ ይሰራል',
+        'systems_normal' => 'ሁሉም ስርዓቶች በተለመደ መንገድ ይሰራሉ',
+        'dashboard_loaded' => 'ዳሽቦርድ በተሳካ ሁኔታ ተጫነ',
+        'by_system' => 'በስርዓት',
+        'just_now' => 'አሁን ብቻ',
+        'confirm_backup' => 'የውሂብ ቤዝ ማስቀመጫ ማስጀመር ትፈልጋለህ?',
+        'backup_started' => 'የውሂብ ቤዝ ማስቀመጫ በተሳካ ሁኔታ ተጀመረ!',
+        'back_to_dashboard' => 'ወደ ዳሽቦርድ ተመለስ',
+    ],
+    'om' => [
+        'title' => 'Dashboardii Adminii - Sisteemi Ummata Mattu Diinagdee',
+        'sidebar_title' => 'Panneeli Adminii',
+        'sidebar_subtitle' => 'Sisteemi Ummata Mattu Diinagdee',
+        'nav_dashboard' => 'Dashboardii',
+        'nav_manage_users' => 'Imaammataan Useroota',
+        'nav_reports' => 'Riportoota Ummisi',
+        'nav_security' => 'Qabeenya Ammaata',
+        'nav_logout' => 'Fufiisi',
+        'top_title' => 'Dashboardii Adminii',
+        'welcome_back' => 'Galataa, ',
+        'user_role' => 'Adminii Sisteemi',
+        'content_dashboard_overview' => 'Balaa Dashboardii',
+        'kpi_total_users' => 'Useroota Jijjiirama',
+        'kpi_total_records' => 'Diinagdeewwan Ummata',
+        'kpi_active_cases' => 'Caasoota Hojiin',
+        'kpi_system_health' => 'Balaa Sisteemi',
+        'security_alerts' => 'Ijaarsa Ammaata',
+        'loading_alerts' => 'Ijaarsa ammaata argamsi...',
+        'recent_activity' => 'Hojiin Utuu Sisteemi',
+        'refresh' => 'Aadaa',
+        'loading_activity' => 'Hojiin utuu argamsi...',
+        'system_statistics' => 'Statistiki Sisteemi',
+        'today_logins' => "Loginiin Har'aa",
+        'active_users' => 'Useroota Hojiin',
+        'confirm_logout' => 'Fufiisuu barbaadda?',
+        'system_operational' => 'Sisteemi Ykn',
+        'systems_normal' => 'Sisteemota hundee yoo taane ykn',
+        'dashboard_loaded' => 'Dashboardii yoo taane argame',
+        'by_system' => 'sisteemi irratti',
+        'just_now' => 'Aadaa kan',
+        'confirm_backup' => 'Backup database barbaachisu?',
+        'backup_started' => 'Backup database yoo taane aadaa!',
+        'back_to_dashboard' => 'Dashboardii Garaa',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if user is logged in, otherwise redirect to login page
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -38,14 +164,25 @@ try {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrator Dashboard - Mattu Criminal Record System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         /* Reset and Base Styles */
@@ -484,39 +621,39 @@ try {
         <!-- Sidebar Navigation -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h4 id="sidebar-title">Admin Panel</h4>
-                <div class="subtitle" id="sidebar-subtitle">Mattu Criminal Records</div>
+                <h4 id="sidebar-title"><?php echo t('sidebar_title'); ?></h4>
+                <div class="subtitle" id="sidebar-subtitle"><?php echo t('sidebar_subtitle'); ?></div>
             </div>
             
             <ul class="nav">
                 <li>
                     <a class="nav-link active" href="#" data-section="dashboard">
                         <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
+                        <span><?php echo t('nav_dashboard'); ?></span>
                     </a>
                 </li>
                 <li>
                     <a class="nav-link" href="#" data-section="usermanagement">
                         <i class="fas fa-users-cog"></i>
-                        <span>Manage Users</span>
+                        <span><?php echo t('nav_manage_users'); ?></span>
                     </a>
                 </li>
                 <li>
                     <a class="nav-link" href="#" data-section="reports">
                         <i class="fas fa-chart-bar"></i>
-                        <span>Generate Reports</span>
+                        <span><?php echo t('nav_reports'); ?></span>
                     </a>
                 </li>
                 <li>
                     <a class="nav-link" href="#" data-section="security">
                         <i class="fas fa-shield-alt"></i>
-                        <span>Security Center</span>
+                        <span><?php echo t('nav_security'); ?></span>
                     </a>
                 </li>
                 <li>
                     <a class="nav-link" href="../logout.php" onclick="return confirmLogout()">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
+                        <span><?php echo t('nav_logout'); ?></span>
                     </a>
                 </li>
             </ul>
@@ -531,16 +668,25 @@ try {
             <!-- Top Navigation Bar -->
             <div class="top-navbar">
                 <div>
-                    <h2>Administrator Dashboard</h2>
-                    <small class="text-muted">Welcome back, <?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></small>
+                    <h2><?php echo t('top_title'); ?></h2>
+                    <small class="text-muted"><?php echo t('welcome_back'); ?><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></small>
                 </div>
+                <!-- Language Selector -->
+           <form method="post" class="me-3" style="margin-left: 20cm;">
+    <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm">
+        <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>English</option>
+        <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>አማርኛ</option>
+        <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>Afaan Oromoo</option>
+    </select>
+</form>
+
                 <div class="user-info">
                     <div class="user-avatar">
                         <?php echo strtoupper(substr($_SESSION['first_name'], 0, 1) . substr($_SESSION['last_name'], 0, 1)); ?>
                     </div>
                     <div>
                         <div class="fw-bold"><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></div>
-                        <small class="text-muted">System Administrator</small>
+                        <small class="text-muted"><?php echo t('user_role'); ?></small>
                     </div>
                 </div>
             </div>
@@ -550,7 +696,7 @@ try {
                 <!-- Dashboard Content (Default View) -->
                 <div id="dashboardView">
                     <div class="content-header">
-                        <h3><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h3>
+                        <h3><i class="fas fa-tachometer-alt"></i> <?php echo t('content_dashboard_overview'); ?></h3>
                     </div>
                     <div class="card-body">
                         <!-- KPI Cards Row -->
@@ -559,25 +705,25 @@ try {
                                 <div class="kpi-number" id="totalUsers">
                                     <div class="loading-spinner"></div>
                                 </div>
-                                <div class="kpi-label">Total Users</div>
+                                <div class="kpi-label"><?php echo t('kpi_total_users'); ?></div>
                             </div>
                             <div class="kpi-card">
                                 <div class="kpi-number" id="totalRecords">
                                     <div class="loading-spinner"></div>
                                 </div>
-                                <div class="kpi-label">Criminal Records</div>
+                                <div class="kpi-label"><?php echo t('kpi_total_records'); ?></div>
                             </div>
                             <div class="kpi-card">
                                 <div class="kpi-number" id="activeCases">
                                     <div class="loading-spinner"></div>
                                 </div>
-                                <div class="kpi-label">Active Cases</div>
+                                <div class="kpi-label"><?php echo t('kpi_active_cases'); ?></div>
                             </div>
                             <div class="kpi-card">
                                 <div class="kpi-number" id="systemHealth">
                                     <div class="loading-spinner"></div>
                                 </div>
-                                <div class="kpi-label">System Health</div>
+                                <div class="kpi-label"><?php echo t('kpi_system_health'); ?></div>
                             </div>
                         </div>
                         
@@ -587,13 +733,13 @@ try {
                             <div class="col-6">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5><i class="fas fa-shield-alt"></i> Security Alerts</h5>
+                                        <h5><i class="fas fa-shield-alt"></i> <?php echo t('security_alerts'); ?></h5>
                                     </div>
                                     <div class="card-body">
                                         <div id="securityAlerts">
                                             <div style="text-align: center;">
                                                 <div class="loading-spinner"></div>
-                                                <p>Loading security alerts...</p>
+                                                <p><?php echo t('loading_alerts'); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -604,16 +750,16 @@ try {
                             <div class="col-6">
                                 <div class="card">
                                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                                        <h5><i class="fas fa-history"></i> Recent System Activity</h5>
+                                        <h5><i class="fas fa-history"></i> <?php echo t('recent_activity'); ?></h5>
                                         <button class="btn btn-sm btn-outline-light" onclick="refreshActivity()">
-                                            <i class="fas fa-sync-alt"></i> Refresh
+                                            <i class="fas fa-sync-alt"></i> <?php echo t('refresh'); ?>
                                         </button>
                                     </div>
                                     <div class="card-body">
                                         <div id="recentActivity">
                                             <div style="text-align: center;">
                                                 <div class="loading-spinner"></div>
-                                                <p>Loading recent activities...</p>
+                                                <p><?php echo t('loading_activity'); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -631,15 +777,15 @@ try {
                                         
                                         <hr>
                                         
-                                        <h6>System Statistics</h6>
+                                        <h6><?php echo t('system_statistics'); ?></h6>
                                         <div class="stats-grid">
                                             <div class="stat-box">
                                                 <div class="stat-value" id="todayLogins">--</div>
-                                                <div class="stat-label">Today's Logins</div>
+                                                <div class="stat-label"><?php echo t('today_logins'); ?></div>
                                             </div>
                                             <div class="stat-box">
                                                 <div class="stat-value" id="activeUsers">--</div>
-                                                <div class="stat-label">Active Users</div>
+                                                <div class="stat-label"><?php echo t('active_users'); ?></div>
                                             </div>
                                         </div>
                                     </div>
@@ -654,7 +800,7 @@ try {
                     <div class="content-header">
                         <h3 id="embeddedViewTitle"></h3>
                         <button class="btn btn-outline-light btn-sm" onclick="showDashboard()">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            <i class="fas fa-arrow-left"></i> <?php echo t('back_to_dashboard'); ?>
                         </button>
                     </div>
                     <div class="content-body">
@@ -693,9 +839,9 @@ function setupNavigation() {
                 } else {
                     // Map section to page and title
                     const pageMap = {
-                        'usermanagement': { page: 'usermanagement.php', title: 'Manage Users' },
-                        'reports': { page: 'generate_reports.php', title: 'Generate Reports' },
-                        'security': { page: 'security.php', title: 'Security Center' }
+                        'usermanagement': { page: 'usermanagement.php', title: '<?php echo addslashes(t("nav_manage_users")); ?>' },
+                        'reports': { page: 'generate_reports.php', title: '<?php echo addslashes(t("nav_reports")); ?>' },
+                        'security': { page: 'security.php', title: '<?php echo addslashes(t("nav_security")); ?>' }
                     };
                     
                     const pageInfo = pageMap[section];
@@ -871,8 +1017,8 @@ function loadSecurityAlerts() {
                 <div class="alert-item">
                     <i class="fas fa-check-circle alert-icon"></i>
                     <div>
-                        <div class="fw-bold">System Operational</div>
-                        <small class="text-muted">All systems are running normally</small>
+                        <div class="fw-bold"><?php echo t('system_operational'); ?></div>
+                        <small class="text-muted"><?php echo t('systems_normal'); ?></small>
                     </div>
                 </div>
             `;
@@ -938,8 +1084,8 @@ function loadRecentActivity() {
                         <i class="fas fa-sign-in-alt"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="fw-bold">Dashboard loaded successfully</div>
-                        <small class="text-muted">by system • Just now</small>
+                        <div class="fw-bold"><?php echo t('dashboard_loaded'); ?></div>
+                        <small class="text-muted"><?php echo t('by_system'); ?> • <?php echo t('just_now'); ?></small>
                     </div>
                 </div>
             `;
@@ -1037,14 +1183,14 @@ function toggleSidebar() {
 
 // Quick actions
 function backupDatabase() {
-    if (confirm('Are you sure you want to start a database backup?')) {
-        alert('Database backup started successfully!');
+    if (confirm('<?php echo addslashes(t("confirm_backup")); ?>')) {
+        alert('<?php echo addslashes(t("backup_started")); ?>');
     }
 }
 
 // Logout confirmation
 function confirmLogout() {
-    return confirm('Are you sure you want to logout?');
+    return confirm('<?php echo addslashes(t("confirm_logout")); ?>');
 }
     </script>
 </body>

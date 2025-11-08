@@ -5,6 +5,181 @@ ini_set('display_errors', 1);
 
 session_start();
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+$translations = [
+    'en' => [
+        'title' => 'Manage Cases - Mattu City Criminal Management System',
+        'manage_cases' => 'Manage Cases',
+        'central_hub' => 'Central hub for viewing, filtering, and managing ongoing investigations',
+        'create_new_case' => 'Create New Case',
+        'dashboard' => 'Dashboard',
+        'filters_search' => 'Filters & Search',
+        'reset' => 'Reset',
+        'status' => 'Status',
+        'all_statuses' => 'All Statuses',
+        'open' => 'Open',
+        'in_progress' => 'In Progress',
+        'in_court' => 'In Court',
+        'closed' => 'Closed',
+        'suspended' => 'Suspended',
+        'lead_officer' => 'Lead Officer',
+        'all_officers' => 'All Officers',
+        'search_placeholder' => 'Case number, suspect name, or case type...',
+        'case_files' => 'Case Files',
+        'loading' => 'Loading...',
+        'no_cases_found' => 'No Cases Found',
+        'no_cases_match' => 'No cases match your current filters. Try adjusting your search criteria.',
+        'case_number' => 'Case Number',
+        'status_header' => 'Status',
+        'case_type' => 'Case Type',
+        'date_reported' => 'Date Reported',
+        'lead_officer_name' => 'Lead Officer',
+        'primary_suspect' => 'Primary Suspect',
+        'actions' => 'Actions',
+        'view_details' => 'View Details',
+        'edit_case' => 'Edit Case',
+        'add_evidence' => 'Add Evidence',
+        'update_status' => 'Update Status',
+        'showing_results' => 'Showing',
+        'of' => 'of',
+        'results' => 'results',
+        'previous' => 'Previous',
+        'next' => 'Next',
+        'update_case_status' => 'Update Case Status',
+        'current_status' => 'Current status',
+        'case_status_updated' => 'Case status updated successfully',
+        'failed_update_status' => 'Failed to update case status',
+        'failed_load_cases' => 'Failed to load cases. Please try again.',
+        'access_denied' => 'Access denied. Investigator, Officer, or Admin role required.',
+        'invalid_request_method' => 'Invalid request method',
+        'invalid_case_id' => 'Invalid case ID',
+        'invalid_status_value' => 'Invalid status value',
+        'failed_update_case_status' => 'Failed to update case status',
+        'invalid_action' => 'Invalid action',
+    ],
+    'am' => [
+        'title' => 'ጉዳዮችን አስተዳደር - ማቱ ከተማ የወደንጀል አስተዳደር ስርዓት',
+        'manage_cases' => 'ጉዳዮችን አስተዳደር',
+        'central_hub' => 'የተጀምረውን ምርመራዎች ለመመልከት፣ ለመጥለቅ እና ለመቆጣጠር መሃል',
+        'create_new_case' => 'አዲስ ጉዳይ ፍጠር',
+        'dashboard' => 'ጃሽባር',
+        'filters_search' => 'መጥለቂያዎች እና ፍለጋ',
+        'reset' => 'ዳግም ጀምር',
+        'status' => 'ሁኔታ',
+        'all_statuses' => 'ሁሉም ሁኔታዎች',
+        'open' => 'ክፍት',
+        'in_progress' => 'በመረጃ',
+        'in_court' => 'በፍርድ ቤት',
+        'closed' => 'ተዘግቧል',
+        'suspended' => 'ተቋርጧል',
+        'lead_officer' => 'መሪ መኮንን',
+        'all_officers' => 'ሁሉም መኮንኖች',
+        'search_placeholder' => 'የጉዳይ ቁጥር፣ የተጠርጣሪ ስም ወይም የጉዳይ አይነት...',
+        'case_files' => 'የጉዳይ ፋይሎች',
+        'loading' => 'በመጫን...',
+        'no_cases_found' => 'ጉዳይ አልተገኘም',
+        'no_cases_match' => 'በአሁኑ መጥለቂያዎች ያላቸው ጉዳዮች የሉም። የፍለጋዎን መርዛማ ይሞክሩ።',
+        'case_number' => 'የጉዳይ ቁጥር',
+        'status_header' => 'ሁኔታ',
+        'case_type' => 'የጉዳይ አይነት',
+        'date_reported' => 'የተመረጠ ቀን',
+        'lead_officer_name' => 'መሪ መኮንን',
+        'primary_suspect' => 'ዋና ተጠርጣሪ',
+        'actions' => 'እርምጃዎች',
+        'view_details' => 'ዝርዝር ይመልከቱ',
+        'edit_case' => 'ጉዳይ አርትዕ',
+        'add_evidence' => 'ውህደት ጨምር',
+        'update_status' => 'ሁኔታ ይዘውሉ',
+        'showing_results' => 'በማሳየው',
+        'of' => 'ከ',
+        'results' => 'ውጤቶች',
+        'previous' => 'ቀደምት',
+        'next' => 'ቀጣይ',
+        'update_case_status' => 'የጉዳይ ሁኔታ ይዘውሉ',
+        'current_status' => 'ዛሬው ሁኔታ',
+        'case_status_updated' => 'የጉዳይ ሁኔታ በተሳካ ሁኔታ ተዘዋወረ',
+        'failed_update_status' => 'የጉዳይ ሁኔታ ለመዘወር ተሳካ አልተለመደም',
+        'failed_load_cases' => 'ጉዳዮችን ለመጫን ተሳካ አልተለመደም። እንደገና ይሞክሩ።',
+        'access_denied' => 'መግባት ተከላከለ። ምርመራዊ፣ መኮንን ወይም አስተዳዳሪ ሚና ያስፈልጋል።',
+        'invalid_request_method' => 'የጥያቄ ዘዴ ተገፋ',
+        'invalid_case_id' => 'የጉዳይ መለያ ተገፋ',
+        'invalid_status_value' => 'የሁኔታ እሴት ተገፋ',
+        'failed_update_case_status' => 'የጉዳይ ሁኔታ ለመዘወር ተሳካ አልተለመደም',
+        'invalid_action' => 'የተገለጸ እርምጃ ተገፋ',
+    ],
+    'om' => [
+        'title' => 'Caasoota Gammachuu - Sisteemi Diinagdee Mattu Kuta',
+        'manage_cases' => 'Caasoota Gammachuu',
+        'central_hub' => 'Qoricha argachuu, qoricha, fi diinagdee qoricha qoricha',
+        'create_new_case' => 'Caasaa Qophaa Argisi',
+        'dashboard' => 'Dashiboardii',
+        'filters_search' => 'Qoricha fi Qoricha',
+        'reset' => 'Deebii',
+        'status' => 'Hakkina',
+        'all_statuses' => 'Hakkina Hunda',
+        'open' => 'Fufaa',
+        'in_progress' => 'Deebii Kennuu',
+        'in_court' => 'Deebii Biiroo',
+        'closed' => 'Deebii',
+        'suspended' => 'Deebii Kennuu',
+        'lead_officer' => 'Meekoonnin Qoricha',
+        'all_officers' => 'Meekoonni Hunda',
+        'search_placeholder' => 'Naama caasaa, naama diinagdee, ykn aangoo caasaa...',
+        'case_files' => 'Fayiloota Caasaa',
+        'loading' => 'Kennuu...',
+        'no_cases_found' => 'Caasaa Hin Arganne',
+        'no_cases_match' => 'Caasaa qoricha qoricha hin taane. Qoricha qoricha argisi.',
+        'case_number' => 'Naama Caasaa',
+        'status_header' => 'Hakkina',
+        'case_type' => 'Aangoo Caasaa',
+        'date_reported' => 'Guyyaa Qoricha',
+        'lead_officer_name' => 'Meekoonnin Qoricha',
+        'primary_suspect' => 'Diinagdee Qoricha',
+        'actions' => 'Qoricha',
+        'view_details' => 'Qoricha Argisi',
+        'edit_case' => 'Caasaa Editii',
+        'add_evidence' => 'Ummata Diinagdee Qabuu',
+        'update_status' => 'Hakkina Kennuu',
+        'showing_results' => 'Argachuu',
+        'of' => 'Keessatti',
+        'results' => 'Wojjii',
+        'previous' => 'Qoricha',
+        'next' => 'Guyyaa',
+        'update_case_status' => 'Hakkina Caasaa Kennuu',
+        'current_status' => 'Hakkina Qoricha',
+        'case_status_updated' => 'Hakkina caasaa kennuu argame',
+        'failed_update_status' => 'Hakkina caasaa kennuu sagadduu',
+        'failed_load_cases' => 'Caasoota kennuu sagadduu. Eenyummaa argisi.',
+        'access_denied' => 'Gammachuu deebii. Meekoonnin, meekoonnin, ykn adminii qoricha.',
+        'invalid_request_method' => 'Qoricha qoricha sagadduu',
+        'invalid_case_id' => 'ID Caasaa sagadduu',
+        'invalid_status_value' => 'Hakkina qoricha sagadduu',
+        'failed_update_case_status' => 'Hakkina caasaa kennuu sagadduu',
+        'invalid_action' => 'Qoricha sagadduu',
+    ],
+];
+function t($key) {
+    global $translations, $current_lang;
+    $trans = $translations[$current_lang][$key] ?? $key;
+    // Replace placeholders if any
+    if (strpos($trans, '{') !== false) {
+        $trans = str_replace('{case_number}', $case_number ?? '', $trans);
+        $trans = str_replace('{error}', $error_message ?? '', $trans);
+    }
+    return $trans;
+}
+
 // Check if required files exist before including them
 $required_files = [
     '../includes/auth.php',
@@ -13,7 +188,7 @@ $required_files = [
 
 foreach ($required_files as $file) {
     if (!file_exists($file)) {
-        die("Error: Required file $file not found. Please ensure all include files are properly set up.");
+        die(t('error_required_file') . " $file " . t('not_found'));
     }
 }
 
@@ -21,7 +196,7 @@ try {
     require_once '../includes/auth.php';
     require_once '../includes/database.php';
 } catch (Exception $e) {
-    die("Error loading required files: " . $e->getMessage());
+    die(t('error_loading_files') . ": " . $e->getMessage());
 }
 
 // Check if user is logged in
@@ -34,7 +209,7 @@ if (!isset($_SESSION['user_id'])) {
 if (!function_exists('requireRole')) {
     // Basic session-based role check
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['investigator', 'officer', 'admin'])) {
-        die("Access denied. Investigator, Officer, or Admin role required.");
+        die(t('access_denied'));
     }
 } else {
     // Use the requireRole function if it exists
@@ -177,7 +352,7 @@ $params = [];
             case 'update_status':
                 // Handle status update
                 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                    throw new Exception("Invalid request method");
+                    throw new Exception(t('invalid_request_method'));
                 }
                 
                 $input = json_decode(file_get_contents('php://input'), true);
@@ -185,12 +360,12 @@ $params = [];
                 $new_status = isset($input['status']) ? trim($input['status']) : '';
                 
                 if ($case_id <= 0) {
-                    throw new Exception("Invalid case ID");
+                    throw new Exception(t('invalid_case_id'));
                 }
                 
-                $allowed_statuses = ['Open', 'In Progress', 'In Court', 'Closed', 'Suspended'];
+                $allowed_statuses = [t('open'), t('in_progress'), t('in_court'), t('closed'), t('suspended')];
                 if (!in_array($new_status, $allowed_statuses)) {
-                    throw new Exception("Invalid status value");
+                    throw new Exception(t('invalid_status_value'));
                 }
                 
                 // Check which table exists
@@ -207,15 +382,15 @@ $params = [];
                 if ($result) {
                     echo json_encode([
                         'success' => true,
-                        'message' => 'Case status updated successfully'
+                        'message' => t('case_status_updated')
                     ]);
                 } else {
-                    throw new Exception("Failed to update case status");
+                    throw new Exception(t('failed_update_case_status'));
                 }
                 break;
                 
             default:
-                throw new Exception("Invalid action");
+                throw new Exception(t('invalid_action'));
         }
         
     } catch (Exception $e) {
@@ -237,16 +412,26 @@ $current_user = [
 ];
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Cases - Mattu City Criminal Management System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic and Oromo support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         * {
@@ -973,15 +1158,15 @@ $current_user = [
             <!-- Dashboard Header -->
             <div class="dashboard-header">
                 <div class="dashboard-title">
-                    <h3><i class="fas fa-tasks me-3"></i>Manage Cases</h3>
-                    <p>Central hub for viewing, filtering, and managing ongoing investigations</p>
+                    <h3><i class="fas fa-tasks me-3"></i><?php echo t('manage_cases'); ?></h3>
+                    <p><?php echo t('central_hub'); ?></p>
                 </div>
                 <div class="dashboard-actions">
                     <a href="create_case.php" class="btn-primary-custom">
-                        <i class="fas fa-plus me-2"></i>Create New Case
+                        <i class="fas fa-plus me-2"></i><?php echo t('create_new_case'); ?>
                     </a>
                     <a href="dashboard.php" class="btn-primary-custom" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        <i class="fas fa-tachometer-alt me-2"></i><?php echo t('dashboard'); ?>
                     </a>
                 </div>
             </div>
@@ -989,37 +1174,37 @@ $current_user = [
             <!-- Filters Section -->
             <div class="filters-section">
                 <div class="filters-header">
-                    <h5><i class="fas fa-filter"></i>Filters & Search</h5>
+                    <h5><i class="fas fa-filter"></i><?php echo t('filters_search'); ?></h5>
                     <button type="button" class="btn-reset" id="resetFiltersBtn">
-                        <i class="fas fa-undo me-1"></i>Reset
+                        <i class="fas fa-undo me-1"></i><?php echo t('reset'); ?>
                     </button>
                 </div>
                 
                 <div class="filters-grid">
                     <div class="filter-group">
-                        <label class="filter-label">Status</label>
+                        <label class="filter-label"><?php echo t('status'); ?></label>
                         <select class="form-control-custom" id="statusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="Open">Open</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="In Court">In Court</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Suspended">Suspended</option>
+                            <option value=""><?php echo t('all_statuses'); ?></option>
+                            <option value="Open"><?php echo t('open'); ?></option>
+                            <option value="In Progress"><?php echo t('in_progress'); ?></option>
+                            <option value="In Court"><?php echo t('in_court'); ?></option>
+                            <option value="Closed"><?php echo t('closed'); ?></option>
+                            <option value="Suspended"><?php echo t('suspended'); ?></option>
                         </select>
                     </div>
                     
                     <div class="filter-group">
-                        <label class="filter-label">Lead Officer</label>
+                        <label class="filter-label"><?php echo t('lead_officer'); ?></label>
                         <select class="form-control-custom" id="officerFilter">
-                            <option value="">All Officers</option>
+                            <option value=""><?php echo t('all_officers'); ?></option>
                             <!-- Options will be populated via AJAX -->
                         </select>
                     </div>
                     
                     <div class="filter-group">
-                        <label class="filter-label">Search</label>
+                        <label class="filter-label"><?php echo t('search_placeholder'); ?></label>
                         <div class="search-group">
-                            <input type="text" class="form-control-custom search-input" id="searchInput" placeholder="Case number, suspect name, or case type...">
+                            <input type="text" class="form-control-custom search-input" id="searchInput" placeholder="<?php echo t('search_placeholder'); ?>">
                             <i class="fas fa-search search-icon"></i>
                         </div>
                     </div>
@@ -1031,10 +1216,10 @@ $current_user = [
                 <div class="table-header">
                     <div class="table-title">
                         <i class="fas fa-list"></i>
-                        Case Files
+                        <?php echo t('case_files'); ?>
                     </div>
                     <div class="results-count" id="resultsCount">
-                        Loading...
+                        <?php echo t('loading'); ?>
                     </div>
                 </div>
                 
@@ -1061,7 +1246,7 @@ $current_user = [
     <div id="statusModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Update Case Status</h3>
+                <h3 class="modal-title"><?php echo t('update_case_status'); ?></h3>
                 <button type="button" class="modal-close" onclick="closeStatusModal()">&times;</button>
             </div>
             <div id="statusModalContent">
@@ -1069,6 +1254,11 @@ $current_user = [
             </div>
         </div>
     </div>
+    
+    <script>
+        // Translations for JS
+        const TRANSLATIONS = <?php echo json_encode($translations[$current_lang]); ?>;
+    </script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1173,7 +1363,7 @@ $current_user = [
                     .then(response => response.json())
                     .then(result => {
                         if (result.success) {
-                            officerFilter.innerHTML = '<option value="">All Officers</option>';
+                            officerFilter.innerHTML = '<option value="">' + TRANSLATIONS.all_officers + '</option>';
                             result.officers.forEach(officer => {
                                 const option = document.createElement('option');
                                 option.value = officer.id;
@@ -1209,7 +1399,7 @@ $current_user = [
                     })
                     .catch(error => {
                         console.error('Error loading cases:', error);
-                        showMessage('Failed to load cases. Please try again.', 'danger');
+                        showMessage(TRANSLATIONS.failed_load_cases, 'danger');
                     })
                     .finally(() => {
                         showLoading(false);
@@ -1222,11 +1412,11 @@ $current_user = [
                     casesTableContainer.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-folder-open"></i>
-                            <h4>No Cases Found</h4>
-                            <p>No cases match your current filters. Try adjusting your search criteria.</p>
+                            <h4>${TRANSLATIONS.no_cases_found}</h4>
+                            <p>${TRANSLATIONS.no_cases_match}</p>
                             <div class="mt-3">
                                 <a href="create_case.php" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Create New Case
+                                    <i class="fas fa-plus me-2"></i>${TRANSLATIONS.create_new_case}
                                 </a>
                             </div>
                         </div>
@@ -1239,24 +1429,24 @@ $current_user = [
                         <thead>
                             <tr>
                                 <th class="sortable" data-sort="case_number">
-                                    Case Number
+                                    ${TRANSLATIONS.case_number}
                                 </th>
                                 <th class="sortable" data-sort="status">
-                                    Status
+                                    ${TRANSLATIONS.status_header}
                                 </th>
                                 <th class="sortable" data-sort="case_type">
-                                    Case Type
+                                    ${TRANSLATIONS.case_type}
                                 </th>
                                 <th class="sortable" data-sort="date_reported">
-                                    Date Reported
+                                    ${TRANSLATIONS.date_reported}
                                 </th>
                                 <th class="sortable" data-sort="lead_officer_name">
-                                    Lead Officer
+                                    ${TRANSLATIONS.lead_officer_name}
                                 </th>
                                 <th class="sortable" data-sort="suspect_name">
-                                    Primary Suspect
+                                    ${TRANSLATIONS.primary_suspect}
                                 </th>
-                                <th>Actions</th>
+                                <th>${TRANSLATIONS.actions}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1276,33 +1466,33 @@ $current_user = [
                                     <td>${caseItem.case_type}</td>
                                     <td>${formatDate(caseItem.date_reported)}</td>
                                     <td>
-                                        ${caseItem.lead_officer_name || 'Unassigned'}
+                                        ${caseItem.lead_officer_name || TRANSLATIONS.unassigned}
                                         ${caseItem.lead_officer_badge ? `<br><small class="text-muted">${caseItem.lead_officer_badge}</small>` : ''}
                                     </td>
                                     <td>
-                                        ${caseItem.suspect_name || 'No suspect linked'}
+                                        ${caseItem.suspect_name || TRANSLATIONS.no_suspect_linked}
                                         ${caseItem.suspect_national_id ? `<br><small class="text-muted">${caseItem.suspect_national_id}</small>` : ''}
                                     </td>
                                     <td>
                                         <div class="actions-dropdown">
                                             <button class="actions-btn" onclick="toggleActionsMenu(this)">
                                                 <i class="fas fa-ellipsis-v"></i>
-                                                Actions
+                                                ${TRANSLATIONS.actions}
                                             </button>
                                             <div class="actions-menu">
                                                 <a href="view_criminal_record.php?id=${caseItem.case_id}">
-                                                    <i class="fas fa-eye me-2"></i>View Details
+                                                    <i class="fas fa-eye me-2"></i>${TRANSLATIONS.view_details}
                                                 </a>
                                                 ${caseItem.created_by == <?php echo $_SESSION['user_id']; ?> ? `
                                                     <a href="edit_case.php?id=${caseItem.case_id}">
-                                                        <i class="fas fa-edit me-2"></i>Edit Case
+                                                        <i class="fas fa-edit me-2"></i>${TRANSLATIONS.edit_case}
                                                     </a>
                                                 ` : ''}
                                                 <a href="add_evidence.php?case_id=${caseItem.case_id}">
-                                                    <i class="fas fa-plus-circle me-2"></i>Add Evidence
+                                                    <i class="fas fa-plus-circle me-2"></i>${TRANSLATIONS.add_evidence}
                                                 </a>
                                                 <a href="#" onclick="showStatusModal(${caseItem.case_id}, '${caseItem.status}', '${caseItem.case_number}'); return false;">
-                                                    <i class="fas fa-sync me-2"></i>Update Status
+                                                    <i class="fas fa-sync me-2"></i>${TRANSLATIONS.update_status}
                                                 </a>
                                             </div>
                                         </div>
@@ -1347,7 +1537,7 @@ $current_user = [
                 if (total_pages <= 1) {
                     paginationContainer.innerHTML = `
                         <div class="pagination-info">
-                            Showing ${total_records} result${total_records !== 1 ? 's' : ''}
+                            ${TRANSLATIONS.showing_results} ${total_records} ${TRANSLATIONS.results}
                         </div>
                     `;
                     return;
@@ -1358,7 +1548,7 @@ $current_user = [
                 
                 let paginationHTML = `
                     <div class="pagination-info">
-                        Showing ${startRecord}-${endRecord} of ${total_records} results
+                        ${TRANSLATIONS.showing_results} ${startRecord}-${endRecord} ${TRANSLATIONS.of} ${total_records} ${TRANSLATIONS.results}
                     </div>
                     <div class="pagination">
                 `;
@@ -1368,7 +1558,7 @@ $current_user = [
                     paginationHTML += `
                         <button class="page-btn" onclick="changePage(${current_page - 1})">
                             <i class="fas fa-chevron-left"></i>
-                            Previous
+                            ${TRANSLATIONS.previous}
                         </button>
                     `;
                 }
@@ -1403,7 +1593,7 @@ $current_user = [
                 if (current_page < total_pages) {
                     paginationHTML += `
                         <button class="page-btn" onclick="changePage(${current_page + 1})">
-                            Next
+                            ${TRANSLATIONS.next}
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     `;
@@ -1416,7 +1606,7 @@ $current_user = [
             // Update results count
             function updateResultsCount(result) {
                 const { total_records } = result;
-                resultsCount.textContent = `${total_records} case${total_records !== 1 ? 's' : ''} found`;
+                resultsCount.textContent = `${total_records} ${TRANSLATIONS.results}`;
             }
             
             // Change page function
@@ -1443,11 +1633,11 @@ $current_user = [
             window.showStatusModal = function(caseId, currentStatus, caseNumber) {
                 currentCaseForStatusUpdate = { caseId, currentStatus, caseNumber };
                 
-                const statuses = ['Open', 'In Progress', 'In Court', 'Closed', 'Suspended'];
+                const statuses = [TRANSLATIONS.open, TRANSLATIONS.in_progress, TRANSLATIONS.in_court, TRANSLATIONS.closed, TRANSLATIONS.suspended];
                 
                 let modalHTML = `
-                    <p>Update status for <strong>${caseNumber}</strong></p>
-                    <p>Current status: <span class="status-badge status-${currentStatus.toLowerCase().replace(' ', '-')}">${currentStatus}</span></p>
+                    <p>${TRANSLATIONS.update_case_status} <strong>${caseNumber}</strong></p>
+                    <p>${TRANSLATIONS.current_status}: <span class="status-badge status-${currentStatus.toLowerCase().replace(' ', '-')}">${currentStatus}</span></p>
                     <div class="mt-3">
                 `;
                 
@@ -1493,7 +1683,7 @@ $current_user = [
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
-                        showMessage(`Case ${caseNumber} status updated to ${newStatus}`, 'success');
+                        showMessage(`${TRANSLATIONS.case_status_updated} ${caseNumber} ${newStatus}`, 'success');
                         closeStatusModal();
                         loadCases(); // Reload to show updated status
                     } else {
@@ -1502,7 +1692,7 @@ $current_user = [
                 })
                 .catch(error => {
                     console.error('Error updating status:', error);
-                    showMessage('Failed to update case status. Please try again.', 'danger');
+                    showMessage(TRANSLATIONS.failed_update_status, 'danger');
                 });
             };
             

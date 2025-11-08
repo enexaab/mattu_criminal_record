@@ -3,6 +3,148 @@
 require '../includes/database.php';
 require '../includes/auth.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'page_title' => '%s - Criminal Record - Mattu City Criminal Management System',
+        'navbar_brand' => 'Mattu Criminal Records',
+        'nav_dashboard' => 'Dashboard',
+        'nav_search' => 'Search',
+        'nav_view_record' => 'View Record',
+        'nav_icon_dashboard' => 'fas fa-tachometer-alt',
+        'nav_icon_search' => 'fas fa-search',
+        'nav_icon_view_record' => 'fas fa-user',
+        'logout' => 'Logout',
+        'card_header_details' => 'Criminal Record Details',
+        'btn_add_case' => 'Add Case',
+        'btn_back_to_search' => 'Back to Search',
+        'record_id' => 'Record ID: #%s',
+        'status_first_offender' => 'First Offender',
+        'label_full_name' => 'Full Name',
+        'label_national_id' => 'National ID',
+        'label_date_of_birth' => 'Date of Birth',
+        'label_gender' => 'Gender',
+        'label_status' => 'Status',
+        'label_height' => 'Height',
+        'label_weight' => 'Weight',
+        'label_eye_color' => 'Eye Color',
+        'label_hair_color' => 'Hair Color',
+        'label_distinguishing_marks' => 'Distinguishing Marks',
+        'label_record_created' => 'Record Created',
+        'label_last_updated' => 'Last Updated',
+        'text_not_specified' => 'Not specified',
+        'text_none_recorded' => 'None recorded',
+        'text_unknown' => 'Unknown',
+        'linked_cases' => 'Linked Cases (%s)',
+        'case_number' => 'Case Number',
+        'case_type' => 'Case Type',
+        'case_status' => 'Status',
+        'case_date_reported' => 'Date Reported',
+        'btn_view_case' => 'View Case',
+        'error_record_not_found' => 'Record not found',
+        'error_database' => 'Database error',
+    ],
+    'am' => [
+        'page_title' => '%s - የወንጀል መዝገብ - ማቱ ከተማ የወንጀል አስተዳደር ስርዓት',
+        'navbar_brand' => 'ማቱ የወንጀል መዝገቦች',
+        'nav_dashboard' => 'ገጽታ',
+        'nav_search' => 'ፍለጋ',
+        'nav_view_record' => 'መዝገብ ይመልከቱ',
+        'nav_icon_dashboard' => 'fas fa-tachometer-alt',
+        'nav_icon_search' => 'fas fa-search',
+        'nav_icon_view_record' => 'fas fa-user',
+        'logout' => 'ውጣ',
+        'card_header_details' => 'የወንጀል መዝገብ ዝርዝሮች',
+        'btn_add_case' => 'ጉዳይ ይጨምሩ',
+        'btn_back_to_search' => 'ወደ ፍለጋ',
+        'record_id' => 'መዝገብ መለያ: #%s',
+        'status_first_offender' => 'የመጀመሪያ ወንጀል ተፈጽማ',
+        'label_full_name' => 'ሙሉ ስም',
+        'label_national_id' => 'ብሔራዊ መለያ',
+        'label_date_of_birth' => 'የልደት ቀን',
+        'label_gender' => 'ጾታ',
+        'label_status' => 'ሁኔታ',
+        'label_height' => 'ግድግዳ',
+        'label_weight' => 'ክብደት',
+        'label_eye_color' => 'ዓይን ቀለም',
+        'label_hair_color' => 'ሻምብል ቀለም',
+        'label_distinguishing_marks' => 'ልዩ ምልክቶች',
+        'label_record_created' => 'መዝገብ ተፈጸመ',
+        'label_last_updated' => 'በመጨረሻ ተቀየረ',
+        'text_not_specified' => 'ያልተገለጸ',
+        'text_none_recorded' => 'ምንም አልተመዘገበም',
+        'text_unknown' => 'ያልታወቀ',
+        'linked_cases' => 'ተገናኙ ጉዳዮች (%s)',
+        'case_number' => 'የጉዳይ ቁጥር',
+        'case_type' => 'የጉዳይ አይነት',
+        'case_status' => 'ሁኔታ',
+        'case_date_reported' => 'የተመዘገበ ቀን',
+        'btn_view_case' => 'ጉዳይ ይመልከቱ',
+        'error_record_not_found' => 'መዝገብ አልተገኘም',
+        'error_database' => 'የውሂብ ቤት ስህተት',
+    ],
+    'om' => [
+        'page_title' => '%s - Criminal Record - Mattu City Criminal Management System',
+        'navbar_brand' => 'Mattu Criminal Records',
+        'nav_dashboard' => 'Dashboard',
+        'nav_search' => 'Search',
+        'nav_view_record' => 'View Record',
+        'nav_icon_dashboard' => 'fas fa-tachometer-alt',
+        'nav_icon_search' => 'fas fa-search',
+        'nav_icon_view_record' => 'fas fa-user',
+        'logout' => 'Logout',
+        'card_header_details' => 'Criminal Record Details',
+        'btn_add_case' => 'Add Case',
+        'btn_back_to_search' => 'Back to Search',
+        'record_id' => 'Record ID: #%s',
+        'status_first_offender' => 'First Offender',
+        'label_full_name' => 'Full Name',
+        'label_national_id' => 'National ID',
+        'label_date_of_birth' => 'Date of Birth',
+        'label_gender' => 'Gender',
+        'label_status' => 'Status',
+        'label_height' => 'Height',
+        'label_weight' => 'Weight',
+        'label_eye_color' => 'Eye Color',
+        'label_hair_color' => 'Hair Color',
+        'label_distinguishing_marks' => 'Distinguishing Marks',
+        'label_record_created' => 'Record Created',
+        'label_last_updated' => 'Last Updated',
+        'text_not_specified' => 'Not specified',
+        'text_none_recorded' => 'None recorded',
+        'text_unknown' => 'Unknown',
+        'linked_cases' => 'Linked Cases (%s)',
+        'case_number' => 'Case Number',
+        'case_type' => 'Case Type',
+        'case_status' => 'Status',
+        'case_date_reported' => 'Date Reported',
+        'btn_view_case' => 'View Case',
+        'error_record_not_found' => 'Record not found',
+        'error_database' => 'Database error',
+    ],
+];
+
+function t($key, $args = []) {
+    global $translations, $current_lang;
+    $text = $translations[$current_lang][$key] ?? $key;
+    if (!empty($args)) {
+        $text = vsprintf($text, $args);
+    }
+    return $text;
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -37,13 +179,13 @@ try {
     $record = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$record) {
-        header("Location: search_records.php?error=Record not found");
+        header("Location: search_records.php?error=" . urlencode(t('error_record_not_found')));
         exit();
     }
     
 } catch (Exception $e) {
     error_log("Error fetching record: " . $e->getMessage());
-    header("Location: search_records.php?error=Database error");
+    header("Location: search_records.php?error=" . urlencode(t('error_database')));
     exit();
 }
 
@@ -79,22 +221,31 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
  
     <!-- Add these cache control meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>view crimanl</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?> - Criminal Record - Mattu City Criminal Management System</title>
+    <title><?php echo sprintf(t('page_title'), htmlspecialchars($record['first_name'] . ' ' . $record['last_name'])); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
@@ -213,24 +364,24 @@ try {
         <div class="container">
             <a class="navbar-brand" href="dashboard.php">
                 <i class="fas fa-shield-alt me-2"></i>
-                Mattu Criminal Records
+                <?php echo t('navbar_brand'); ?>
             </a>
             
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link-custom" href="dashboard.php">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            <i class="<?php echo t('nav_icon_dashboard'); ?> me-1"></i> <?php echo t('nav_dashboard'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="search_records.php">
-                            <i class="fas fa-search me-1"></i> Search
+                            <i class="<?php echo t('nav_icon_search'); ?> me-1"></i> <?php echo t('nav_search'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom active" href="#">
-                            <i class="fas fa-user me-1"></i> View Record
+                            <i class="<?php echo t('nav_icon_view_record'); ?> me-1"></i> <?php echo t('nav_view_record'); ?>
                         </a>
                     </li>
                 </ul>
@@ -241,7 +392,7 @@ try {
                         <?php echo htmlspecialchars($current_user['full_name']); ?>
                     </span>
                     <a href="../logout.php" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
                     </a>
                 </div>
             </div>
@@ -258,14 +409,14 @@ try {
                         <div class="card-header-custom d-flex justify-content-between align-items-center">
                             <span>
                                 <i class="fas fa-user me-2"></i>
-                                Criminal Record Details
+                                <?php echo t('card_header_details'); ?>
                             </span>
                             <div>
                                 <a href="create_case.php?record_id=<?php echo $record['id']; ?>" class="btn btn-success btn-sm me-2">
-                                    <i class="fas fa-plus me-1"></i> Add Case
+                                    <i class="fas fa-plus me-1"></i> <?php echo t('btn_add_case'); ?>
                                 </a>
                                 <a href="search_records.php" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-arrow-left me-1"></i> Back to Search
+                                    <i class="fas fa-arrow-left me-1"></i> <?php echo t('btn_back_to_search'); ?>
                                 </a>
                             </div>
                         </div>
@@ -284,12 +435,12 @@ try {
                                     
                                     <div class="mb-3">
                                         <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $record['status'] ?? 'first-offender')); ?>">
-                                            <?php echo htmlspecialchars($record['status'] ?? 'First Offender'); ?>
+                                            <?php echo htmlspecialchars($record['status'] ?? t('status_first_offender')); ?>
                                         </span>
                                     </div>
                                     
                                     <div class="text-muted small">
-                                        Record ID: #<?php echo $record['id']; ?>
+                                        <?php echo sprintf(t('record_id'), $record['id']); ?>
                                     </div>
                                 </div>
                                 
@@ -297,13 +448,13 @@ try {
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="info-label">Full Name</div>
+                                            <div class="info-label"><?php echo t('label_full_name'); ?></div>
                                             <div class="info-value h5">
                                                 <?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="info-label">National ID</div>
+                                            <div class="info-label"><?php echo t('label_national_id'); ?></div>
                                             <div class="info-value h5 text-primary">
                                                 <?php echo htmlspecialchars($record['national_id']); ?>
                                             </div>
@@ -314,72 +465,72 @@ try {
                                     
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="info-label">Date of Birth</div>
+                                            <div class="info-label"><?php echo t('label_date_of_birth'); ?></div>
                                             <div class="info-value">
-                                                <?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : 'Not specified'; ?>
+                                                <?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : t('text_not_specified'); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="info-label">Gender</div>
+                                            <div class="info-label"><?php echo t('label_gender'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['gender'] ?? 'Not specified'); ?>
+                                                <?php echo htmlspecialchars($record['gender'] ?? t('text_not_specified')); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="info-label">Status</div>
+                                            <div class="info-label"><?php echo t('label_status'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['status'] ?? 'First Offender'); ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-3">
-                                        <div class="col-md-4">
-                                            <div class="info-label">Height</div>
-                                            <div class="info-value">
-                                                <?php echo !empty($record['height']) ? htmlspecialchars($record['height']) . ' cm' : 'Not specified'; ?>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="info-label">Weight</div>
-                                            <div class="info-value">
-                                                <?php echo !empty($record['weight']) ? htmlspecialchars($record['weight']) . ' kg' : 'Not specified'; ?>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="info-label">Eye Color</div>
-                                            <div class="info-value">
-                                                <?php echo htmlspecialchars($record['eye_color'] ?? 'Not specified'); ?>
+                                                <?php echo htmlspecialchars($record['status'] ?? t('status_first_offender')); ?>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="row mt-3">
                                         <div class="col-md-4">
-                                            <div class="info-label">Hair Color</div>
+                                            <div class="info-label"><?php echo t('label_height'); ?></div>
                                             <div class="info-value">
-                                                <?php echo htmlspecialchars($record['hair_color'] ?? 'Not specified'); ?>
+                                                <?php echo !empty($record['height']) ? htmlspecialchars($record['height']) . ' cm' : t('text_not_specified'); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('label_weight'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo !empty($record['weight']) ? htmlspecialchars($record['weight']) . ' kg' : t('text_not_specified'); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('label_eye_color'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo htmlspecialchars($record['eye_color'] ?? t('text_not_specified')); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="info-label"><?php echo t('label_hair_color'); ?></div>
+                                            <div class="info-value">
+                                                <?php echo htmlspecialchars($record['hair_color'] ?? t('text_not_specified')); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-8">
-                                            <div class="info-label">Distinguishing Marks</div>
+                                            <div class="info-label"><?php echo t('label_distinguishing_marks'); ?></div>
                                             <div class="info-value">
-                                                <?php echo !empty($record['distinguishing_marks']) ? htmlspecialchars($record['distinguishing_marks']) : 'None recorded'; ?>
+                                                <?php echo !empty($record['distinguishing_marks']) ? htmlspecialchars($record['distinguishing_marks']) : t('text_none_recorded'); ?>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="row mt-3">
                                         <div class="col-md-6">
-                                            <div class="info-label">Record Created</div>
+                                            <div class="info-label"><?php echo t('label_record_created'); ?></div>
                                             <div class="info-value text-muted">
-                                                <?php echo !empty($record['created_at']) ? date('F j, Y g:i A', strtotime($record['created_at'])) : 'Unknown'; ?>
+                                                <?php echo !empty($record['created_at']) ? date('F j, Y g:i A', strtotime($record['created_at'])) : t('text_unknown'); ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="info-label">Last Updated</div>
+                                            <div class="info-label"><?php echo t('label_last_updated'); ?></div>
                                             <div class="info-value text-muted">
-                                                <?php echo !empty($record['updated_at']) ? date('F j, Y g:i A', strtotime($record['updated_at'])) : 'Unknown'; ?>
+                                                <?php echo !empty($record['updated_at']) ? date('F j, Y g:i A', strtotime($record['updated_at'])) : t('text_unknown'); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -397,7 +548,7 @@ try {
                     <div class="record-card">
                         <div class="card-header-custom">
                             <i class="fas fa-folder me-2"></i>
-                            Linked Cases (<?php echo count($cases); ?>)
+                            <?php echo sprintf(t('linked_cases'), count($cases)); ?>
                         </div>
                         <div class="card-body-custom">
                             <?php foreach ($cases as $case): ?>
@@ -407,7 +558,7 @@ try {
                                             <strong><?php echo htmlspecialchars($case['case_number']); ?></strong>
                                         </div>
                                         <div class="col-md-3">
-                                            <?php echo htmlspecialchars($case['case_type'] ?? 'Unknown Type'); ?>
+                                            <?php echo htmlspecialchars($case['case_type'] ?? t('case_type')); ?>
                                         </div>
                                         <div class="col-md-2">
                                             <span class="badge bg-<?php echo ($case['status'] === 'Closed') ? 'success' : 'warning'; ?>">
@@ -415,11 +566,11 @@ try {
                                             </span>
                                         </div>
                                         <div class="col-md-2">
-                                            <?php echo !empty($case['date_reported']) ? htmlspecialchars($case['date_reported']) : 'Unknown date'; ?>
+                                            <?php echo !empty($case['date_reported']) ? htmlspecialchars($case['date_reported']) : t('text_unknown'); ?>
                                         </div>
                                         <div class="col-md-2 text-end">
                                             <a href="view_case.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> View Case
+                                                <i class="fas fa-eye"></i> <?php echo t('btn_view_case'); ?>
                                             </a>
                                         </div>
                                     </div>

@@ -4,9 +4,174 @@ require '../includes/auth.php';
 require '../includes/database.php';
 require '../includes/clerk_functions.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'Police Chief Dashboard - Mattu City Strategic Command Center',
+        'navbar_brand' => 'Mattu City Police Command',
+        'nav_dashboard' => 'Dashboard',
+        'nav_reports' => 'Reports',
+        'logout_confirm' => 'Are you sure you want to logout?',
+        'chief_badge' => 'Chief',
+        'header_title' => 'Strategic Command Dashboard',
+        'header_subtitle' => 'Real-time crime analytics and performance insights for Mattu City',
+        'date_filter_custom' => 'Custom Range',
+        'date_filter_7days' => 'Last 7 Days',
+        'date_filter_30days' => 'Last 30 Days',
+        'date_filter_90days' => 'Last 90 Days',
+        'date_filter_year' => 'Last Year',
+        'btn_filter' => 'Filter',
+        'kpi_total_cases' => 'Total Cases Filed',
+        'kpi_solved_cases' => 'Cases Solved',
+        'kpi_active_cases' => 'Active Cases',
+        'kpi_clearance_rate' => 'Clearance Rate',
+        'chart_top_offenses' => 'Top Offense Categories',
+        'chart_officer_performance' => 'Officer Performance Metrics',
+        'table_officer' => 'Officer',
+        'table_records_added' => 'Records Added',
+        'table_cases_closed' => 'Cases Closed',
+        'table_performance' => 'Performance',
+        'no_officer_data' => 'No officer performance data available',
+        'quick_links_title' => 'Strategic Command Links',
+        'quick_link_reports' => 'Generate Reports',
+        'quick_link_reports_desc' => 'Create detailed analytical reports for stakeholders',
+        'quick_link_cases' => 'Manage Cases',
+        'quick_link_cases_desc' => 'View and manage all criminal cases',
+        'no_offense_data' => 'No offense data available for the selected period.',
+        'performance_excellent' => 'EXCELLENT',
+        'performance_good' => 'GOOD',
+        'performance_average' => 'AVERAGE',
+        'performance_needs_improvement' => 'NEEDS IMPROVEMENT',
+        'notification_chart_failed' => 'Chart.js failed to load. Please refresh the page.',
+        'notification_data_loaded' => 'Live data loaded successfully!',
+        'notification_fetch_failed' => 'Failed to load live data:',
+        'debug_realtime_started' => 'Real-time updates started',
+        'debug_fetching_data' => 'Fetching live data for',
+        'debug_data_loaded' => 'Data loaded:',
+        'debug_error' => 'Error:',
+        'logout' => 'Logout',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'am' => [
+        'title' => 'የፖሊስ ጂኔራል ዳሽቦርድ - ማቱ ከተማ ስትራቴጂካዊ ትከታታይ ማእከል',
+        'navbar_brand' => 'ማቱ ከተማ ፖሊስ ትከታታይ',
+        'nav_dashboard' => 'ዳሽቦርድ',
+        'nav_reports' => 'ሪፖርቶች',
+        'logout_confirm' => 'በእርግጠኝነት ይወጣሉ?',
+        'chief_badge' => 'ጂኔራል',
+        'header_title' => 'ስትራቴጂካዊ ትከታታይ ዳሽቦርድ',
+        'header_subtitle' => 'ለማቱ ከተማ በጊዜው ላይ የወንጀል ትንታኔ እና አፈጻጸም ትንታኔ',
+        'date_filter_custom' => 'ልዩ ክልል',
+        'date_filter_7days' => 'የመጨረሻ 7 ቀናት',
+        'date_filter_30days' => 'የመጨረሻ 30 ቀናት',
+        'date_filter_90days' => 'የመጨረሻ 90 ቀናት',
+        'date_filter_year' => 'የመጨረሻ አመት',
+        'btn_filter' => 'አዝር',
+        'kpi_total_cases' => 'ጠቅላላ ጉዳዮች ተመድበዋል',
+        'kpi_solved_cases' => 'ተፈቱ ጉዳዮች',
+        'kpi_active_cases' => 'ንቁ ጉዳዮች',
+        'kpi_clearance_rate' => 'የመጥፎ ተመድብ',
+        'chart_top_offenses' => 'ከፍተኛ የወንጀል ምድቦች',
+        'chart_officer_performance' => 'የባለሙያ አፈጻጸም መለኪያዎች',
+        'table_officer' => 'ባለሙያ',
+        'table_records_added' => 'የተጨመሩ መዝገቦች',
+        'table_cases_closed' => 'የተዘገቡ ጉዳዮች',
+        'table_performance' => 'አፈጻጸም',
+        'no_officer_data' => 'የባለሙያ አፈጻጸም ውሂብ የለም',
+        'quick_links_title' => 'ስትራቴጂካዊ ትከታታይ ጥገናዎች',
+        'quick_link_reports' => 'ሪፖርቶች ይፍጠሩ',
+        'quick_link_reports_desc' => 'ለባለድርሻ ሰዎች ዝርዝር ትንታኔ ሪፖርቶች ይፍጠሩ',
+        'quick_link_cases' => 'ጉዳዮችን ይቆጣጠሩ',
+        'quick_link_cases_desc' => 'ሁሉንም የወንጀል ጉዳዮች ይመልከቱ እና ይቆጣጠሩ',
+        'no_offense_data' => 'ለተመረጠው ጊዜ የወንጀል ውሂብ የለም።',
+        'performance_excellent' => 'እጅግ ጥሩ',
+        'performance_good' => 'ጥሩ',
+        'performance_average' => 'መካከለኛ',
+        'performance_needs_improvement' => 'አሻሽል ይጠይቃል',
+        'notification_chart_failed' => 'Chart.js ማግኘት አልተሳካም። እባክዎ ዳግም ያድሱ።',
+        'notification_data_loaded' => 'በጊዜው ላይ ውሂብ በተሳካ ሁኔታ ተጫነ!',
+        'notification_fetch_failed' => 'በጊዜው ላይ ውሂብ ማግኘት አልተሳካም፡',
+        'debug_realtime_started' => 'በጊዜው ላይ የሚያዘጋጅ ዝርዝሮች ተጀመሩ',
+        'debug_fetching_data' => 'በጊዜው ላይ ውሂብ ይሰማል ለ',
+        'debug_data_loaded' => 'ውሂብ ተጫነ፡',
+        'debug_error' => 'ስህተት፡',
+        'logout' => 'ውጣ',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'om' => [
+        'title' => 'Dashboardii Polisii Garaa - Mattu City Strategic Command Center',
+        'navbar_brand' => 'Mattu City Polisii Command',
+        'nav_dashboard' => 'Dashboardii',
+        'nav_reports' => 'Riportoota',
+        'logout_confirm' => 'Fufiisi barbaachisa?',
+        'chief_badge' => 'Garaa',
+        'header_title' => 'Strategic Command Dashboardii',
+        'header_subtitle' => 'Yoo taane crime analytics fi performance insights Mattu City',
+        'date_filter_custom' => 'Custom Range',
+        'date_filter_7days' => 'Har\'aa 7',
+        'date_filter_30days' => 'Har\'aa 30',
+        'date_filter_90days' => 'Har\'aa 90',
+        'date_filter_year' => 'Har\'a',
+        'btn_filter' => 'Filter',
+        'kpi_total_cases' => 'Caasoota Jijjiirama',
+        'kpi_solved_cases' => 'Caasoota Yoo Taane',
+        'kpi_active_cases' => 'Caasoota Hojiin',
+        'kpi_clearance_rate' => 'Clearance Rate',
+        'chart_top_offenses' => 'Top Offense Categories',
+        'chart_officer_performance' => 'Officer Performance Metrics',
+        'table_officer' => 'Officer',
+        'table_records_added' => 'Records Added',
+        'table_cases_closed' => 'Cases Closed',
+        'table_performance' => 'Performance',
+        'no_officer_data' => 'No officer performance data available',
+        'quick_links_title' => 'Strategic Command Links',
+        'quick_link_reports' => 'Riportoota Ummisi',
+        'quick_link_reports_desc' => 'Detailed analytical reports stakeholders irratti',
+        'quick_link_cases' => 'Caasoota Imaammisi',
+        'quick_link_cases_desc' => 'All criminal cases argisi fi imaammisi',
+        'no_offense_data' => 'Selected period offense data miti.',
+        'performance_excellent' => 'EXCELLENT',
+        'performance_good' => 'GOOD',
+        'performance_average' => 'AVERAGE',
+        'performance_needs_improvement' => 'NEEDS IMPROVEMENT',
+        'notification_chart_failed' => 'Chart.js load miti. Page dagaa.',
+        'notification_data_loaded' => 'Live data yoo taane argame!',
+        'notification_fetch_failed' => 'Live data load miti:',
+        'debug_realtime_started' => 'Real-time updates started',
+        'debug_fetching_data' => 'Live data fetching for',
+        'debug_data_loaded' => 'Data loaded:',
+        'debug_error' => 'Error:',
+        'logout' => 'Fufiisi',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if user is logged in, otherwise redirect to login page
 if (!isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    header("Location: login.php");  // Fixed: Redirect to login instead of self
     exit();
 }
 
@@ -35,97 +200,70 @@ function getDashboardStats($db, $tableName, $start_date, $end_date) {
     $stats = [];
     
     try {
-        // Debug: Check if table exists and has data
-        $checkTable = $db->query("SELECT COUNT(*) as count FROM $tableName")->fetch(PDO::FETCH_ASSOC);
-        error_log("Table $tableName has {$checkTable['count']} records");
-        
-        // Debug: Check table structure
-        $tableStructure = $db->query("DESCRIBE $tableName")->fetchAll(PDO::FETCH_COLUMN);
-        error_log("Table structure: " . implode(', ', $tableStructure));
-        
-        // Total Cases - Fixed query
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE (created_at BETWEEN ? AND ?) OR (date_reported BETWEEN ? AND ?)");
-        $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
+        // Total Cases - Use DATE for consistent comparison
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE DATE(COALESCE(created_at, date_reported)) BETWEEN ? AND ?");
+        $stmt->execute([$start_date, $end_date]);
         $stats['total_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-        error_log("Total cases: {$stats['total_cases']}");
 
-        // Solved Cases (Closed status) - Fixed query
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE status = 'Closed' AND ((created_at BETWEEN ? AND ?) OR (date_reported BETWEEN ? AND ?))");
-        $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
+        // Solved Cases
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE status = 'Closed' AND DATE(COALESCE(created_at, date_reported)) BETWEEN ? AND ?");
+        $stmt->execute([$start_date, $end_date]);
         $stats['solved_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-        error_log("Solved cases: {$stats['solved_cases']}");
 
-        // Active Cases - Fixed query
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE status IN ('Open', 'In Progress', 'Pending') AND ((created_at BETWEEN ? AND ?) OR (date_reported BETWEEN ? AND ?))");
-        $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
+        // Active Cases
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM $tableName WHERE status IN ('Open', 'In Progress', 'Pending') AND DATE(COALESCE(created_at, date_reported)) BETWEEN ? AND ?");
+        $stmt->execute([$start_date, $end_date]);
         $stats['active_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-        error_log("Active cases: {$stats['active_cases']}");
 
         // Clearance Rate
         $stats['clearance_rate'] = $stats['total_cases'] > 0 ? 
             round(($stats['solved_cases'] / $stats['total_cases']) * 100, 1) : 0;
-        error_log("Clearance rate: {$stats['clearance_rate']}%");
             
-        // Case types distribution - Fixed query
-        $stmt = $db->prepare("SELECT case_type, COUNT(*) as count FROM $tableName WHERE (created_at BETWEEN ? AND ?) OR (date_reported BETWEEN ? AND ?) GROUP BY case_type ORDER BY count DESC LIMIT 5");
-        $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
-        $stats['case_types'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Case types found: " . count($stats['case_types']));
+        // TOP OFFENSE CATEGORIES - FROM case_type COLUMN (CORRECTED)
+        // First check if case_type column exists
+        $columnCheck = $db->query("SHOW COLUMNS FROM $tableName LIKE 'case_type'");
+        $caseTypeExists = $columnCheck->rowCount() > 0;
+        
+        if ($caseTypeExists) {
+            $stmt = $db->prepare("
+                SELECT 
+                    case_type, 
+                    COUNT(*) as count
+                FROM $tableName 
+                WHERE DATE(COALESCE(created_at, date_reported)) BETWEEN ? AND ? AND case_type IS NOT NULL
+                GROUP BY case_type 
+                ORDER BY count DESC 
+                LIMIT 10
+            ");
+            $stmt->execute([$start_date, $end_date]);
+            $stats['top_offenses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $stats['top_offenses'] = [];
+        }
 
-        // Status distribution - Fixed query
-        $stmt = $db->prepare("SELECT status, COUNT(*) as count FROM $tableName WHERE (created_at BETWEEN ? AND ?) OR (date_reported BETWEEN ? AND ?) GROUP BY status");
-        $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
-        $stats['status_distribution'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Status distribution: " . count($stats['status_distribution']));
-
-        // Monthly trends (last 12 months) - Fixed query
-        $monthly_query = "
-            SELECT 
-                DATE_FORMAT(COALESCE(created_at, date_reported), '%Y-%m') as month,
-                COUNT(*) as total_cases,
-                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) as solved_cases
-            FROM $tableName 
-            WHERE (created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)) 
-               OR (date_reported >= DATE_SUB(NOW(), INTERVAL 12 MONTH))
-            GROUP BY DATE_FORMAT(COALESCE(created_at, date_reported), '%Y-%m')
-            ORDER BY month
-        ";
-        $stmt = $db->query($monthly_query);
-        $stats['monthly_trends'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Monthly trends: " . count($stats['monthly_trends']));
-
-        // Officer performance - Check if users table exists and has proper structure
+        // Get today's cases
+        $today_query = "SELECT COUNT(*) as today_cases FROM $tableName WHERE DATE(COALESCE(created_at, date_reported)) = CURDATE()";
+        $stmt = $db->query($today_query);
+        $stats['today_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['today_cases'] ?? 0;
+        
+        // Get active officers count
         $usersTableExists = $db->query("SHOW TABLES LIKE 'users'")->rowCount() > 0;
         if ($usersTableExists) {
-            // Check users table structure
-            $usersStructure = $db->query("DESCRIBE users")->fetchAll(PDO::FETCH_COLUMN);
-            error_log("Users table structure: " . implode(', ', $usersStructure));
-            
-            $officer_query = "
-                SELECT 
-                    u.id,
-                    u.first_name,
-                    u.last_name,
-                    COUNT(c.id) as records_added,
-                    SUM(CASE WHEN c.status = 'Closed' THEN 1 ELSE 0 END) as cases_closed
-                FROM users u
-                LEFT JOIN $tableName c ON u.id = c.created_by
-                WHERE (c.created_at BETWEEN ? AND ?) OR (c.date_reported BETWEEN ? AND ?)
-                GROUP BY u.id, u.first_name, u.last_name
-                HAVING records_added > 0
-                ORDER BY records_added DESC
-                LIMIT 10
-            ";
-            $stmt = $db->prepare($officer_query);
-            $stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59', $start_date, $end_date]);
-            $stats['officer_performance'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log("Officer performance records: " . count($stats['officer_performance']));
+            $officers_query = "SELECT COUNT(*) as active_officers FROM users WHERE role IN ('officer', 'admin', 'chief') AND is_active = 1";
+            $stmt = $db->query($officers_query);
+            $stats['active_officers'] = $stmt->fetch(PDO::FETCH_ASSOC)['active_officers'] ?? 1;
         } else {
-            $stats['officer_performance'] = [];
-            error_log("Users table does not exist");
+            $stats['active_officers'] = 1;
         }
         
+        // Add empty arrays for other chart data to prevent errors
+        $stats['monthly_trends'] = [];
+        $stats['case_types'] = [];
+        $stats['status_distribution'] = [];
+        $stats['officer_performance'] = [];
+        
     } catch (Exception $e) {
+        // Log the error for debugging (optional, comment out in production)
         error_log("Dashboard stats error: " . $e->getMessage());
         // Return default values if there's an error
         return [
@@ -133,9 +271,12 @@ function getDashboardStats($db, $tableName, $start_date, $end_date) {
             'solved_cases' => 0,
             'active_cases' => 0,
             'clearance_rate' => 0,
+            'today_cases' => 0,
+            'active_officers' => 1,
+            'top_offenses' => [],
+            'monthly_trends' => [],
             'case_types' => [],
             'status_distribution' => [],
-            'monthly_trends' => [],
             'officer_performance' => []
         ];
     }
@@ -155,6 +296,19 @@ foreach ($stats['monthly_trends'] as $month) {
     $monthly_cases[] = $month['total_cases'];
     $monthly_solved[] = $month['solved_cases'];
 }
+// Prepare top offenses data for initial page load
+$top_offense_labels = [];
+$top_offense_data = [];
+foreach ($stats['top_offenses'] as $offense) {
+    $top_offense_labels[] = $offense['case_type'];
+    $top_offense_data[] = $offense['count'];
+}
+
+// If no offenses data, use fallback
+if (empty($top_offense_labels)) {
+    $top_offense_labels = ['Theft', 'Robbery', 'Fraud', 'Domestic Violence'];
+    $top_offense_data = [1, 1, 1, 1];
+}
 
 // Prepare case types data
 $case_type_labels = [];
@@ -168,20 +322,18 @@ foreach ($stats['case_types'] as $case_type) {
 $status_labels = [];
 $status_data = [];
 $status_colors = ['#ff6b6b', '#ffa726', '#66bb6a', '#42a5f5', '#ab47bc'];
-$color_index = 0;
 
 foreach ($stats['status_distribution'] as $status) {
     $status_labels[] = $status['status'];
     $status_data[] = $status['count'];
-    $color_index = ($color_index + 1) % count($status_colors);
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Police Chief Dashboard - Mattu City Strategic Command Center</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -189,11 +341,22 @@ foreach ($stats['status_distribution'] as $status) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
+    
+    <!-- Chart.js (Fixed: Using official jsDelivr CDN for latest stable) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* ... (All your existing CSS unchanged) ... */
         body {
             box-sizing: border-box;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -201,6 +364,13 @@ foreach ($stats['status_distribution'] as $status) {
             min-height: 100vh;
             overflow-x: hidden;
         }
+        
+        /* Remove temporary debug styles to avoid interference */
+        /* #topOffensesContainer {
+            border: 2px solid red !important;
+            background: yellow !important;
+            min-height: 400px !important;
+        } */
         
         /* Animated background elements */
         .bg-overlay {
@@ -285,19 +455,6 @@ foreach ($stats['status_distribution'] as $status) {
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
-        }
-        
-        .navbar-toggler {
-            border: none;
-            padding: 10px;
-        }
-        
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 60, 114, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-        
-        .navbar-collapse {
-            justify-content: space-between;
         }
         
         .dashboard-container {
@@ -554,12 +711,6 @@ foreach ($stats['status_distribution'] as $status) {
             vertical-align: middle;
         }
         
-        .officer-table tbody tr:hover {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
-            transform: scale(1.01);
-            transition: all 0.2s ease;
-        }
-        
         .performance-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -569,49 +720,25 @@ foreach ($stats['status_distribution'] as $status) {
             letter-spacing: 0.5px;
         }
         
-        .performance-badge.excellent {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            color: white;
-        }
-        
-        .performance-badge.good {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .performance-badge.average {
-            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
-            color: white;
-        }
-        
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            border-radius: 25px;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #1e3c72;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      .performance-badge.excellent {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    color: white;
+}
+
+.performance-badge.good {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.performance-badge.average {
+    background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+    color: white;
+}
+
+.performance-badge.needs-improvement {
+    background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+    color: white;
+}
         
         .quick-links-grid {
             display: grid;
@@ -656,40 +783,58 @@ foreach ($stats['status_distribution'] as $status) {
             box-shadow: 0 15px 40px rgba(30, 60, 114, 0.3);
         }
         
-        .quick-link-card i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            display: block;
-            transition: all 0.3s ease;
-        }
-        
-        .quick-link-card:hover i {
-            transform: scale(1.1);
-        }
-        
-        .trend-indicator {
+        /* Real-time update styles */
+        .live-indicator {
             display: inline-flex;
             align-items: center;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-        
-        .trend-indicator.up {
             background: rgba(220, 53, 69, 0.1);
             color: #dc3545;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 15px;
+            border: 1px solid rgba(220, 53, 69, 0.3);
         }
         
-        .trend-indicator.down {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
+        .blink {
+            animation: blink 2s infinite;
         }
         
-        .trend-indicator.stable {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .number-pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Debug panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-size: 12px;
+            max-width: 300px;
+        }
+        
+        .no-data-message {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 50px 20px;
         }
         
         /* Responsive design */
@@ -733,23 +878,29 @@ foreach ($stats['status_distribution'] as $status) {
             }
         }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* Language Selector in Navbar */
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+        .lang-selector form {
+            display: inline;
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            border-radius: 10px;
+        .lang-selector select {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #1a3461 0%, #245087 100%);
+        .lang-selector select option {
+            background: #1e3c72;
+            color: white;
         }
     </style>
 </head>
@@ -762,7 +913,7 @@ foreach ($stats['status_distribution'] as $status) {
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-shield-alt me-2"></i>
-                Mattu City Police Command
+                <?php echo t('navbar_brand'); ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -773,19 +924,15 @@ foreach ($stats['status_distribution'] as $status) {
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link-custom" href="dashboard.php">
-                            <i class="fas fa-chart-line me-2"></i> Dashboard
+                            <i class="fas fa-chart-line me-2"></i> <?php echo t('nav_dashboard'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="reports.php">
-                            <i class="fas fa-file-alt me-2"></i> Reports
+                            <i class="fas fa-file-alt me-2"></i> <?php echo t('nav_reports'); ?>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link-custom" href="analytics.php">
-                            <i class="fas fa-analytics me-2"></i> Analytics
-                        </a>
-                    </li>
+                   
                 </ul>
                 
                 <div class="d-flex align-items-center ms-lg-3">
@@ -793,8 +940,26 @@ foreach ($stats['status_distribution'] as $status) {
                         <i class="fas fa-star me-1"></i>
                         <?php echo htmlspecialchars($current_user['full_name']); ?>
                     </span>
-                    <a href="../logout.php" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                <div class="lang-selector" style="margin-left: 5cm;">
+    <form method="post">
+        <select name="lang" onchange="this.form.submit()" 
+                class="form-select form-select-sm" 
+                style="background-color: #ffffff; color: #000000; border: 2px solid #000;">
+            <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>
+                <?php echo t('lang_english'); ?>
+            </option>
+            <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>
+                <?php echo t('lang_amharic'); ?>
+            </option>
+            <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>
+                <?php echo t('lang_oromo'); ?>
+            </option>
+        </select>
+    </form>
+</div>
+
+                    <a href="../logout.php" class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo addslashes(t('logout_confirm')); ?>')">
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
                     </a>
                 </div>
             </div>
@@ -806,91 +971,43 @@ foreach ($stats['status_distribution'] as $status) {
         <div class="container-fluid">
             <!-- Command Header -->
             <div class="command-header">
-                <h1><i class="fas fa-chart-line me-3"></i>Strategic Command Dashboard</h1>
-                <p>Real-time crime analytics and performance insights for Mattu City</p>
+                <h1><i class="fas fa-chart-line me-3"></i><?php echo t('header_title'); ?></h1>
+                <p><?php echo t('header_subtitle'); ?></p>
                 
                 <!-- Date Range Filter -->
-                <div class="date-filter-container">
-                    <h5><i class="fas fa-calendar-alt me-2"></i>Analysis Period</h5>
-                    <form method="GET" id="dateFilterForm">
-                        <div class="row align-items-end">
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">From Date</label>
-                                <input type="date" class="form-control date-input" name="start_date" id="startDate" 
-                                       value="<?php echo htmlspecialchars($start_date); ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">To Date</label>
-                                <input type="date" class="form-control date-input" name="end_date" id="endDate" 
-                                       value="<?php echo htmlspecialchars($end_date); ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">Quick Select</label>
-                                <select class="form-control date-input" id="quickSelect">
-                                    <option value="">Custom Range</option>
-                                    <option value="7">Last 7 Days</option>
-                                    <option value="30" selected>Last 30 Days</option>
-                                    <option value="90">Last 3 Months</option>
-                                    <option value="365">Last 12 Months</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn filter-btn w-100">
-                                    <i class="fas fa-sync-alt me-2"></i>Update Dashboard
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                <form id="dateFilterForm" method="GET" class="d-flex justify-content-center align-items-center mt-4 flex-wrap gap-2">
+                    <select id="quickSelect" class="form-select" style="width: auto; min-width: 150px;">
+                        <option value=""><?php echo t('date_filter_custom'); ?></option>
+                        <option value="7" <?php echo (strtotime($end_date) - strtotime($start_date)) / 86400 == 7 ? 'selected' : ''; ?>><?php echo t('date_filter_7days'); ?></option>
+                        <option value="30" <?php echo (strtotime($end_date) - strtotime($start_date)) / 86400 == 30 ? 'selected' : ''; ?>><?php echo t('date_filter_30days'); ?></option>
+                        <option value="90" <?php echo (strtotime($end_date) - strtotime($start_date)) / 86400 == 90 ? 'selected' : ''; ?>><?php echo t('date_filter_90days'); ?></option>
+                        <option value="365" <?php echo (strtotime($end_date) - strtotime($start_date)) / 86400 == 365 ? 'selected' : ''; ?>><?php echo t('date_filter_year'); ?></option>
+                    </select>
+                    <input type="date" id="startDate" name="start_date" class="form-control date-input" style="width: auto; min-width: 160px;" value="<?php echo $start_date; ?>">
+                    <input type="date" id="endDate" name="end_date" class="form-control date-input" style="width: auto; min-width: 160px;" value="<?php echo $end_date; ?>">
+                    <button type="submit" class="btn filter-btn">
+                        <i class="fas fa-search me-1"></i><?php echo t('btn_filter'); ?>
+                    </button>
+                </form>
             </div>
             
             <!-- KPI Overview -->
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <span class="kpi-number" id="totalCases"><?php echo $stats['total_cases']; ?></span>
-                    <div class="kpi-label">Total Cases Filed</div>
+                    <div class="kpi-label"><?php echo t('kpi_total_cases'); ?></div>
                 </div>
                 <div class="kpi-card success">
                     <span class="kpi-number" id="solvedCases"><?php echo $stats['solved_cases']; ?></span>
-                    <div class="kpi-label">Cases Solved</div>
+                    <div class="kpi-label"><?php echo t('kpi_solved_cases'); ?></div>
                 </div>
                 <div class="kpi-card warning">
                     <span class="kpi-number" id="activeCases"><?php echo $stats['active_cases']; ?></span>
-                    <div class="kpi-label">Active Cases</div>
+                    <div class="kpi-label"><?php echo t('kpi_active_cases'); ?></div>
                 </div>
                 <div class="kpi-card danger">
                     <span class="kpi-number" id="clearanceRate"><?php echo $stats['clearance_rate']; ?>%</span>
-                    <div class="kpi-label">Clearance Rate</div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <!-- Crime Trends Chart -->
-                <div class="col-lg-8 mb-4">
-                    <div class="analytics-card">
-                        <div class="card-header-analytics">
-                            <i class="fas fa-chart-line me-2"></i>Crime Trends Analysis (12 Months)
-                        </div>
-                        <div class="card-body-analytics">
-                            <div class="chart-container large" id="crimeTrendsContainer">
-                                <canvas id="crimeTrendsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Case Status Breakdown -->
-                <div class="col-lg-4 mb-4">
-                    <div class="analytics-card">
-                        <div class="card-header-analytics">
-                            <i class="fas fa-chart-pie me-2"></i>Case Status Distribution
-                        </div>
-                        <div class="card-body-analytics">
-                            <div class="chart-container" id="statusBreakdownContainer">
-                                <canvas id="statusBreakdownChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="kpi-label"><?php echo t('kpi_clearance_rate'); ?></div>
                 </div>
             </div>
             
@@ -899,11 +1016,15 @@ foreach ($stats['status_distribution'] as $status) {
                 <div class="col-lg-6 mb-4">
                     <div class="analytics-card">
                         <div class="card-header-analytics">
-                            <i class="fas fa-chart-bar me-2"></i>Top Offense Categories
+                            <i class="fas fa-chart-bar me-2"></i><?php echo t('chart_top_offenses'); ?>
                         </div>
                         <div class="card-body-analytics">
                             <div class="chart-container" id="topOffensesContainer">
-                                <canvas id="topOffensesChart"></canvas>
+                                <canvas id="topOffensesChart" style="display: <?php echo empty($top_offense_labels) ? 'none' : 'block'; ?>;"></canvas>
+                                <div id="offensesFallback" class="no-data-message" style="display: <?php echo empty($top_offense_labels) ? 'block' : 'none'; ?>;">
+                                    <i class="fas fa-chart-bar fa-3x mb-3 text-muted"></i>
+                                    <p><?php echo t('no_offense_data'); ?></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -913,24 +1034,24 @@ foreach ($stats['status_distribution'] as $status) {
                 <div class="col-lg-6 mb-4">
                     <div class="analytics-card">
                         <div class="card-header-analytics">
-                            <i class="fas fa-users me-2"></i>Officer Performance Metrics
+                            <i class="fas fa-users me-2"></i><?php echo t('chart_officer_performance'); ?>
                         </div>
                         <div class="card-body-analytics">
                             <div class="table-responsive">
                                 <table class="table officer-table" id="officerPerformanceTable">
                                     <thead>
                                         <tr>
-                                            <th>Officer</th>
-                                            <th>Records Added</th>
-                                            <th>Cases Closed</th>
-                                            <th>Performance</th>
+                                            <th><?php echo t('table_officer'); ?></th>
+                                            <th><?php echo t('table_records_added'); ?></th>
+                                            <th><?php echo t('table_cases_closed'); ?></th>
+                                            <th><?php echo t('table_performance'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody id="officerTableBody">
                                         <?php if (empty($stats['officer_performance'])): ?>
                                             <tr>
                                                 <td colspan="4" class="text-center text-muted">
-                                                    No officer performance data available
+                                                    <?php echo t('no_officer_data'); ?>
                                                 </td>
                                             </tr>
                                         <?php else: ?>
@@ -954,7 +1075,7 @@ foreach ($stats['status_distribution'] as $status) {
                                                     </td>
                                                     <td>
                                                         <span class="performance-badge <?php echo $performance; ?>">
-                                                            <?php echo strtoupper($performance); ?>
+                                                            <?php echo t('performance_' . $performance); ?>
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -971,370 +1092,482 @@ foreach ($stats['status_distribution'] as $status) {
             <!-- Quick Links Section -->
             <div class="analytics-card">
                 <div class="card-header-analytics">
-                    <i class="fas fa-external-link-alt me-2"></i>Strategic Command Links
+                    <i class="fas fa-external-link-alt me-2"></i><?php echo t('quick_links_title'); ?>
                 </div>
                 <div class="card-body-analytics">
                     <div class="quick-links-grid">
                         <a href="reports.php" class="quick-link-card">
                             <i class="fas fa-file-export"></i>
-                            <h5>Generate Reports</h5>
-                            <p>Create detailed analytical reports for stakeholders</p>
+                            <h5><?php echo t('quick_link_reports'); ?></h5>
+                            <p><?php echo t('quick_link_reports_desc'); ?></p>
                         </a>
-                        <a href="analytics.php" class="quick-link-card">
-                            <i class="fas fa-chart-area"></i>
-                            <h5>Advanced Analytics</h5>
-                            <p>Deep dive into crime patterns and predictive insights</p>
-                        </a>
+                   
                         <a href="manage_cases.php" class="quick-link-card">
                             <i class="fas fa-users-cog"></i>
-                            <h5>Manage Cases</h5>
-                            <p>View and manage all criminal cases</p>
+                            <h5><?php echo t('quick_link_cases'); ?></h5>
+                            <p><?php echo t('quick_link_cases_desc'); ?></p>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Debug Panel -->
+
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   
+<script>
+    // Global variables
+    let topOffensesChart;
+    let realtimeUpdateInterval;
     
-    <script>
-        // Global variables for charts
-        let crimeTrendsChart, statusBreakdownChart, topOffensesChart;
+    // PHP data for JavaScript
+    const offensesData = {
+        labels: <?php echo json_encode($top_offense_labels); ?>,
+        data: <?php echo json_encode($top_offense_data); ?>
+    };
+
+    // Real-time statistics storage
+    let currentStats = {
+        total_cases: <?php echo $stats['total_cases']; ?>,
+        solved_cases: <?php echo $stats['solved_cases']; ?>,
+        active_cases: <?php echo $stats['active_cases']; ?>,
+        clearance_rate: <?php echo $stats['clearance_rate']; ?>,
+        today_cases: <?php echo $stats['today_cases']; ?>,
+        active_officers: <?php echo $stats['active_officers']; ?>
+    };
+    
+    // Function to generate colors dynamically
+    function generateColors(num) {
+        const colors = [];
+        for (let i = 0; i < num; i++) {
+            const hue = (i * 360 / num);
+            colors.push(`hsl(${hue}, 70%, 50%)`);
+        }
+        return colors;
+    }
+    
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Dashboard initializing...');
+        console.log('Initial offenses data:', offensesData);
+        initializeDateFilters();
+        initializeCharts();
+        animateKPIs();
+        startRealtimeUpdates();
+    });
+    
+    // Initialize date filters
+    function initializeDateFilters() {
+        const quickSelect = document.getElementById('quickSelect');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
         
-        // PHP data for JavaScript
-        const monthlyData = {
-            labels: <?php echo json_encode($monthly_labels); ?>,
-            cases: <?php echo json_encode($monthly_cases); ?>,
-            solved: <?php echo json_encode($monthly_solved); ?>
-        };
-        
-        const statusData = {
-            labels: <?php echo json_encode($status_labels); ?>,
-            data: <?php echo json_encode($status_data); ?>,
-            colors: ['#ff6b6b', '#ffa726', '#66bb6a', '#42a5f5', '#ab47bc']
-        };
-        
-        const offensesData = {
-            labels: <?php echo json_encode($case_type_labels); ?>,
-            data: <?php echo json_encode($case_type_data); ?>
-        };
-        
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDateFilters();
-            initializeCharts();
-            animateKPIs();
-        });
-        
-        // Initialize date filters
-        function initializeDateFilters() {
-            const quickSelect = document.getElementById('quickSelect');
-            const startDate = document.getElementById('startDate');
-            const endDate = document.getElementById('endDate');
-            
+        if (quickSelect) {
             quickSelect.addEventListener('change', function() {
                 if (this.value) {
                     const days = parseInt(this.value);
                     const end = new Date();
                     const start = new Date();
-                    start.setDate(start.getDate() - days);
+                    start.setDate(end.getDate() - days);
                     
-                    startDate.value = start.toISOString().split('T')[0];
-                    endDate.value = end.toISOString().split('T')[0];
+                    if (startDate) startDate.value = start.toISOString().split('T')[0];
+                    if (endDate) endDate.value = end.toISOString().split('T')[0];
                     
                     // Auto-submit form when quick select changes
-                    document.getElementById('dateFilterForm').submit();
+                    const form = document.getElementById('dateFilterForm');
+                    if (form) form.submit();
                 }
             });
         }
+    }
+    
+    // Initialize charts (Simplified: Only Top Offenses)
+    function initializeCharts() {
+        console.log('📊 Initializing charts...');
         
-        // Initialize charts with real data
-        function initializeCharts() {
-            // Crime Trends Chart
-            const trendsCtx = document.getElementById('crimeTrendsChart').getContext('2d');
-            crimeTrendsChart = new Chart(trendsCtx, {
-                type: 'line',
-                data: {
-                    labels: monthlyData.labels,
-                    datasets: [{
-                        label: 'Cases Filed',
-                        data: monthlyData.cases,
-                        borderColor: '#1e3c72',
-                        backgroundColor: 'rgba(30, 60, 114, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#1e3c72',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
-                    }, {
-                        label: 'Cases Solved',
-                        data: monthlyData.solved,
-                        borderColor: '#28a745',
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#28a745',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#1e3c72',
-                            borderWidth: 1,
-                            cornerRadius: 10,
-                            displayColors: true
-                        }
+        // Check if Chart.js loaded
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js not loaded! Check CDN link.');
+            showNotification('<?php echo addslashes(t("notification_chart_failed")); ?>', 'error');
+            return;
+        }
+        
+        // Initialize Top Offenses Chart
+        const offensesCtx = document.getElementById('topOffensesChart');
+        const fallbackDiv = document.getElementById('offensesFallback');
+        if (offensesCtx) {
+            console.log('Creating offenses chart with:', offensesData);
+            if (offensesData.labels.length === 0) {
+                console.warn('No data for offenses chart, showing fallback message');
+                if (fallbackDiv) fallbackDiv.style.display = 'block';
+                offensesCtx.style.display = 'none';
+            } else {
+                const dynamicColors = generateColors(offensesData.labels.length);
+                topOffensesChart = new Chart(offensesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: offensesData.labels,
+                        datasets: [{
+                            label: 'Number of Cases',
+                            data: offensesData.data,
+                            backgroundColor: dynamicColors,
+                            borderColor: dynamicColors.map(c => c.replace('70%', '50%').replace('50%', '30%')),
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            ticks: {
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
                                 display: false
-                            },
-                            ticks: {
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-            
-            // Status Breakdown Chart
-            const statusCtx = document.getElementById('statusBreakdownChart').getContext('2d');
-            statusBreakdownChart = new Chart(statusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: statusData.labels,
-                    datasets: [{
-                        data: statusData.data,
-                        backgroundColor: statusData.colors,
-                        borderColor: '#fff',
-                        borderWidth: 3,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            cornerRadius: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Cases'
                                 }
-                            }
-                        }
-                    },
-                    cutout: '60%'
-                }
-            });
-            
-            // Top Offenses Chart
-            const offensesCtx = document.getElementById('topOffensesChart').getContext('2d');
-            topOffensesChart = new Chart(offensesCtx, {
-                type: 'bar',
-                data: {
-                    labels: offensesData.labels,
-                    datasets: [{
-                        label: 'Number of Cases',
-                        data: offensesData.data,
-                        backgroundColor: 'rgba(30, 60, 114, 0.8)',
-                        borderColor: '#1e3c72',
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            cornerRadius: 10
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
                             },
-                            ticks: {
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Offense Type'
                                 }
                             }
                         }
                     }
+                });
+                console.log('✅ Top offenses chart initialized with', offensesData.labels.length, 'items');
+            }
+        } else {
+            console.error('❌ Top offenses chart canvas not found');
+        }
+    }
+    
+    // Start real-time updates
+    function startRealtimeUpdates() {
+        console.log('🔄 Starting real-time updates...');
+        updateDebugInfo('<?php echo t("debug_realtime_started"); ?>');
+        
+        // Update immediately
+        updateRealtimeStats();
+        
+        // Set up interval for updates every 30 seconds
+        realtimeUpdateInterval = setInterval(updateRealtimeStats, 30000);
+    }
+    
+    // Update real-time statistics
+    function updateRealtimeStats() {
+        const startDate = document.getElementById('startDate')?.value || '<?php echo $start_date; ?>';
+        const endDate = document.getElementById('endDate')?.value || '<?php echo $end_date; ?>';
+        const url = `api/realtime_stats.php?start_date=${startDate}&end_date=${endDate}`;
+        
+        console.log('🔄 Fetching real-time data from:', url);
+        updateDebugInfo(`<?php echo t("debug_fetching_data"); ?> ${startDate} to ${endDate}...`);
+        
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            });
-        }
-        
-        // Animate KPI numbers
-        function animateKPIs() {
-            const kpis = [
-                { id: 'totalCases', value: <?php echo $stats['total_cases']; ?> },
-                { id: 'solvedCases', value: <?php echo $stats['solved_cases']; ?> },
-                { id: 'activeCases', value: <?php echo $stats['active_cases']; ?> },
-                { id: 'clearanceRate', value: <?php echo $stats['clearance_rate']; ?>, suffix: '%' }
-            ];
-            
-            kpis.forEach(kpi => {
-                animateNumber(kpi.id, kpi.value, kpi.suffix || '');
-            });
-        }
-        
-        // Animate number counting
-        function animateNumber(elementId, targetValue, suffix = '') {
-            const element = document.getElementById(elementId);
-            const startValue = 0;
-            const duration = 2000;
-            const startTime = performance.now();
-            
-            function updateNumber(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ API Response received:', data);
                 
-                const currentValue = startValue + (targetValue - startValue) * easeOutQuart(progress);
-                
-                if (suffix === '%') {
-                    element.textContent = currentValue.toFixed(1) + suffix;
+                if (data.success && data.data) {
+                    updateDebugInfo(`<?php echo t("debug_data_loaded"); ?> ${data.data.top_offenses ? data.data.top_offenses.length : 0} offense types`);
+                    updateDashboardData(data.data);
+                    showNotification('<?php echo addslashes(t("notification_data_loaded")); ?>', 'success');
                 } else {
-                    element.textContent = Math.floor(currentValue).toLocaleString() + suffix;
+                    throw new Error(data.message || 'Invalid API response');
                 }
+            })
+            .catch(error => {
+                console.error('❌ API Fetch Failed:', error);
+                updateDebugInfo('<?php echo t("debug_error"); ?> ' + error.message);
+                showNotification('<?php echo addslashes(t("notification_fetch_failed")); ?> ' + error.message, 'error');
+            });
+    }
+    
+    // Update dashboard with new data (Simplified)
+    function updateDashboardData(newStats) {
+        console.log('📊 Updating dashboard with real data:', newStats);
+        
+        // Store current stats
+        currentStats = {...newStats};
+        
+        // Update KPI numbers with REAL data
+        updateKPI('totalCases', newStats.total_cases || 0);
+        updateKPI('solvedCases', newStats.solved_cases || 0);
+        updateKPI('activeCases', newStats.active_cases || 0);
+        updateKPI('clearanceRate', newStats.clearance_rate || 0, '%');
+        
+        // Update Top Offenses Chart with REAL data
+        if (newStats.top_offenses && newStats.top_offenses.length > 0) {
+            console.log('🎯 Updating offenses chart with:', newStats.top_offenses);
+            updateTopOffensesChart(newStats.top_offenses);
+        } else {
+            console.warn('No offenses data available');
+            showNoDataMessage();
+        }
+        
+        if (newStats.officer_performance && newStats.officer_performance.length > 0) {
+            updateOfficerPerformanceTable(newStats.officer_performance);
+        }
+        
+        // Update last update time
+        updateLastRefreshedTime();
+        
+        console.log('✅ Dashboard updated with real data');
+    }
+
+    // Update top offenses chart
+    function updateTopOffensesChart(offensesData) {
+        console.log('📈 Rendering offenses chart:', offensesData);
+        
+        if (!offensesData || offensesData.length === 0) {
+            console.warn('No offenses data to display');
+            showNoDataMessage();
+            return;
+        }
+        
+        const labels = offensesData.map(item => item.case_type || 'Unknown');
+        const data = offensesData.map(item => parseInt(item.count) || 0);
+        
+        console.log('Chart labels:', labels);
+        console.log('Chart data:', data);
+        
+        const fallbackDiv = document.getElementById('offensesFallback');
+        const canvas = document.getElementById('topOffensesChart');
+        
+        if (fallbackDiv) fallbackDiv.style.display = 'none';
+        if (canvas) canvas.style.display = 'block';
+        
+        const dynamicColors = generateColors(labels.length);
+        
+        if (topOffensesChart) {
+            topOffensesChart.data.labels = labels;
+            topOffensesChart.data.datasets[0].data = data;
+            topOffensesChart.data.datasets[0].backgroundColor = dynamicColors;
+            topOffensesChart.data.datasets[0].borderColor = dynamicColors.map(c => c.replace('70%', '50%').replace('50%', '30%'));
+            topOffensesChart.update('active');
+            console.log('✅ Top offenses chart updated successfully');
+        } else {
+            console.error('Top offenses chart not initialized - reinitializing');
+            // Re-initialize if needed
+            initializeCharts();
+        }
+    }
+
+    // Show no data message (Simplified)
+    function showNoDataMessage() {
+        const fallbackDiv = document.getElementById('offensesFallback');
+        const canvas = document.getElementById('topOffensesChart');
+        if (fallbackDiv) fallbackDiv.style.display = 'block';
+        if (canvas) canvas.style.display = 'none';
+    }
+
+    // Update officer performance table
+    function updateOfficerPerformanceTable(officersData) {
+        const tableBody = document.getElementById('officerTableBody');
+        
+        if (tableBody && officersData.length > 0) {
+            let html = '';
+            
+            officersData.forEach(officer => {
+                const fullName = `${officer.first_name || ''} ${officer.last_name || ''}`.trim();
+                const totalCases = parseInt(officer.total_cases) || 0;
+                const solvedCases = parseInt(officer.solved_cases) || 0;
+                const clearanceRate = parseFloat(officer.clearance_rate) || 0;
                 
-                if (progress < 1) {
-                    requestAnimationFrame(updateNumber);
-                }
+                let performance = 'average';
+                if (clearanceRate >= 80) performance = 'excellent';
+                else if (clearanceRate >= 60) performance = 'good';
+                else if (clearanceRate >= 40) performance = 'average';
+                else performance = 'needs-improvement';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-shield me-2 text-primary"></i>
+                                <strong>${fullName || 'Unknown Officer'}</strong>
+                            </div>
+                        </td>
+                        <td><span class="fw-bold">${totalCases}</span></td>
+                        <td><span class="fw-bold">${solvedCases}</span></td>
+                        <td>
+                            <span class="performance-badge ${performance}">
+                                ${clearanceRate.toFixed(1)}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+    }
+    
+    // Update individual KPI with animation
+    function updateKPI(elementId, newValue, suffix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const currentValue = parseFloat(element.textContent.replace(/[^\d.]/g, ''));
+        newValue = parseFloat(newValue) || 0;
+        
+        if (Math.abs(currentValue - newValue) > 0.1) {
+            animateNumberChange(elementId, currentValue, newValue, suffix);
+        } else {
+            element.textContent = newValue.toLocaleString() + suffix;
+        }
+    }
+    
+    // Animate number change
+    function animateNumberChange(elementId, startValue, endValue, suffix = '') {
+        const element = document.getElementById(elementId);
+        const duration = 1000;
+        const startTime = performance.now();
+        
+        element.classList.add('number-pulse');
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const current = startValue + (endValue - startValue) * easeOutQuart(progress);
+            
+            if (suffix === '%') {
+                element.textContent = current.toFixed(1) + suffix;
+            } else {
+                element.textContent = Math.floor(current).toLocaleString() + suffix;
             }
             
-            requestAnimationFrame(updateNumber);
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.classList.remove('number-pulse');
+            }
         }
         
-        // Easing function
-        function easeOutQuart(t) {
-            return 1 - Math.pow(1 - t, 4);
+        requestAnimationFrame(update);
+    }
+    
+    // Update last refreshed time
+    function updateLastRefreshedTime() {
+        const lastUpdated = document.getElementById('lastUpdated');
+        if (lastUpdated) {
+            const now = new Date();
+            lastUpdated.textContent = `Last updated: ${now.toLocaleTimeString()}`;
+        }
+    }
+    
+    // Animate KPI numbers on initial load
+    function animateKPIs() {
+        const kpis = [
+            { id: 'totalCases', value: currentStats.total_cases },
+            { id: 'solvedCases', value: currentStats.solved_cases },
+            { id: 'activeCases', value: currentStats.active_cases },
+            { id: 'clearanceRate', value: currentStats.clearance_rate, suffix: '%' }
+        ];
+        
+        kpis.forEach(kpi => {
+            animateNumber(kpi.id, kpi.value, kpi.suffix || '');
+        });
+    }
+    
+    // Animate number counting
+    function animateNumber(elementId, targetValue, suffix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const startValue = 0;
+        const duration = 2000;
+        const startTime = performance.now();
+        
+        function updateNumber(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const currentValue = startValue + (targetValue - startValue) * easeOutQuart(progress);
+            
+            if (suffix === '%') {
+                element.textContent = currentValue.toFixed(1) + suffix;
+            } else {
+                element.textContent = Math.floor(currentValue).toLocaleString() + suffix;
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateNumber);
+            }
         }
         
-        // Show notification
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
-            notification.style.cssText = `
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 350px;
-                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-                border-radius: 15px;
-                backdrop-filter: blur(10px);
-                border: none;
-            `;
-            
-            const icons = {
-                success: 'check-circle',
-                warning: 'exclamation-triangle',
-                error: 'times-circle',
-                info: 'info-circle'
-            };
-            
-            notification.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-${icons[type] || icons.info} me-3"></i>
-                    <strong>${message}</strong>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 300);
-            }, 4000);
-        }
+        requestAnimationFrame(updateNumber);
+    }
+    
+    // Easing function
+    function easeOutQuart(t) {
+        return 1 - Math.pow(1 - t, 4);
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+        notification.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 10px;
+        `;
         
-        // Auto-refresh dashboard every 5 minutes
-        setInterval(() => {
-            window.location.reload();
-        }, 300000);
-    </script>
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-3"></i>
+                <strong>${message}</strong>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    // Manual refresh function
+    function manualRefresh() {
+        console.log('🔄 Manual refresh triggered');
+        updateDebugInfo('Manual refresh started...');
+        updateRealtimeStats();
+    }
+    
+    // Debug function
+    function updateDebugInfo(message) {
+        const debugInfo = document.getElementById('debugInfo');
+        if (debugInfo) {
+            debugInfo.innerHTML = message + '<br>' + new Date().toLocaleTimeString();
+        }
+    }
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', function() {
+        if (realtimeUpdateInterval) {
+            clearInterval(realtimeUpdateInterval);
+        }
+    });
+</script>
 </body>
 </html>

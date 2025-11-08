@@ -3,6 +3,144 @@
 require '../includes/database.php';
 require '../includes/auth.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'Officer Dashboard - Mattu Criminal Record System',
+        'navbar_brand' => 'Mattu Criminal Records',
+        'dashboard' => 'Dashboard',
+        'search_records' => 'Search Records',
+        'my_cases' => 'My Cases',
+        'officer_badge' => 'Officer',
+        'logout' => 'Logout',
+        'welcome_title' => 'Welcome back, Officer {name}!',
+        'welcome_sub' => 'Ready to serve and protect. Your dashboard is updated and ready for action.',
+        'quick_actions' => 'Quick Actions',
+        'add_new_criminal_record' => 'Add New Criminal Record',
+        'create_new_case_file' => 'Create New Case File',
+        'records_added_this_week' => 'Records Added This Week',
+        'assigned_cases' => 'My Assigned Cases',
+        'refresh' => 'Refresh',
+        'case_id' => 'Case ID',
+        'criminal_name' => 'Criminal Name',
+        'status' => 'Status',
+        'last_updated' => 'Last Updated',
+        'actions' => 'Actions',
+        'case_number' => 'Case Number',
+        'case_type' => 'Case Type',
+        'date_reported' => 'Date Reported',
+        'view' => 'View',
+        'no_cases_assigned' => 'No Cases Assigned',
+        'no_cases_desc' => "You don't have any cases assigned at the moment.",
+        'create_new_case' => 'Create New Case',
+        'recent_searches' => 'Recent Searches',
+        'no_recent_activity' => 'No recent activity',
+        'recent_actions_desc' => 'Your recent actions will appear here',
+        'notifications' => 'Notifications',
+        'all_caught_up' => 'All caught up!',
+        'no_new_notifications' => 'No new notifications',
+        'error_loading' => 'Error loading {type} data. Please try again.',
+        'retry' => 'Retry',
+        'dashboard_refreshed' => 'Dashboard refreshed successfully!',
+        'loading_notifications' => 'Loading notifications...',
+    ],
+    'am' => [
+        'title' => 'የኦፊሰር ዳሽቦርድ - ማቱ የወንጀል መዝገብ ስርዓት',
+        'navbar_brand' => 'ማቱ የወንጀል መዝገቦች',
+        'dashboard' => 'ዳሽቦርድ',
+        'search_records' => 'መዝገቦች ፍለጋ',
+        'my_cases' => 'የኔ ጉዳዮች',
+        'officer_badge' => 'ኦፊሰር',
+        'logout' => 'ውጣ',
+        'welcome_title' => 'እንኳን ተመልሳሽ፣ ኦፊሰር {name}!',
+        'welcome_sub' => 'ለመጠበቅ እና ለመከበር ዝግጁ ነው። ዳሽቦርድዎ ዘመናዊ እና ለጥበብ ዝግጁ ነው።',
+        'quick_actions' => 'ፈጣን እርምጃዎች',
+        'add_new_criminal_record' => 'አዲስ የወንጀል መዝገብ ጨምር',
+        'create_new_case_file' => 'አዲስ ጉዳይ ፋይል ፍጠር',
+        'records_added_this_week' => 'በዚህ ሳምንት ተጨምሮ መዝገቦች',
+        'assigned_cases' => 'የተመደቡ ጉዳዮች',
+        'refresh' => 'እንደገና አስጀብር',
+        'case_id' => 'ጉዳይ መለያ',
+        'criminal_name' => 'የወንጀል ስም',
+        'status' => 'ሁኔታ',
+        'last_updated' => 'በመጨረሻ የተዘመነ',
+        'actions' => 'እርምጃዎች',
+        'case_number' => 'ጉዳይ ቁጥር',
+        'case_type' => 'የጉዳይ አይነት',
+        'date_reported' => 'የተወሰነው ቀን',
+        'view' => 'ተመልከት',
+        'no_cases_assigned' => 'ጉዳይ የተመደብ የለም',
+        'no_cases_desc' => 'አሁን ምንም ጉዳይ የተመደብላችሁ የለውም።',
+        'create_new_case' => 'አዲስ ጉዳይ ፍጠር',
+        'recent_searches' => 'የቅርብ ጊዜ ፍለጋዎች',
+        'no_recent_activity' => 'የቅርብ ጊዜ እንቅስቃሴ የለም',
+        'recent_actions_desc' => 'የቅርብ ጊዜ እርምጃዎችዎ እዚህ ይታያሉ',
+        'notifications' => 'ማሳወቂያዎች',
+        'all_caught_up' => 'ሁሉም ተገኝቷል!',
+        'no_new_notifications' => 'አዲስ ማሳወቂያ የለም',
+        'error_loading' => '{type} ውሂብ በመጫን ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።',
+        'retry' => 'እንደገና ሞክር',
+        'dashboard_refreshed' => 'ዳሽቦርድ በተሳካ ሁኔታ ተዘመነ!',
+        'loading_notifications' => 'ማሳወቂያዎች እየጎዜበት ነው...',
+    ],
+    'om' => [
+        'title' => 'Dashboardii Officer - Sisteemi Ummata Mattu Diinagdee',
+        'navbar_brand' => 'Sisteemi Ummata Mattu Diinagdee',
+        'dashboard' => 'Dashboardii',
+        'search_records' => 'Diinagdeewwan Gadisi',
+        'my_cases' => 'Caasoota Ani',
+        'officer_badge' => 'Officer',
+        'logout' => 'Fufiisi',
+        'welcome_title' => 'Galataa! Officer {name} garaa akka dhuftuun',
+        'welcome_sub' => 'Hojiirra jiraachuu fi milkaa qabachuu barbaachisaa. Dashboardii kee updatee fi hojjetuu dha.',
+        'quick_actions' => 'Hojjetoota Fiixawwan',
+        'add_new_criminal_record' => 'Diinagdee Ummata Hojiisaa Qabuu',
+        'create_new_case_file' => 'Fayila Caasaa Hojiisaa Qabuu',
+        'records_added_this_week' => 'Diinagdeewwan Kana Haftametti Qabamani',
+        'assigned_cases' => 'Caasoota Ani Baramuu',
+        'refresh' => 'Fudhadhu',
+        'case_id' => 'ID Caasaa',
+        'criminal_name' => 'Isa Ummata',
+        'status' => 'Haala',
+        'last_updated' => 'Jimaa Updatee',
+        'actions' => 'Hojjechoota',
+        'case_number' => 'Naama Caasaa',
+        'case_type' => 'Aangoo Caasaa',
+        'date_reported' => 'Guyyaa Guyyaa',
+        'view' => 'Argisi',
+        'no_cases_assigned' => 'Caasaa Baramuu Hin Taane',
+        'no_cases_desc' => 'Anii hoo caasaa hin baramuu.',
+        'create_new_case' => 'Caasaa Hojiisaa Qabuu',
+        'recent_searches' => 'Gadisoota Utuu',
+        'no_recent_activity' => 'Hojjeta Utuu Hin Taane',
+        'recent_actions_desc' => 'Hojjechoota utuu kee eenyu argamuu danda\'a',
+        'notifications' => 'Yaadni',
+        'all_caught_up' => 'Hunda Qabu!',
+        'no_new_notifications' => 'Yaaduun hojiisaa hin taane',
+        'error_loading' => 'Error loading {type} data. Please try again.',
+        'retry' => 'Fudhadhu',
+        'dashboard_refreshed' => 'Dashboardii biroo fudhadhame!',
+        'loading_notifications' => 'Yaadni loading...',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if user is logged in, otherwise redirect to login page
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -74,16 +212,26 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Officer Dashboard - Mattu Criminal Record System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
@@ -361,7 +509,7 @@ try {
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-shield-alt me-2"></i>
-                Mattu Criminal Records
+                <?php echo t('navbar_brand'); ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -372,28 +520,37 @@ try {
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link-custom" href="dashboard.php">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            <i class="fas fa-tachometer-alt me-1"></i> <?php echo t('dashboard'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="search_records.php">
-                            <i class="fas fa-search me-1"></i> Search Records
+                            <i class="fas fa-search me-1"></i> <?php echo t('search_records'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="manage_cases.php">
-                            <i class="fas fa-folder-open me-1"></i> My Cases
+                            <i class="fas fa-folder-open me-1"></i> <?php echo t('my_cases'); ?>
                         </a>
                     </li>
                 </ul>
                 
                 <div class="d-flex align-items-center">
+                    <!-- Language Selector -->
+                    <form method="post" class="me-3">
+                        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm">
+                            <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>English</option>
+                            <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>አማርኛ</option>
+                            <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>Afaan Oromoo</option>
+                        </select>
+                    </form>
+                    
                     <span class="officer-badge me-3">
                         <i class="fas fa-user-shield me-1"></i>
-                        Officer <?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?>
+                        <?php echo t('officer_badge'); ?> <?php echo htmlspecialchars($officerName); ?>
                     </span>
                     <a href="../logout.php" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
                     </a>
                 </div>
             </div>
@@ -405,8 +562,8 @@ try {
         <div class="container">
             <!-- Welcome Section -->
             <div class="welcome-section">
-                <h2>Welcome back, Officer <?php echo htmlspecialchars($_SESSION['first_name']); ?>!</h2>
-                <p>Ready to serve and protect. Your dashboard is updated and ready for action.</p>
+                <h2><?php echo str_replace('{name}', htmlspecialchars($_SESSION['first_name']), t('welcome_title')); ?></h2>
+                <p><?php echo t('welcome_sub'); ?></p>
             </div>
             
             <div class="row">
@@ -414,16 +571,16 @@ try {
                 <div class="col-lg-4 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                            <i class="fas fa-bolt me-2"></i><?php echo t('quick_actions'); ?>
                         </div>
                         <div class="card-body-custom">
                             <a href="add_criminal_record.php" class="quick-action-btn">
                                 <i class="fas fa-user-plus me-2"></i>
-                                Add New Criminal Record
+                                <?php echo t('add_new_criminal_record'); ?>
                             </a>
                             <a href="create_case.php" class="quick-action-btn secondary">
                                 <i class="fas fa-folder-plus me-2"></i>
-                                Create New Case File
+                                <?php echo t('create_new_case_file'); ?>
                             </a>
                             
                             <!-- Officer Activity Stats -->
@@ -431,7 +588,7 @@ try {
                                 <div class="stats-number" id="weeklyRecords">
                                     <div class="loading-skeleton" style="width: 60px; height: 40px; margin: 0 auto;"></div>
                                 </div>
-                                <div class="stats-label">Records Added This Week</div>
+                                <div class="stats-label"><?php echo t('records_added_this_week'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -441,9 +598,9 @@ try {
                 <div class="col-lg-8 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-clipboard-list me-2"></i>My Assigned Cases</span>
+                            <span><i class="fas fa-clipboard-list me-2"></i><?php echo t('assigned_cases'); ?></span>
                             <button class="btn btn-sm btn-outline-light" onclick="refreshCases()">
-                                <i class="fas fa-sync-alt"></i> Refresh
+                                <i class="fas fa-sync-alt"></i> <?php echo t('refresh'); ?>
                             </button>
                         </div>
                         <div class="card-body-custom">
@@ -453,11 +610,11 @@ try {
                                     <table class="table case-table">
                                         <thead>
                                             <tr>
-                                                <th>Case ID</th>
-                                                <th>Criminal Name</th>
-                                                <th>Status</th>
-                                                <th>Last Updated</th>
-                                                <th>Actions</th>
+                                                <th><?php echo t('case_id'); ?></th>
+                                                <th><?php echo t('criminal_name'); ?></th>
+                                                <th><?php echo t('status'); ?></th>
+                                                <th><?php echo t('last_updated'); ?></th>
+                                                <th><?php echo t('actions'); ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -489,7 +646,7 @@ try {
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-history me-2"></i>Recent Searches
+                            <i class="fas fa-history me-2"></i> <?php echo t('recent_searches'); ?>
                         </div>
                         <div class="card-body-custom">
                             <div id="recentSearches">
@@ -521,13 +678,13 @@ try {
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-bell me-2"></i>Notifications
+                            <i class="fas fa-bell me-2"></i> <?php echo t('notifications'); ?>
                         </div>
                         <div class="card-body-custom">
                             <div id="notifications">
                                 <div class="text-center text-muted">
                                     <i class="fas fa-bell fa-2x mb-2"></i>
-                                    <p>Loading notifications...</p>
+                                    <p><?php echo t('loading_notifications'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -540,466 +697,300 @@ try {
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-  <script>
-    // Global variables
-    let refreshInterval;
-    const officerId = <?php echo $officerId; ?>;
+    <script>
+        // Translations for JS
+        const TRANSLATIONS = <?php echo json_encode($translations[$current_lang]); ?>;
+    </script>
     
-    // Initialize dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Dashboard initialized for officer:', officerId);
-        loadDashboardData();
-        startAutoRefresh();
-    });
-    
-    // Load all dashboard data
-    function loadDashboardData() {
-        console.log('Loading dashboard data...');
-        loadStatistics();
-        loadAssignedCases();
-        loadRecentActivity();
-        loadNotifications();
-    }
-    
-    // Load statistics
-    function loadStatistics() {
-        fetch(`dashboard_api.php?action=statistics&officer_id=${officerId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Statistics data:', data);
-                if (data.success) {
-                    document.getElementById('totalCases').textContent = data.data.total_cases;
-                    document.getElementById('activeCases').textContent = data.data.active_cases;
-                    document.getElementById('weeklyRecords').textContent = data.data.weekly_records;
-                    document.getElementById('pendingTasks').textContent = data.data.pending_tasks;
-                } else {
-                    showStatisticsError();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading statistics:', error);
-                showStatisticsError();
-            });
-    }
-    
-    // Load assigned cases
-    function loadAssignedCases() {
-        fetch(`dashboard_api.php?action=assigned_cases&officer_id=${officerId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Assigned cases data:', data);
-                const tableContainer = document.getElementById('assignedCasesTable');
-                
-                if (data.success && data.data.length > 0) {
-                    let tableHtml = `
-                        <div class="table-responsive">
-                            <table class="table case-table">
-                                <thead>
-                                    <tr>
-                                        <th>Case Number</th>
-                                        <th>Case Type</th>
-                                        <th>Status</th>
-                                        <th>Date Reported</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-                    
-                    data.data.forEach(caseItem => {
-                        const statusClass = getStatusClass(caseItem.status);
-                        tableHtml += `
-                            <tr>
-                                <td><strong>${caseItem.case_number}</strong></td>
-                                <td>${caseItem.case_type}</td>
-                                <td><span class="status-badge ${statusClass}">${caseItem.status}</span></td>
-                                <td>${caseItem.date_reported}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="viewCase(${caseItem.id})">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    tableHtml += `
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                    
-                    tableContainer.innerHTML = tableHtml;
-                } else {
-                    tableContainer.innerHTML = `
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-clipboard-list fa-3x mb-3"></i>
-                            <h5>No Cases Assigned</h5>
-                            <p>You don't have any cases assigned at the moment.</p>
-                            <a href="create_case.php" class="btn btn-primary">
-                                <i class="fas fa-plus me-1"></i> Create New Case
-                            </a>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading assigned cases:', error);
-                showErrorMessage('assignedCasesTable', 'cases');
-            });
-    }
-    
-    // Load recent activity
-    function loadRecentActivity() {
-        fetch(`dashboard_api.php?action=recent_activity&officer_id=${officerId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Recent activity data:', data);
-                const container = document.getElementById('recentSearches');
-                
-                if (data.success && data.data.length > 0) {
-                    let html = '';
-                    data.data.forEach(activity => {
-                        const iconClass = activity.type === 'record' ? 'recent-record' : 'recent-case';
-                        const icon = activity.type === 'record' ? 'fas fa-user' : 'fas fa-folder';
-                        
-                        html += `
-                            <div class="recent-item" onclick="navigateToItem('${activity.type}', '${activity.id}')">
-                                <div class="recent-icon ${iconClass}">
-                                    <i class="${icon}"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold">${activity.title}</div>
-                                    <small class="text-muted">${activity.description} • ${activity.timestamp}</small>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = `
-                        <div class="text-center text-muted">
-                            <i class="fas fa-history fa-2x mb-2"></i>
-                            <p>No recent activity</p>
-                            <small>Your recent actions will appear here</small>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading recent activity:', error);
-            });
-    }
-    
-    // Load notifications
-    function loadNotifications() {
-        fetch(`dashboard_api.php?action=notifications&officer_id=${officerId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Notifications data:', data);
-                const container = document.getElementById('notifications');
-                
-                if (data.success && data.data.length > 0) {
-                    let html = '';
-                    data.data.forEach(notification => {
-                        const alertClass = notification.type === 'urgent' ? 'alert-warning' : 'alert-info';
-                        const icon = notification.type === 'urgent' ? 'fa-exclamation-triangle' : 'fa-info-circle';
-                        
-                        html += `
-                            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                                <i class="fas ${icon} me-2"></i>
-                                <strong>${notification.title}</strong><br>
-                                <small>${notification.message}</small>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = `
-                        <div class="text-center text-muted">
-                            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                            <p>All caught up!</p>
-                            <small>No new notifications</small>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading notifications:', error);
-            });
-    }
-    
-    // Helper functions
-    function getStatusClass(status) {
-        const statusLower = status.toLowerCase();
-        if (statusLower.includes('active') || statusLower.includes('open')) {
-            return 'status-active';
-        } else if (statusLower.includes('pending') || statusLower.includes('review')) {
-            return 'status-pending';
-        } else if (statusLower.includes('closed') || statusLower.includes('resolved')) {
-            return 'status-closed';
-        }
-        return 'status-pending';
-    }
-    
-    function showStatisticsError() {
-        document.getElementById('totalCases').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        document.getElementById('activeCases').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        document.getElementById('weeklyRecords').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        document.getElementById('pendingTasks').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-    }
-    
-    function showErrorMessage(containerId, type) {
-        document.getElementById(containerId).innerHTML = `
-            <div class="text-center text-danger py-4">
-                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                <p>Error loading ${type} data. Please try again.</p>
-                <button class="btn btn-outline-danger btn-sm" onclick="loadDashboardData()">
-                    <i class="fas fa-redo me-1"></i> Retry
-                </button>
-            </div>
-        `;
-    }
-    
-    // Action functions
-    function viewCase(caseId) {
-        alert('View case: ' + caseId);
-        // window.location.href = `view_case.php?id=${caseId}`;
-    }
-    
-    function navigateToItem(type, id) {
-        alert('Navigate to: ' + type + ' - ' + id);
-        // if (type === 'record') {
-        //     window.location.href = `view_criminal_record.php?id=${id}`;
-        // } else if (type === 'case') {
-        //     window.location.href = `view_case.php?id=${id}`;
-        // }
-    }
-    
-    function refreshDashboard() {
-        loadDashboardData();
-        // Show temporary success message
-        const statusMessage = document.getElementById('statusMessage');
-        statusMessage.innerHTML = `
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i>
-                Dashboard refreshed successfully!
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-    }
-    
-    // Auto-refresh functionality
-    function startAutoRefresh() {
-        refreshInterval = setInterval(() => {
+    <script>
+        // Global variables
+        let refreshInterval;
+        const officerId = <?php echo $officerId; ?>;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initialized for officer:', officerId);
             loadDashboardData();
-        }, 30000); // Refresh every 30 seconds
-    }
-    
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', function() {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
+            startAutoRefresh();
+        });
+        
+        // Load all dashboard data
+        function loadDashboardData() {
+            console.log('Loading dashboard data...');
+            loadStatistics();
+            loadAssignedCases();
+            loadRecentActivity();
+            loadNotifications();
         }
-    });
-</script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985c91731609f7f3',t:'MTc1ODk5MjU0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        
+        // Load statistics
+        function loadStatistics() {
+            fetch(`dashboard_api.php?action=statistics&officer_id=${officerId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Statistics data:', data);
+                    if (data.success) {
+                        document.getElementById('totalCases').textContent = data.data.total_cases;
+                        document.getElementById('activeCases').textContent = data.data.active_cases;
+                        document.getElementById('weeklyRecords').textContent = data.data.weekly_records;
+                        document.getElementById('pendingTasks').textContent = data.data.pending_tasks;
+                    } else {
+                        showStatisticsError();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                    showStatisticsError();
+                });
+        }
+        
+        // Load assigned cases
+        function loadAssignedCases() {
+            fetch(`dashboard_api.php?action=assigned_cases&officer_id=${officerId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Assigned cases data:', data);
+                    const tableContainer = document.getElementById('assignedCasesTable');
+                    
+                    if (data.success && data.data.length > 0) {
+                        let tableHtml = `
+                            <div class="table-responsive">
+                                <table class="table case-table">
+                                    <thead>
+                                        <tr>
+                                            <th>${TRANSLATIONS.case_number}</th>
+                                            <th>${TRANSLATIONS.case_type}</th>
+                                            <th>${TRANSLATIONS.status}</th>
+                                            <th>${TRANSLATIONS.date_reported}</th>
+                                            <th>${TRANSLATIONS.actions}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        
+                        data.data.forEach(caseItem => {
+                            const statusClass = getStatusClass(caseItem.status);
+                            tableHtml += `
+                                <tr>
+                                    <td><strong>${caseItem.case_number}</strong></td>
+                                    <td>${caseItem.case_type}</td>
+                                    <td><span class="status-badge ${statusClass}">${caseItem.status}</span></td>
+                                    <td>${caseItem.date_reported}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="viewCase(${caseItem.id})">
+                                            <i class="fas fa-eye"></i> ${TRANSLATIONS.view}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        tableHtml += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        
+                        tableContainer.innerHTML = tableHtml;
+                    } else {
+                        tableContainer.innerHTML = `
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                                <h5>${TRANSLATIONS.no_cases_assigned}</h5>
+                                <p>${TRANSLATIONS.no_cases_desc}</p>
+                                <a href="create_case.php" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i> ${TRANSLATIONS.create_new_case}
+                                </a>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading assigned cases:', error);
+                    showErrorMessage('assignedCasesTable', 'cases');
+                });
+        }
+        
+        // Load recent activity
+        function loadRecentActivity() {
+            fetch(`dashboard_api.php?action=recent_activity&officer_id=${officerId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Recent activity data:', data);
+                    const container = document.getElementById('recentSearches');
+                    
+                    if (data.success && data.data.length > 0) {
+                        let html = '';
+                        data.data.forEach(activity => {
+                            const iconClass = activity.type === 'record' ? 'recent-record' : 'recent-case';
+                            const icon = activity.type === 'record' ? 'fas fa-user' : 'fas fa-folder';
+                            
+                            html += `
+                                <div class="recent-item" onclick="navigateToItem('${activity.type}', '${activity.id}')">
+                                    <div class="recent-icon ${iconClass}">
+                                        <i class="${icon}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">${activity.title}</div>
+                                        <small class="text-muted">${activity.description} • ${activity.timestamp}</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center text-muted">
+                                <i class="fas fa-history fa-2x mb-2"></i>
+                                <p>${TRANSLATIONS.no_recent_activity}</p>
+                                <small>${TRANSLATIONS.recent_actions_desc}</small>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading recent activity:', error);
+                });
+        }
+        
+        // Load notifications
+        function loadNotifications() {
+            fetch(`dashboard_api.php?action=notifications&officer_id=${officerId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Notifications data:', data);
+                    const container = document.getElementById('notifications');
+                    
+                    if (data.success && data.data.length > 0) {
+                        let html = '';
+                        data.data.forEach(notification => {
+                            const alertClass = notification.type === 'urgent' ? 'alert-warning' : 'alert-info';
+                            const icon = notification.type === 'urgent' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+                            
+                            html += `
+                                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                                    <i class="fas ${icon} me-2"></i>
+                                    <strong>${notification.title}</strong><br>
+                                    <small>${notification.message}</small>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center text-muted">
+                                <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                                <p>${TRANSLATIONS.all_caught_up}</p>
+                                <small>${TRANSLATIONS.no_new_notifications}</small>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                });
+        }
+        
+        // Helper functions
+        function getStatusClass(status) {
+            const statusLower = status.toLowerCase();
+            if (statusLower.includes('active') || statusLower.includes('open')) {
+                return 'status-active';
+            } else if (statusLower.includes('pending') || statusLower.includes('review')) {
+                return 'status-pending';
+            } else if (statusLower.includes('closed') || statusLower.includes('resolved')) {
+                return 'status-closed';
+            }
+            return 'status-pending';
+        }
+        
+        function showStatisticsError() {
+            document.getElementById('totalCases').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            document.getElementById('activeCases').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            document.getElementById('weeklyRecords').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            document.getElementById('pendingTasks').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        }
+        
+        function showErrorMessage(containerId, type) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="text-center text-danger py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <p>${TRANSLATIONS.error_loading.replace('{type}', type)}</p>
+                    <button class="btn btn-outline-danger btn-sm" onclick="loadDashboardData()">
+                        <i class="fas fa-redo me-1"></i> ${TRANSLATIONS.retry}
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Action functions
+        function viewCase(caseId) {
+            alert('View case: ' + caseId);
+            // window.location.href = `view_case.php?id=${caseId}`;
+        }
+        
+        function navigateToItem(type, id) {
+            alert('Navigate to: ' + type + ' - ' + id);
+            // if (type === 'record') {
+            //     window.location.href = `view_criminal_record.php?id=${id}`;
+            // } else if (type === 'case') {
+            //     window.location.href = `view_case.php?id=${id}`;
+            // }
+        }
+        
+        function refreshCases() {
+            loadAssignedCases();
+        }
+        
+        function refreshDashboard() {
+            loadDashboardData();
+            // Show temporary success message
+            const statusMessage = document.getElementById('statusMessage');
+            if (statusMessage) {
+                statusMessage.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${TRANSLATIONS.dashboard_refreshed}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-refresh functionality
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                loadDashboardData();
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
 </html>
-
-<?php
-// api/officer_data.php
-session_start();
-require_once '../includes/auth.php';
-require_once '../includes/database.php';
-
-// Enforce officer access
-requireRole(['officer']);
-
-header('Content-Type: application/json');
-
-$database = new Database();
-$db = $database->getConnection();
-
-$action = $_GET['action'] ?? '';
-$officerId = $_GET['officer_id'] ?? $_SESSION['user_id'];
-
-// Security check: Ensure officer can only access their own data
-if ($officerId != $_SESSION['user_id']) {
-    echo json_encode(['success' => false, 'message' => 'Access denied']);
-    exit;
-}
-
-try {
-    switch($action) {
-        case 'assigned_cases':
-            echo json_encode(getAssignedCases($db, $officerId));
-            break;
-        case 'weekly_stats':
-            echo json_encode(getWeeklyStats($db, $officerId));
-            break;
-        case 'recent_searches':
-            echo json_encode(getRecentSearches($db, $officerId));
-            break;
-        case 'notifications':
-            echo json_encode(getNotifications($db, $officerId));
-            break;
-        default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
-    }
-} catch (Exception $e) {
-    error_log("Officer Dashboard API Error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Internal server error']);
-}
-
-function getAssignedCases($db, $officerId) {
-    try {
-        $stmt = $db->prepare("
-            SELECT 
-                c.id,
-                c.case_number,
-                CONCAT(cr.first_name, ' ', cr.last_name) as criminal_name,
-                c.status,
-                c.updated_at,
-                DATE_FORMAT(c.updated_at, '%M %d, %Y') as last_updated
-            FROM cases c
-            LEFT JOIN criminal_records cr ON c.criminal_record_id = cr.id
-            WHERE c.assigned_officer_id = ?
-            ORDER BY c.updated_at DESC
-            LIMIT 5
-        ");
-        $stmt->execute([$officerId]);
-        $cases = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Get total count
-        $countStmt = $db->prepare("SELECT COUNT(*) as total FROM cases WHERE assigned_officer_id = ?");
-        $countStmt->execute([$officerId]);
-        $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
-        
-        return [
-            'success' => true,
-            'data' => $cases,
-            'total' => $total
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => $e->getMessage()];
-    }
-}
-
-function getWeeklyStats($db, $officerId) {
-    try {
-        $stmt = $db->prepare("
-            SELECT COUNT(*) as records_added
-            FROM criminal_records 
-            WHERE created_by = ? 
-            AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-        ");
-        $stmt->execute([$officerId]);
-        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return [
-            'success' => true,
-            'data' => $stats
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => $e->getMessage()];
-    }
-}
-
-function getRecentSearches($db, $officerId) {
-    try {
-        $stmt = $db->prepare("
-            SELECT 
-                vs.target_type as type,
-                vs.target_id as id,
-                vs.target_title as title,
-                DATE_FORMAT(vs.viewed_at, '%M %d at %h:%i %p') as viewed_at
-            FROM view_history vs
-            WHERE vs.user_id = ?
-            ORDER BY vs.viewed_at DESC
-            LIMIT 5
-        ");
-        $stmt->execute([$officerId]);
-        $searches = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return [
-            'success' => true,
-            'data' => $searches
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => $e->getMessage()];
-    }
-}
-
-function getNotifications($db, $officerId) {
-    try {
-        $notifications = [];
-        
-        // Check for overdue cases
-        $stmt = $db->prepare("
-            SELECT COUNT(*) as count
-            FROM cases 
-            WHERE assigned_officer_id = ? 
-            AND status = 'active'
-            AND due_date < CURDATE()
-        ");
-        $stmt->execute([$officerId]);
-        $overdueCases = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        if ($overdueCases > 0) {
-            $notifications[] = [
-                'type' => 'urgent',
-                'title' => 'Overdue Cases',
-                'message' => "You have $overdueCases overdue case(s) requiring attention"
-            ];
-        }
-        
-        // Check for new case assignments
-        $stmt = $db->prepare("
-            SELECT COUNT(*) as count
-            FROM cases 
-            WHERE assigned_officer_id = ? 
-            AND status = 'active'
-            AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        ");
-        $stmt->execute([$officerId]);
-        $newCases = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        if ($newCases > 0) {
-            $notifications[] = [
-                'type' => 'info',
-                'title' => 'New Case Assignment',
-                'message' => "$newCases new case(s) assigned to you in the last 24 hours"
-            ];
-        }
-        
-        return [
-            'success' => true,
-            'data' => $notifications
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => $e->getMessage()];
-    }
-}
-
-// includes/officer_functions.php

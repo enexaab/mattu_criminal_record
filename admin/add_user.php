@@ -5,6 +5,231 @@ ini_set('display_errors', 1);
 
 session_start();
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'Add New User - Mattu City Criminal Management System',
+        'header_title' => 'Add New User',
+        'header_sub' => 'Create a new user account with temporary password and assigned role',
+        'account_info' => 'Account Information',
+        'username_label' => 'Username',
+        'username_req' => '*',
+        'username_placeholder' => 'Enter unique username',
+        'username_help' => 'Username must be unique and at least 3 characters long',
+        'role_label' => 'User Role',
+        'role_placeholder' => 'Select User Role',
+        'role_admin' => 'Administrator',
+        'role_chief' => 'Police Chief',
+        'role_officer' => 'Police Officer',
+        'role_clerk' => 'Records Clerk',
+        'temp_pass_label' => 'Temporary Password',
+        'temp_pass_placeholder' => 'Enter temporary password',
+        'email_label' => 'Email Address',
+        'email_help' => 'Optional email address for notifications',
+        'email_placeholder' => 'user@example.com',
+        'active_label' => 'Account is active (user can login immediately)',
+        'personal_info' => 'Personal Information',
+        'first_name_label' => 'First Name',
+        'first_name_placeholder' => 'Enter first name',
+        'last_name_label' => 'Last Name',
+        'last_name_placeholder' => 'Enter last name',
+        'phone_label' => 'Phone Number',
+        'phone_placeholder' => '+1234567890',
+        'phone_help' => 'Optional contact number',
+        'department_label' => 'Department',
+        'department_placeholder' => 'Enter department',
+        'department_help' => 'Optional department assignment',
+        'badge_label' => 'Badge Number',
+        'badge_placeholder' => 'Enter badge number',
+        'badge_help' => 'Optional badge number (must be unique)',
+        'back_btn' => 'Back to User Management',
+        'submit_btn' => 'Create User Account',
+        'success_msg' => 'Success! User account created successfully',
+        'creds_header' => 'User Credentials Created Successfully',
+        'creds_username' => 'Username:',
+        'creds_password' => 'Temporary Password:',
+        'creds_fullname' => 'Full Name:',
+        'creds_role' => 'Role:',
+        'important_alert' => 'Important: Please provide these credentials to the user securely. They will be required to change their password upon first login.',
+        'js_username_err' => 'Please provide a valid and unique username.',
+        'js_role_err' => 'Please select a user role.',
+        'js_pass_err' => 'Please provide a strong temporary password.',
+        'js_firstname_err' => 'Please provide the first name.',
+        'js_lastname_err' => 'Please provide the last name.',
+        'js_verify_username' => 'Please verify the username availability before submitting.',
+        'js_strong_pass' => 'Please ensure the temporary password meets all strength requirements.',
+        'js_form_err' => 'Please correct the errors in the form before submitting.',
+        'js_available' => 'Available! Username is unique and can be used.',
+        'js_exists' => 'Already Exists! This username is already registered.',
+        'js_check_err' => 'Error! ',
+        'js_net_err' => 'Network Error! Please check your connection and try again.',
+        'js_username_short' => 'Username must be at least 3 characters long.',
+        'js_username_invalid' => 'Username must be at least 3 characters and contain only letters, numbers, and underscores',
+        'js_name_invalid' => 'Name must be at least 2 characters and contain only letters',
+        'js_email_invalid' => 'Please enter a valid email address',
+        'js_phone_invalid' => 'Please enter a valid phone number',
+        'js_enter_username' => 'Please enter a username to check availability.',
+        'js_pass_req_length' => 'At least 8 characters',
+        'js_pass_req_upper' => 'One uppercase letter',
+        'js_pass_req_lower' => 'One lowercase letter',
+        'js_pass_req_num' => 'One number',
+        'js_check_fail' => 'Error! Failed to check username availability. Please try again.',
+    ],
+    'am' => [
+        'title' => 'አዲስ ተጠቃሚ ይጨምር - ማቱ ከተማ የወንጀል አስተዳደር ስርዓት',
+        'header_title' => 'አዲስ ተጠቃሚ ይጨምር',
+        'header_sub' => 'ጊዜያዊ የይለፍ ቃል እና የተሰጠ ሚና ባለቤት አዲስ ተጠቃሚ መለያ ይፍጠሩ',
+        'account_info' => 'የሂወኔት መረጃ',
+        'username_label' => 'የተጠቃሚ ስም',
+        'username_req' => '*',
+        'username_placeholder' => 'የተለየ የተጠቃሚ ስም ያስገቡ',
+        'username_help' => 'የተጠቃሚ ስም የተለየ መሆን እና ቢያንስ 3 ቁራጮች ርዝመት መኖር አለበት',
+        'role_label' => 'የተጠቃሚ ሚና',
+        'role_placeholder' => 'የተጠቃሚ ሚና ይመርጩ',
+        'role_admin' => 'አስተዳዳሪ',
+        'role_chief' => 'የፖሊስ ጂኔራል',
+        'role_officer' => 'የፖሊስ መኮንን',
+        'role_clerk' => 'የመዝገብ ጸሐፊ',
+        'temp_pass_label' => 'ጊዜያዊ የይለፍ ቃል',
+        'temp_pass_placeholder' => 'ጊዜያዊ የይለፍ ቃል ያስገቡ',
+        'email_label' => 'ኢሜይል አድራሻ',
+        'email_help' => 'ለማሳወቂያ አማራጭ ኢሜይል አድራሻ',
+        'email_placeholder' => 'user@example.com',
+        'active_label' => 'መለያ ንቁ ነው (ተጠቃሚ ወዲያውኑ ሊገባ ይችላል)',
+        'personal_info' => 'የግል መረጃ',
+        'first_name_label' => 'የመጀመሪያ ስም',
+        'first_name_placeholder' => 'የመጀመሪያ ስም ያስገቡ',
+        'last_name_label' => 'የቤት ስም',
+        'last_name_placeholder' => 'የቤት ስም ያስገቡ',
+        'phone_label' => 'ስልክ ቁጥር',
+        'phone_placeholder' => '+1234567890',
+        'phone_help' => 'አማራጭ የእውቂያ ቁጥር',
+        'department_label' => 'ክፍል',
+        'department_placeholder' => 'ክፍል ያስገቡ',
+        'department_help' => 'አማራጭ የክፍል ማመክር',
+        'badge_label' => 'ባጄ ቁጥር',
+        'badge_placeholder' => 'ባጄ ቁጥር ያስገቡ',
+        'badge_help' => 'አማራጭ ባጄ ቁጥር (የተለየ መሆን አለበት)',
+        'back_btn' => 'ወደ ተጠቃሚ አስተዳደር ተመለስ',
+        'submit_btn' => 'የተጠቃሚ መለያ ይፍጠሩ',
+        'success_msg' => 'ተሳክቶ! የተጠቃሚ መለያ በተሳካ ሁኔታ ተፈጸመ',
+        'creds_header' => 'የተጠቃሚ የማረጋገጫ መረጃዎች በተሳካ ሁኔታ ተፈጸመዋል',
+        'creds_username' => 'የተጠቃሚ ስም:',
+        'creds_password' => 'ጊዜያዊ የይለፍ ቃል:',
+        'creds_fullname' => 'ሙሉ ስም:',
+        'creds_role' => 'ሚና:',
+        'important_alert' => 'አስፈላጊ: እነዚህን የማረጋገጫ መረጃዎች ለተጠቃሚ በደህንነት ያቀርቡ። በመጀመሪያ ግባ ጊዜ የይለፍ ቃላቸውን ለውጥ ይገባሉ።',
+        'js_username_err' => 'ትክክለኛ እና የተለየ የተጠቃሚ ስም ያቀርቡ።',
+        'js_role_err' => 'የተጠቃሚ ሚና ይመርጩ።',
+        'js_pass_err' => 'ጠንካራ ጊዜያዊ የይለፍ ቃል ያቀርቡ።',
+        'js_firstname_err' => 'የመጀመሪያ ስም ያቀርቡ።',
+        'js_lastname_err' => 'የቤት ስም ያቀርቡ።',
+        'js_verify_username' => 'የተጠቃሚ ስም ተገኝቶ ዝግጅት ከማድረግ በፊት ያረጋግጡ።',
+        'js_strong_pass' => 'ጊዜያዊ የይለፍ ቃል ሁሉም ጥበቃ መስፈርቶችን የሚያሟል መሆን አረጋግጥዎት።',
+        'js_form_err' => 'ቅጂ ማስተካከል ከማድረግ በፊት በቅጹ ያለውን ስህተቶች ያስተካክሉ።',
+        'js_available' => 'ይገኛል! የተጠቃሚ ስም የተለየ ነው እና ሊጠቀም ይችላል።',
+        'js_exists' => 'አልተመዘገበም! ይህ የተጠቃሚ ስም ቀደም ብሎ ተመዝግቧል።',
+        'js_check_err' => 'ስህተት! ',
+        'js_net_err' => 'የኔትወርክ ስህተት! ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።',
+        'js_username_short' => 'የተጠቃሚ ስም ቢያንስ 3 ቁራጮች ርዝመት መኖር አለበት።',
+        'js_username_invalid' => 'የተጠቃሚ ስም ቢያንስ 3 ቁራጮች መሆን እና ፊደል፣ ቁጥር እና አንድር ምልክቶች ብቻ ይይዛል',
+        'js_name_invalid' => 'ስም ቢያንስ 2 ቁራጮች መሆን እና ፊደሎች ብቻ ይይዛል',
+        'js_email_invalid' => 'ትክክለኛ ኢሜይል አድራሻ ያስገቡ',
+        'js_phone_invalid' => 'ትክክለኛ የስልክ ቁጥር ያስገቡ',
+        'js_enter_username' => 'ተገኝቶ የተጠቃሚ ስም ያስገቡ።',
+        'js_pass_req_length' => 'ቢያንስ 8 ቁራጮች',
+        'js_pass_req_upper' => 'አንድ ትልቅ ፊደል',
+        'js_pass_req_lower' => 'አንድ ትንሽ ፊደል',
+        'js_pass_req_num' => 'አንድ ቁጥር',
+        'js_check_fail' => 'ስህተት! የተጠቃሚ ስም ተገኝቶ ሲል ተሳካ አልተደረገም። እባክዎ እንደገና ይሞክሩ።',
+    ],
+    'om' => [
+        'title' => 'Userii New Ummisi - Sisteemi Imaammata Mattu Keessatti',
+        'header_title' => 'Userii New Ummisi',
+        'header_sub' => 'Passwuurdi Hojiin Ummata Mattu Miiinii Ummata Userii New Ummisi',
+        'account_info' => 'Imaammata Accountii',
+        'username_label' => 'Userii Isa',
+        'username_req' => '*',
+        'username_placeholder' => 'Userii Isa Ummata Fidisi',
+        'username_help' => 'Userii Isa Ummata Mattu 3 Naammaa Jijjiirama',
+        'role_label' => 'Miiinii Userii',
+        'role_placeholder' => 'Miiinii Userii Ummisi',
+        'role_admin' => 'Adminii',
+        'role_chief' => 'Maqii Poolisii',
+        'role_officer' => 'Poolisii Officerii',
+        'role_clerk' => 'Karraa Mezgabee',
+        'temp_pass_label' => 'Passwuurdi Hojiin',
+        'temp_pass_placeholder' => 'Passwuurdi Hojiin Fidisi',
+        'email_label' => 'Imeeli Addraa',
+        'email_help' => 'Imeeli Addraa Amaaraa Mattu Ijaarsa',
+        'email_placeholder' => 'user@example.com',
+        'active_label' => 'Accountii Hojiin (Userii Ykn Hojiin Galataa)',
+        'personal_info' => 'Imaammata Gargaarii',
+        'first_name_label' => 'Isa Qabu',
+        'first_name_placeholder' => 'Isa Qabu Fidisi',
+        'last_name_label' => 'Isa Biyyii',
+        'last_name_placeholder' => 'Isa Biyyii Fidisi',
+        'phone_label' => 'Naama Poolisii',
+        'phone_placeholder' => '+1234567890',
+        'phone_help' => 'Naama Poolisii Amaaraa',
+        'department_label' => 'Depertimeentii',
+        'department_placeholder' => 'Depertimeentii Fidisi',
+        'department_help' => 'Depertimeentii Amaaraa Ummata',
+        'badge_label' => 'Naama Baajii',
+        'badge_placeholder' => 'Naama Baajii Fidisi',
+        'badge_help' => 'Naama Baajii Amaaraa (Ummata Mattu)',
+        'back_btn' => 'Garaa Imaammata Useroota',
+        'submit_btn' => 'Accountii Userii Ummisi',
+        'success_msg' => 'Galataa! Accountii Userii Ykn Hojiin Ummame',
+        'creds_header' => 'Imaammata Mezgabee Userii Ykn Hojiin Ummame',
+        'creds_username' => 'Userii Isa:',
+        'creds_password' => 'Passwuurdi Hojiin:',
+        'creds_fullname' => 'Isa Hundee:',
+        'creds_role' => 'Miiinii:',
+        'important_alert' => 'Afaan: Imaammataan Kana Userii Qabeenya Mattu Ummisi. Passwuurdi Isa Ummata Galataa Mattu Passwuurdi Isa Ummisi.',
+        'js_username_err' => 'Userii Isa Tikkilee Mattu Ummata Fidisi.',
+        'js_role_err' => 'Miiinii Userii Ummisi.',
+        'js_pass_err' => 'Passwuurdi Hojiin Tikkilee Fidisi.',
+        'js_firstname_err' => 'Isa Qabu Fidisi.',
+        'js_lastname_err' => 'Isa Biyyii Fidisi.',
+        'js_verify_username' => 'Userii Isa Tegganoo Ummata Mattu Ummisi.',
+        'js_strong_pass' => 'Passwuurdi Hojiin Hundee Tikkilee Mattu Aadaa.',
+        'js_form_err' => 'Saa Qabiyyee Qabiyyee Ummisi Mattu Ummisi.',
+        'js_available' => 'Galataa! Userii Isa Ummata Mattu Ummata.',
+        'js_exists' => 'Aadaa! Userii Isa Kannee Mezgabee.',
+        'js_check_err' => 'Saa! ',
+        'js_net_err' => 'Saa Netwwarkii! Imaammata Galataa Mattu Ummisi.',
+        'js_username_short' => 'Userii Isa 3 Naammaa Jijjiirama.',
+        'js_username_invalid' => 'Userii Isa 3 Naammaa Mattu Afaan, Naama, Mattu Andur Milee Biyyee',
+        'js_name_invalid' => 'Isa 2 Naammaa Mattu Afaan Biyyee',
+        'js_email_invalid' => 'Imeeli Addraa Tikkilee Fidisi',
+        'js_phone_invalid' => 'Naama Poolisii Tikkilee Fidisi',
+        'js_enter_username' => 'Userii Isa Tegganoo Fidisi.',
+        'js_pass_req_length' => '8 Naammaa Jijjiirama',
+        'js_pass_req_upper' => 'Afaan Taggessaa',
+        'js_pass_req_lower' => 'Afaan Taggessaa',
+        'js_pass_req_num' => 'Naamaa',
+        'js_check_fail' => 'Saa! Userii Isa Tegganoo Ummata Mattu Aadaa. Aadaa Ummisi.',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if required files exist before including them
 $required_files = [
     '../includes/auth.php',
@@ -248,16 +473,26 @@ $current_user = [
 ];
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New User - Mattu City Criminal Management System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         * {
@@ -868,8 +1103,17 @@ $current_user = [
         <div class="form-container">
             <!-- Form Header -->
             <div class="form-header">
-                <h3><i class="fas fa-user-plus me-3"></i>Add New User</h3>
-                <p>Create a new user account with temporary password and assigned role</p>
+                <h3><i class="fas fa-user-plus me-3"></i><?php echo t('header_title'); ?></h3>
+                <p><?php echo t('header_sub'); ?></p>
+                
+                <!-- Language Selector -->
+                <form method="post" style="margin-top: 20px;">
+                    <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="max-width: 200px; margin: 0 auto;">
+                        <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>English</option>
+                        <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>አማርኛ</option>
+                        <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>Afaan Oromoo</option>
+                    </select>
+                </form>
             </div>
             
             <!-- Main Form -->
@@ -877,38 +1121,38 @@ $current_user = [
                 
                 <!-- Account Information Section -->
                 <fieldset class="fieldset-custom">
-                    <legend><i class="fas fa-user-circle me-2"></i>Account Information</legend>
+                    <legend><i class="fas fa-user-circle me-2"></i><?php echo t('account_info'); ?></legend>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="username" class="form-label form-label-custom">
-                                    Username <span class="required-indicator">*</span>
+                                    <?php echo t('username_label'); ?> <span class="required-indicator"><?php echo t('username_req'); ?></span>
                                 </label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control form-control-custom" id="username" name="username" required placeholder="Enter unique username">
+                                    <input type="text" class="form-control form-control-custom" id="username" name="username" required placeholder="<?php echo t('username_placeholder'); ?>">
                                     <button type="button" class="btn-check" id="checkUsernameBtn">
                                         <i class="fas fa-search me-1"></i>Check
                                     </button>
                                 </div>
-                                <div class="invalid-feedback">Please provide a valid and unique username.</div>
-                                <div class="form-text-custom">Username must be unique and at least 3 characters long</div>
+                                <div class="invalid-feedback"><?php echo t('js_username_err'); ?></div>
+                                <div class="form-text-custom"><?php echo t('username_help'); ?></div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="role" class="form-label form-label-custom">
-                                    User Role <span class="required-indicator">*</span>
+                                    <?php echo t('role_label'); ?> <span class="required-indicator"><?php echo t('username_req'); ?></span>
                                 </label>
                                 <select class="form-control form-control-custom" id="role" name="role" required>
-                                    <option value="">Select User Role</option>
-                                    <option value="administrator">Administrator</option>
-                                    <option value="chief">Police Chief</option>
-                                    <option value="officer">Police Officer</option>
-                                    <option value="clerk">Records Clerk</option>
+                                    <option value=""><?php echo t('role_placeholder'); ?></option>
+                                    <option value="administrator"><?php echo t('role_admin'); ?></option>
+                                    <option value="chief"><?php echo t('role_chief'); ?></option>
+                                    <option value="officer"><?php echo t('role_officer'); ?></option>
+                                    <option value="clerk"><?php echo t('role_clerk'); ?></option>
                                 </select>
-                                <div class="invalid-feedback">Please select a user role.</div>
+                                <div class="invalid-feedback"><?php echo t('js_role_err'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -917,15 +1161,15 @@ $current_user = [
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="temporary_password" class="form-label form-label-custom">
-                                    Temporary Password <span class="required-indicator">*</span>
+                                    <?php echo t('temp_pass_label'); ?> <span class="required-indicator"><?php echo t('username_req'); ?></span>
                                 </label>
                                 <div class="d-flex">
-                                    <input type="password" class="form-control form-control-custom" id="temporary_password" name="temporary_password" required placeholder="Enter temporary password">
+                                    <input type="password" class="form-control form-control-custom" id="temporary_password" name="temporary_password" required placeholder="<?php echo t('temp_pass_placeholder'); ?>">
                                     <button type="button" class="btn-generate" id="generatePasswordBtn">
                                         <i class="fas fa-magic me-1"></i>Generate
                                     </button>
                                 </div>
-                                <div class="invalid-feedback">Please provide a strong temporary password.</div>
+                                <div class="invalid-feedback"><?php echo t('js_pass_err'); ?></div>
                                 
                                 <!-- Password Strength Meter -->
                                 <div class="password-strength" id="passwordStrength">
@@ -934,10 +1178,10 @@ $current_user = [
                                     </div>
                                     <div class="password-requirements">
                                         <ul>
-                                            <li class="invalid" id="reqLength">At least 8 characters</li>
-                                            <li class="invalid" id="reqUppercase">One uppercase letter</li>
-                                            <li class="invalid" id="reqLowercase">One lowercase letter</li>
-                                            <li class="invalid" id="reqNumber">One number</li>
+                                            <li class="invalid" id="reqLength"><?php echo t('js_pass_req_length'); ?></li>
+                                            <li class="invalid" id="reqUppercase"><?php echo t('js_pass_req_upper'); ?></li>
+                                            <li class="invalid" id="reqLowercase"><?php echo t('js_pass_req_lower'); ?></li>
+                                            <li class="invalid" id="reqNumber"><?php echo t('js_pass_req_num'); ?></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -946,9 +1190,9 @@ $current_user = [
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="email" class="form-label form-label-custom">Email Address</label>
-                                <input type="email" class="form-control form-control-custom" id="email" name="email" placeholder="user@example.com">
-                                <div class="form-text-custom">Optional email address for notifications</div>
+                                <label for="email" class="form-label form-label-custom"><?php echo t('email_label'); ?></label>
+                                <input type="email" class="form-control form-control-custom" id="email" name="email" placeholder="<?php echo t('email_placeholder'); ?>">
+                                <div class="form-text-custom"><?php echo t('email_help'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -956,33 +1200,33 @@ $current_user = [
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
                         <label class="form-check-label" for="is_active">
-                            Account is active (user can login immediately)
+                            <?php echo t('active_label'); ?>
                         </label>
                     </div>
                 </fieldset>
                 
                 <!-- Personal Information Section -->
                 <fieldset class="fieldset-custom">
-                    <legend><i class="fas fa-id-card me-2"></i>Personal Information</legend>
+                    <legend><i class="fas fa-id-card me-2"></i><?php echo t('personal_info'); ?></legend>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="first_name" class="form-label form-label-custom">
-                                    First Name <span class="required-indicator">*</span>
+                                    <?php echo t('first_name_label'); ?> <span class="required-indicator"><?php echo t('username_req'); ?></span>
                                 </label>
-                                <input type="text" class="form-control form-control-custom" id="first_name" name="first_name" required placeholder="Enter first name">
-                                <div class="invalid-feedback">Please provide the first name.</div>
+                                <input type="text" class="form-control form-control-custom" id="first_name" name="first_name" required placeholder="<?php echo t('first_name_placeholder'); ?>">
+                                <div class="invalid-feedback"><?php echo t('js_firstname_err'); ?></div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="last_name" class="form-label form-label-custom">
-                                    Last Name <span class="required-indicator">*</span>
+                                    <?php echo t('last_name_label'); ?> <span class="required-indicator"><?php echo t('username_req'); ?></span>
                                 </label>
-                                <input type="text" class="form-control form-control-custom" id="last_name" name="last_name" required placeholder="Enter last name">
-                                <div class="invalid-feedback">Please provide the last name.</div>
+                                <input type="text" class="form-control form-control-custom" id="last_name" name="last_name" required placeholder="<?php echo t('last_name_placeholder'); ?>">
+                                <div class="invalid-feedback"><?php echo t('js_lastname_err'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -990,17 +1234,17 @@ $current_user = [
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="phone" class="form-label form-label-custom">Phone Number</label>
-                                <input type="tel" class="form-control form-control-custom" id="phone" name="phone" placeholder="+1234567890">
-                                <div class="form-text-custom">Optional contact number</div>
+                                <label for="phone" class="form-label form-label-custom"><?php echo t('phone_label'); ?></label>
+                                <input type="tel" class="form-control form-control-custom" id="phone" name="phone" placeholder="<?php echo t('phone_placeholder'); ?>">
+                                <div class="form-text-custom"><?php echo t('phone_help'); ?></div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="department" class="form-label form-label-custom">Department</label>
-                                <input type="text" class="form-control form-control-custom" id="department" name="department" placeholder="Enter department">
-                                <div class="form-text-custom">Optional department assignment</div>
+                                <label for="department" class="form-label form-label-custom"><?php echo t('department_label'); ?></label>
+                                <input type="text" class="form-control form-control-custom" id="department" name="department" placeholder="<?php echo t('department_placeholder'); ?>">
+                                <div class="form-text-custom"><?php echo t('department_help'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -1008,9 +1252,9 @@ $current_user = [
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="badge_number" class="form-label form-label-custom">Badge Number</label>
-                                <input type="text" class="form-control form-control-custom" id="badge_number" name="badge_number" placeholder="Enter badge number">
-                                <div class="form-text-custom">Optional badge number (must be unique)</div>
+                                <label for="badge_number" class="form-label form-label-custom"><?php echo t('badge_label'); ?></label>
+                                <input type="text" class="form-control form-control-custom" id="badge_number" name="badge_number" placeholder="<?php echo t('badge_placeholder'); ?>">
+                                <div class="form-text-custom"><?php echo t('badge_help'); ?></div>
                             </div>
                         </div>
                     </div>
@@ -1019,11 +1263,11 @@ $current_user = [
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-between align-items-center">
                     <a href="user_management.php" class="btn-secondary-custom">
-                        <i class="fas fa-arrow-left me-2"></i>Back to User Management
+                        <i class="fas fa-arrow-left me-2"></i><?php echo t('back_btn'); ?>
                     </a>
                     
                     <button type="submit" class="btn-primary-custom" id="submitBtn" disabled>
-                        <i class="fas fa-user-plus me-2"></i>Create User Account
+                        <i class="fas fa-user-plus me-2"></i><?php echo t('submit_btn'); ?>
                     </button>
                 </div>
                 
@@ -1032,23 +1276,22 @@ $current_user = [
                 
                 <!-- User Credentials Display (shown after successful creation) -->
                 <div id="userCredentials" class="user-credentials">
-                    <h5><i class="fas fa-key me-2"></i>User Credentials Created Successfully</h5>
+                    <h5><i class="fas fa-key me-2"></i><?php echo t('creds_header'); ?></h5>
                     <div class="credential-item">
-                        <strong>Username:</strong> <span id="displayUsername"></span>
+                        <strong><?php echo t('creds_username'); ?></strong> <span id="displayUsername"></span>
                     </div>
                     <div class="credential-item">
-                        <strong>Temporary Password:</strong> <span id="displayPassword"></span>
+                        <strong><?php echo t('creds_password'); ?></strong> <span id="displayPassword"></span>
                     </div>
                     <div class="credential-item">
-                        <strong>Full Name:</strong> <span id="displayFullName"></span>
+                        <strong><?php echo t('creds_fullname'); ?></strong> <span id="displayFullName"></span>
                     </div>
                     <div class="credential-item">
-                        <strong>Role:</strong> <span id="displayRole"></span>
+                        <strong><?php echo t('creds_role'); ?></strong> <span id="displayRole"></span>
                     </div>
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Important:</strong> Please provide these credentials to the user securely. 
-                        They will be required to change their password upon first login.
+                        <strong><?php echo t('important_alert'); ?></strong>
                     </div>
                 </div>
             </form>
@@ -1135,12 +1378,12 @@ $current_user = [
                 e.preventDefault();
                 
                 if (!usernameAvailable) {
-                    showMessage('Please verify the username availability before submitting.', 'warning');
+                    showMessage('<?php echo addslashes(t("js_verify_username")); ?>', 'warning');
                     return;
                 }
                 
                 if (!passwordStrong) {
-                    showMessage('Please ensure the temporary password meets all strength requirements.', 'warning');
+                    showMessage('<?php echo addslashes(t("js_strong_pass")); ?>', 'warning');
                     return;
                 }
                 
@@ -1153,7 +1396,7 @@ $current_user = [
                 });
                 
                 if (!isValid) {
-                    showMessage('Please correct the errors in the form before submitting.', 'danger');
+                    showMessage('<?php echo addslashes(t("js_form_err")); ?>', 'danger');
                     return;
                 }
                 
@@ -1172,7 +1415,7 @@ $current_user = [
                     if (result.success) {
                         // Show success message and user credentials
                         showMessage(
-                            `<i class="fas fa-check-circle me-2"></i><strong>Success!</strong> ${result.message}`, 
+                            `<i class="fas fa-check-circle me-2"></i><strong><?php echo t('success_msg'); ?></strong>`, 
                             'success'
                         );
                         
@@ -1205,7 +1448,7 @@ $current_user = [
                         
                     } else {
                         showMessage(
-                            `<i class="fas fa-exclamation-triangle me-2"></i><strong>Error!</strong> ${result.message}`, 
+                            `<i class="fas fa-exclamation-triangle me-2"></i><strong><?php echo t('js_check_err'); ?></strong> ${result.message}`, 
                             'danger'
                         );
                     }
@@ -1213,7 +1456,7 @@ $current_user = [
                 .catch(error => {
                     console.error('Error:', error);
                     showMessage(
-                        `<i class="fas fa-times-circle me-2"></i><strong>Network Error!</strong> Please check your connection and try again.`, 
+                        `<i class="fas fa-times-circle me-2"></i><strong><?php echo t('js_net_err'); ?></strong>`, 
                         'danger'
                     );
                 })
@@ -1227,12 +1470,12 @@ $current_user = [
                 const username = usernameInput.value.trim();
                 
                 if (!username) {
-                    showMessage('Please enter a username to check availability.', 'warning');
+                    showMessage('<?php echo addslashes(t("js_enter_username")); ?>', 'warning');
                     return;
                 }
                 
                 if (username.length < 3) {
-                    showMessage('Username must be at least 3 characters long.', 'warning');
+                    showMessage('<?php echo addslashes(t("js_username_short")); ?>', 'warning');
                     return;
                 }
                 
@@ -1261,7 +1504,7 @@ $current_user = [
                         checkFormValidity();
                         
                         showMessage(
-                            `<i class="fas fa-check-circle me-2"></i><strong>Available!</strong> Username is unique and can be used.`, 
+                            `<i class="fas fa-check-circle me-2"></i><strong><?php echo t('js_available'); ?></strong>`, 
                             'success'
                         );
                         
@@ -1273,7 +1516,7 @@ $current_user = [
                         submitBtn.disabled = true;
                         
                         showMessage(
-                            `<i class="fas fa-exclamation-triangle me-2"></i><strong>Already Exists!</strong> This username is already registered.`, 
+                            `<i class="fas fa-exclamation-triangle me-2"></i><strong><?php echo t('js_exists'); ?></strong>`, 
                             'warning'
                         );
                     } else {
@@ -1284,7 +1527,7 @@ $current_user = [
                         submitBtn.disabled = true;
                         
                         showMessage(
-                            `<i class="fas fa-times-circle me-2"></i><strong>Error!</strong> ${result.message}`, 
+                            `<i class="fas fa-times-circle me-2"></i><strong><?php echo t('js_check_err'); ?></strong> ${result.message}`, 
                             'danger'
                         );
                     }
@@ -1292,7 +1535,7 @@ $current_user = [
                 .catch(error => {
                     console.error('Error:', error);
                     showMessage(
-                        `<i class="fas fa-times-circle me-2"></i><strong>Error!</strong> Failed to check username availability. Please try again.`, 
+                        `<i class="fas fa-times-circle me-2"></i><strong><?php echo t('js_check_fail'); ?></strong>`, 
                         'danger'
                     );
                 })
@@ -1397,7 +1640,7 @@ $current_user = [
                 switch (field.id) {
                     case 'username':
                         if (value && (value.length < 3 || !/^[a-zA-Z0-9_]+$/.test(value))) {
-                            field.setCustomValidity('Username must be at least 3 characters and contain only letters, numbers, and underscores');
+                            field.setCustomValidity('<?php echo addslashes(t("js_username_invalid")); ?>');
                             isValid = false;
                         } else {
                             field.setCustomValidity('');
@@ -1407,7 +1650,7 @@ $current_user = [
                     case 'first_name':
                     case 'last_name':
                         if (value && (value.length < 2 || !/^[a-zA-Z\s]+$/.test(value))) {
-                            field.setCustomValidity('Name must be at least 2 characters and contain only letters');
+                            field.setCustomValidity('<?php echo addslashes(t("js_name_invalid")); ?>');
                             isValid = false;
                         } else {
                             field.setCustomValidity('');
@@ -1416,7 +1659,7 @@ $current_user = [
                         
                     case 'email':
                         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                            field.setCustomValidity('Please enter a valid email address');
+                            field.setCustomValidity('<?php echo addslashes(t("js_email_invalid")); ?>');
                             isValid = false;
                         } else {
                             field.setCustomValidity('');
@@ -1425,7 +1668,7 @@ $current_user = [
                         
                     case 'phone':
                         if (value && !/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-                            field.setCustomValidity('Please enter a valid phone number');
+                            field.setCustomValidity('<?php echo addslashes(t("js_phone_invalid")); ?>');
                             isValid = false;
                         } else {
                             field.setCustomValidity('');
@@ -1453,7 +1696,7 @@ $current_user = [
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating User...';
                 } else {
-                    submitBtn.innerHTML = '<i class="fas fa-user-plus me-2"></i>Create User Account';
+                    submitBtn.innerHTML = '<i class="fas fa-user-plus me-2"></i><?php echo addslashes(t("submit_btn")); ?>';
                     checkFormValidity(); // Re-enable based on form validity
                 }
             }

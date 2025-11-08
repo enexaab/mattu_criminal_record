@@ -6,13 +6,272 @@ require '../includes/auth.php';
 require '../includes/database.php';
 require '../includes/admin_functions.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'User Management - Mattu Criminal Record System',
+        'header_title' => 'User Management',
+        'header_subtitle' => 'Manage system users and their permissions',
+        'msg_user_created' => 'User created successfully!',
+        'msg_create_failed' => 'Failed to create user. Username might already exist.',
+        'msg_user_updated' => 'User updated successfully!',
+        'msg_update_failed' => 'Failed to update user. Username might already exist.',
+        'msg_password_reset' => 'Password reset successfully for user!',
+        'msg_reset_failed' => 'Failed to reset password.',
+        'msg_status_toggled' => 'User status updated successfully!',
+        'msg_toggle_failed' => 'Failed to update user status.',
+        'table_id' => 'ID',
+        'table_name' => 'Name',
+        'table_username' => 'Username',
+        'table_email' => 'Email',
+        'table_role' => 'Role',
+        'table_status' => 'Status',
+        'table_last_login' => 'Last Login',
+        'table_created' => 'Created',
+        'table_actions' => 'Actions',
+        'status_active' => 'Active',
+        'status_inactive' => 'Inactive',
+        'never_logged_in' => 'Never',
+        'no_users_found' => 'No users found in the system',
+        'btn_create_user' => 'Create New User',
+        'btn_edit' => 'Edit',
+        'btn_reset_password' => 'Reset Password',
+        'btn_deactivate' => 'Deactivate',
+        'btn_activate' => 'Activate',
+        'modal_create_title' => 'Create New User',
+        'modal_edit_title' => 'Edit User',
+        'modal_reset_title' => 'Reset Password',
+        'label_first_name' => 'First Name',
+        'label_last_name' => 'Last Name',
+        'label_username' => 'Username',
+        'label_email' => 'Email',
+        'label_password' => 'Password',
+        'label_role' => 'Role',
+        'label_status' => 'Status',
+        'placeholder_search' => 'Search by name, username, or email...',
+        'filter_all_roles' => 'All Roles',
+        'filter_all_status' => 'All Status',
+        'btn_apply_filter' => 'Apply',
+        'password_strength_very_weak' => 'Very Weak',
+        'password_strength_weak' => 'Weak',
+        'password_strength_medium' => 'Medium',
+        'password_strength_strong' => 'Strong',
+        'password_enter' => 'Enter password',
+        'confirm_activate' => 'Are you sure you want to activate the account for',
+        'confirm_deactivate' => 'Are you sure you want to deactivate the account for',
+        'debug_title' => 'Debug Information',
+        'debug_db_info' => 'Database Info:',
+        'debug_total_users' => 'Total Users:',
+        'debug_total_roles' => 'Total Roles:',
+        'debug_current_user' => 'Current User ID:',
+        'debug_sample_data' => 'Sample Data Check:',
+        'debug_first_user' => 'First user:',
+        'debug_first_user_id' => 'First user ID:',
+        'debug_no_users' => 'No users found in database!',
+        'debug_first_role' => 'First role:',
+        'debug_no_roles' => 'No roles found in database!',
+        'btn_cancel' => 'Cancel',
+        'btn_update_user' => 'Update User',
+        'btn_reset_password_confirm' => 'Reset Password',
+        'alert_password_warning' => 'This will reset the password for',
+        'password_min_length_error' => 'Password must be at least 8 characters long',
+        'js_user_updated' => 'User updated successfully!',
+        'js_password_reset' => 'Password reset successfully!',
+        'js_status_activated' => 'User activated successfully!',
+        'js_status_deactivated' => 'User deactivated successfully!',
+        'js_error_generic' => 'An error occurred. Please try again.',
+        'js_load_failed' => 'Failed to load user data. Please try again.',
+        'js_status_update_failed' => 'Failed to update user status. Please try again.',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'am' => [
+        'title' => 'ተጠቃሚ አስተዳደር - ማቱ የወንጀል መዝገብ ስርዓት',
+        'header_title' => 'ተጠቃሚ አስተዳደር',
+        'header_subtitle' => 'ስርዓት ተጠቃሚዎችን እና ፍቃዶችን ይቆጣጠሩ',
+        'msg_user_created' => 'ተጠቃሚ በተሳካ ሁኔታ ተፈጠረ!',
+        'msg_create_failed' => 'ተጠቃሚ መፍጠር አልተሳካም። የተጠቃሚ ስም ቀደም ሲል ሊኖር ይችላል።',
+        'msg_user_updated' => 'ተጠቃሚ በተሳካ ሁኔታ ተዘመነ!',
+        'msg_update_failed' => 'ተጠቃሚ ማዘመን አልተሳካም። የተጠቃሚ ስም ቀደም ሲል ሊኖር ይችላል።',
+        'msg_password_reset' => 'የተጠቃሚ የይለፍ ቃል በተሳካ ሁኔታ ተዘመነ!',
+        'msg_reset_failed' => 'የይለፍ ቃል ማዘመን አልተሳካም።',
+        'msg_status_toggled' => 'የተጠቃሚ ሁኔታ በተሳካ ሁኔታ ተዘመነ!',
+        'msg_toggle_failed' => 'የተጠቃሚ ሁኔታ ማዘመን አልተሳካም።',
+        'table_id' => 'ID',
+        'table_name' => 'ስም',
+        'table_username' => 'የተጠቃሚ ስም',
+        'table_email' => 'ኢሜይል',
+        'table_role' => 'ሚና',
+        'table_status' => 'ሁኔታ',
+        'table_last_login' => 'የመጨረሻ ግባ',
+        'table_created' => 'ተፈጠረ',
+        'table_actions' => 'እርምጃዎች',
+        'status_active' => 'ንቁ',
+        'status_inactive' => 'ያልተክተለ',
+        'never_logged_in' => 'በተለይ ተገባ',
+        'no_users_found' => 'በስርዓቱ ውስጥ ተጠቃሚዎች አልተገኙም',
+        'btn_create_user' => 'አዲስ ተጠቃሚ ፍጠር',
+        'btn_edit' => 'አስተካክል',
+        'btn_reset_password' => 'የይለፍ ቃል ዳግም ማስጀመር',
+        'btn_deactivate' => 'አባይ',
+        'btn_activate' => 'ንቁ አድርግ',
+        'modal_create_title' => 'አዲስ ተጠቃሚ ፍጠር',
+        'modal_edit_title' => 'ተጠቃሚ አስተካክል',
+        'modal_reset_title' => 'የይለፍ ቃል ዳግም ማስጀመር',
+        'label_first_name' => 'የመጀመሪያ ስም',
+        'label_last_name' => 'የጄና ስም',
+        'label_username' => 'የተጠቃሚ ስም',
+        'label_email' => 'ኢሜይል',
+        'label_password' => 'የይለፍ ቃል',
+        'label_role' => 'ሚና',
+        'label_status' => 'ሁኔታ',
+        'placeholder_search' => 'በስም፣ የተጠቃሚ ስም ወይም ኢሜይል ፍለጋ...',
+        'filter_all_roles' => 'ሁሉም ሚናዎች',
+        'filter_all_status' => 'ሁሉም ሁኔታ',
+        'btn_apply_filter' => 'ተግባራዊ አድርግ',
+        'password_strength_very_weak' => 'በጣም ደካማ',
+        'password_strength_weak' => 'ደካማ',
+        'password_strength_medium' => 'መካከለኛ',
+        'password_strength_strong' => 'ጠንካራ',
+        'password_enter' => 'የይለፍ ቃል ያስገቡ',
+        'confirm_activate' => 'የአካውንት ለንቁ ማድረግ ትፈልጋለህ?',
+        'confirm_deactivate' => 'የአካውንት ለአባይ ማድረግ ትፈልጋለህ?',
+        'debug_title' => 'የመሞከር መረጃ',
+        'debug_db_info' => 'የውሂብ ቤዝ መረጃ:',
+        'debug_total_users' => 'ጠቅላላ ተጠቃሚዎች:',
+        'debug_total_roles' => 'ጠቅላላ ሚናዎች:',
+        'debug_current_user' => 'አሁኑ ተጠቃሚ ID:',
+        'debug_sample_data' => 'የተረጋገጠ ውሂብ ምርምር:',
+        'debug_first_user' => 'የመጀመሪያ ተጠቃሚ:',
+        'debug_first_user_id' => 'የመጀመሪያ ተጠቃሚ ID:',
+        'debug_no_users' => 'በውሂብ ቤዝ ውስጥ ተጠቃሚዎች አልተገኙም!',
+        'debug_first_role' => 'የመጀመሪያ ሚና:',
+        'debug_no_roles' => 'በውሂብ ቤዝ ውስጥ ሚናዎች አልተገኙም!',
+        'btn_cancel' => 'ይቅር',
+        'btn_update_user' => 'ተጠቃሚ ይዘምኑ',
+        'btn_reset_password_confirm' => 'የይለፍ ቃል ዳግም ማስጀመር',
+        'alert_password_warning' => 'ይህ ለተጠቃሚ የይለፍ ቃሉን ዳግም ያስጀምራል',
+        'password_min_length_error' => 'የይለፍ ቃሉ ቢያንስ 8 ቁምፊዎች ርዝመት መኖር አለበት',
+        'js_user_updated' => 'ተጠቃሚ በተሳካ ሁኔታ ተዘመነ!',
+        'js_password_reset' => 'የይለፍ ቃል በተሳካ ሁኔታ ተዘመነ!',
+        'js_status_activated' => 'ተጠቃሚ በተሳካ ሁኔታ ተክተለ!',
+        'js_status_deactivated' => 'ተጠቃሚ በተሳካ ሁኔታ ተቆለፈ!',
+        'js_error_generic' => 'ስህተት ተከስቷል። እባክዎ ዳግም ይሞክሩ።',
+        'js_load_failed' => 'የተጠቃሚ ውሂብ ማግኘት አልተሳካም። እባክዎ ዳግም ይሞክሩ።',
+        'js_status_update_failed' => 'የተጠቃሚ ሁኔታ ማዘመን አልተሳካም። እባክዎ ዳግም ይሞክሩ።',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'om' => [
+        'title' => 'Imaammataan User - Sisteemi Ummata Mattu Diinagdee',
+        'header_title' => 'Imaammataan User',
+        'header_subtitle' => 'Imaammataan useroota fi bilisummaa',
+        'msg_user_created' => 'User yoo taane argame!',
+        'msg_create_failed' => 'User argachuu miti. Username yoo taane argame.',
+        'msg_user_updated' => 'User yoo taane aadaa!',
+        'msg_update_failed' => 'User aadaa miti. Username yoo taane argame.',
+        'msg_password_reset' => 'Passwordii yoo taane aadaa user irratti!',
+        'msg_reset_failed' => 'Passwordii aadaa miti.',
+        'msg_status_toggled' => 'Balaa user yoo taane aadaa!',
+        'msg_toggle_failed' => 'Balaa user aadaa miti.',
+        'table_id' => 'ID',
+        'table_name' => 'Maati',
+        'table_username' => 'Username',
+        'table_email' => 'Imeeli',
+        'table_role' => 'Qabsoo',
+        'table_status' => 'Balaa',
+        'table_last_login' => 'Loginiin Utuu',
+        'table_created' => 'Argame',
+        'table_actions' => 'Irmaa',
+        'status_active' => 'Ykn',
+        'status_inactive' => 'Moo ykn',
+        'never_logged_in' => 'Moo argamuu',
+        'no_users_found' => 'Sisteemiin useroota argamuu miti',
+        'btn_create_user' => 'User Yoo Taane Argachuu',
+        'btn_edit' => 'Aadaa',
+        'btn_reset_password' => 'Passwordii Reset',
+        'btn_deactivate' => 'Deactivate',
+        'btn_activate' => 'Activate',
+        'modal_create_title' => 'User Yoo Taane Argachuu',
+        'modal_edit_title' => 'User Aadaa',
+        'modal_reset_title' => 'Passwordii Reset',
+        'label_first_name' => 'Maati Garaa',
+        'label_last_name' => 'Maati Garaa',
+        'label_username' => 'Username',
+        'label_email' => 'Imeeli',
+        'label_password' => 'Password',
+        'label_role' => 'Qabsoo',
+        'label_status' => 'Balaa',
+        'placeholder_search' => 'Maati, username, ykn imeeliin argachuu...',
+        'filter_all_roles' => 'Qabsoota Hundee',
+        'filter_all_status' => 'Balaa Hundee',
+        'btn_apply_filter' => 'Tegbaa',
+        'password_strength_very_weak' => 'Balaa Moo',
+        'password_strength_weak' => 'Balaa',
+        'password_strength_medium' => 'Meeka',
+        'password_strength_strong' => 'Balaa',
+        'password_enter' => 'Password argachuu',
+        'confirm_activate' => 'User activate barbaachisa?',
+        'confirm_deactivate' => 'User deactivate barbaachisa?',
+        'debug_title' => 'Maatii Debug',
+        'debug_db_info' => 'Database Maatii:',
+        'debug_total_users' => 'Useroota Jijjiirama:',
+        'debug_total_roles' => 'Qabsoota Jijjiirama:',
+        'debug_current_user' => 'User Yoo Taane ID:',
+        'debug_sample_data' => 'Sample Data Check:',
+        'debug_first_user' => 'User Garaa:',
+        'debug_first_user_id' => 'User Garaa ID:',
+        'debug_no_users' => 'Databasein useroota argamuu miti!',
+        'debug_first_role' => 'Qabsoo Garaa:',
+        'debug_no_roles' => 'Databasein qabsoota argamuu miti!',
+        'btn_cancel' => 'Fufiisi',
+        'btn_update_user' => 'User Aadaa',
+        'btn_reset_password_confirm' => 'Passwordii Reset',
+        'alert_password_warning' => 'Passwordii user irratti reset yoo taane',
+        'password_min_length_error' => 'Passwordii 8 chars min',
+        'js_user_updated' => 'User yoo taane aadaa!',
+        'js_password_reset' => 'Passwordii yoo taane aadaa!',
+        'js_status_activated' => 'User activated!',
+        'js_status_deactivated' => 'User deactivated!',
+        'js_error_generic' => 'Maatii argame. Dagaa yoo taane.',
+        'js_load_failed' => 'User data argachuu miti. Dagaa yoo taane.',
+        'js_status_update_failed' => 'Balaa user aadaa miti. Dagaa yoo taane.',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if user is logged in, otherwise redirect to login page
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
 
+// Get current user ID for session updates
+$current_user_id = $_SESSION['user_id'];
+
 // Initialize database connection
+//dsfkdsnfdklnfskl
 // Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
@@ -38,10 +297,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         
         if (createUser($userData)) {
-            $message = "User created successfully!";
+            $message = t('msg_user_created');
             logActivity($_SESSION['user_id'], 'user_create', "Created user: " . $userData['username']);
         } else {
-            $error = "Failed to create user. Username might already exist.";
+            $error = t('msg_create_failed');
         }
     }
     elseif ($action === 'update_user') {
@@ -56,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         
         if (updateUser($userData)) {
-            $message = "User updated successfully!";
+            $message = t('msg_user_updated');
             logActivity($_SESSION['user_id'], 'user_update', "Updated user: " . $userData['username']);
             
             // If current user updated their own profile, update session
@@ -65,7 +324,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['last_name'] = $userData['last_name'];
             }
         } else {
-            $error = "Failed to update user. Username might already exist.";
+            $error = t('msg_update_failed');
         }
     }
     elseif ($action === 'reset_password') {
@@ -73,10 +332,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_password = $_POST['new_password'];
         
         if (resetUserPassword($user_id, $new_password)) {
-            $message = "Password reset successfully for user!";
+            $message = t('msg_password_reset');
             logActivity($_SESSION['user_id'], 'password_reset', "Reset password for user ID: " . $user_id);
         } else {
-            $error = "Failed to reset password.";
+            $error = t('msg_reset_failed');
         }
     }
     elseif ($action === 'toggle_status') {
@@ -88,11 +347,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $user ? $user['username'] : 'Unknown User';
         
         if (toggleUserStatus($user_id, $new_status)) {
-            $action_text = $new_status === 'active' ? 'activated' : 'deactivated';
-            $message = "User {$username} has been {$action_text} successfully!";
+            $action_text = $new_status === 'active' ? t('btn_activate') : t('btn_deactivate');
+            $message = t('msg_status_toggled');
             logActivity($_SESSION['user_id'], 'user_status', "Changed status for user ID: " . $user_id . " to " . $new_status);
         } else {
-            $error = "Failed to update user status.";
+            $error = t('msg_toggle_failed');
         }
     }
 }
@@ -136,7 +395,7 @@ foreach ($users as &$user) {
     // Add role_name for display (using the role field)
     $user['role_name'] = ucfirst($user['role']);
     // Ensure status field exists
-    $user['status'] = $user['is_active'] ? 'active' : 'inactive';
+    $user['status'] = $user['is_active'] ? t('status_active') : t('status_inactive');
     // Add role_id for form handling
     $user['role_id'] = $user['role'];
     // Map user_id to id for JavaScript compatibility
@@ -145,11 +404,11 @@ foreach ($users as &$user) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - Mattu Criminal Record System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -157,6 +416,17 @@ foreach ($users as &$user) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
@@ -179,6 +449,10 @@ foreach ($users as &$user) {
             padding: 25px;
             border-radius: 10px 10px 0 0;
             margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .header h1 {
@@ -187,6 +461,36 @@ foreach ($users as &$user) {
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Language Selector in Header */
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .lang-selector form {
+            display: inline;
+        }
+        
+        .lang-selector select {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .lang-selector select option {
+            background: #667eea;
+            color: white;
         }
         
         .content {
@@ -444,6 +748,12 @@ foreach ($users as &$user) {
             .action-buttons {
                 flex-direction: column;
             }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -455,8 +765,11 @@ foreach ($users as &$user) {
 
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-users-cog"></i> User Management</h1>
-            <p>Manage system users and their permissions</p>
+            <div>
+                <h1><i class="fas fa-users-cog"></i> <?php echo t('header_title'); ?></h1>
+                <p><?php echo t('header_subtitle'); ?></p>
+            </div>
+          
         </div>
         
         <div class="content">
@@ -475,31 +788,31 @@ foreach ($users as &$user) {
             <!-- Debug Information Card -->
             <div class="card mt-4">
                 <div class="card-header">
-                    <h3><i class="fas fa-bug"></i> Debug Information</h3>
+                    <h3><i class="fas fa-bug"></i> <?php echo t('debug_title'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h5>Database Info:</h5>
+                            <h5><?php echo t('debug_db_info'); ?></h5>
                             <ul>
-                                <li>Total Users: <?php echo count($users); ?></li>
-                                <li>Total Roles: <?php echo count($roles); ?></li>
-                                <li>Current User ID: <?php echo $current_user_id; ?></li>
+                                <li><?php echo t('debug_total_users'); ?> <?php echo count($users); ?></li>
+                                <li><?php echo t('debug_total_roles'); ?> <?php echo count($roles); ?></li>
+                                <li><?php echo t('debug_current_user'); ?> <?php echo $current_user_id; ?></li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h5>Sample Data Check:</h5>
+                            <h5><?php echo t('debug_sample_data'); ?></h5>
                             <?php if (!empty($users)): ?>
-                                <p>First user: <?php echo htmlspecialchars($users[0]['first_name'] . ' ' . $users[0]['last_name']); ?></p>
-                                <p>First user ID: <?php echo $users[0]['id']; ?> (user_id: <?php echo $users[0]['user_id']; ?>)</p>
+                                <p><?php echo t('debug_first_user'); ?> <?php echo htmlspecialchars($users[0]['first_name'] . ' ' . $users[0]['last_name']); ?></p>
+                                <p><?php echo t('debug_first_user_id'); ?> <?php echo $users[0]['id']; ?> (user_id: <?php echo $users[0]['user_id']; ?>)</p>
                             <?php else: ?>
-                                <p class="text-danger">No users found in database!</p>
+                                <p class="text-danger"><?php echo t('debug_no_users'); ?></p>
                             <?php endif; ?>
                             
                             <?php if (!empty($roles)): ?>
-                                <p>First role: <?php echo htmlspecialchars($roles[0]['role_name']); ?></p>
+                                <p><?php echo t('debug_first_role'); ?> <?php echo htmlspecialchars($roles[0]['role_name']); ?></p>
                             <?php else: ?>
-                                <p class="text-danger">No roles found in database!</p>
+                                <p class="text-danger"><?php echo t('debug_no_roles'); ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -510,7 +823,7 @@ foreach ($users as &$user) {
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3>User Accounts</h3>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                    <i class="fas fa-user-plus"></i> Create New User
+                    <i class="fas fa-user-plus"></i> <?php echo t('btn_create_user'); ?>
                 </button>
             </div>
             
@@ -519,15 +832,15 @@ foreach ($users as &$user) {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Search Users</label>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Search by name, username, or email...">
+                            <label><?php echo t('placeholder_search'); ?></label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="<?php echo t('placeholder_search'); ?>">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Filter by Role</label>
+                            <label><?php echo t('filter_all_roles'); ?></label>
                             <select class="form-control" id="roleFilter">
-                                <option value="">All Roles</option>
+                                <option value=""><?php echo t('filter_all_roles'); ?></option>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?php echo $role['id']; ?>"><?php echo htmlspecialchars($role['role_name']); ?></option>
                                 <?php endforeach; ?>
@@ -536,17 +849,17 @@ foreach ($users as &$user) {
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Filter by Status</label>
+                            <label><?php echo t('filter_all_status'); ?></label>
                             <select class="form-control" id="statusFilter">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
+                                <option value=""><?php echo t('filter_all_status'); ?></option>
+                                <option value="active"><?php echo t('status_active'); ?></option>
+                                <option value="inactive"><?php echo t('status_inactive'); ?></option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button class="btn btn-primary w-100" onclick="applyFilters()">
-                            <i class="fas fa-filter"></i> Apply
+                            <i class="fas fa-filter"></i> <?php echo t('btn_apply_filter'); ?>
                         </button>
                     </div>
                 </div>
@@ -562,15 +875,15 @@ foreach ($users as &$user) {
                         <table class="table" id="usersTable">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Last Login</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
+                                    <th><?php echo t('table_id'); ?></th>
+                                    <th><?php echo t('table_name'); ?></th>
+                                    <th><?php echo t('table_username'); ?></th>
+                                    <th><?php echo t('table_email'); ?></th>
+                                    <th><?php echo t('table_role'); ?></th>
+                                    <th><?php echo t('table_status'); ?></th>
+                                    <th><?php echo t('table_last_login'); ?></th>
+                                    <th><?php echo t('table_created'); ?></th>
+                                    <th><?php echo t('table_actions'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -585,11 +898,11 @@ foreach ($users as &$user) {
                                                 <span class="badge badge-primary"><?php echo htmlspecialchars($user['role_name']); ?></span>
                                             </td>
                                             <td>
-                                                <span class="badge badge-<?php echo $user['status'] === 'active' ? 'success' : 'danger'; ?>">
-                                                    <?php echo ucfirst($user['status']); ?>
+                                                <span class="badge badge-<?php echo $user['is_active'] ? 'success' : 'danger'; ?>">
+                                                    <?php echo $user['is_active'] ? t('status_active') : t('status_inactive'); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo $user['last_login'] ? date('M j, Y g:i A', strtotime($user['last_login'])) : 'Never'; ?></td>
+                                            <td><?php echo $user['last_login'] ? date('M j, Y g:i A', strtotime($user['last_login'])) : t('never_logged_in'); ?></td>
                                             <td><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
                                             <td class="action-buttons">
                                                 <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $user['id']; ?>)"
@@ -599,7 +912,7 @@ foreach ($users as &$user) {
                                                 <button class="btn btn-info btn-sm" onclick="resetPassword(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>')">
                                                     <i class="fas fa-key"></i>
                                                 </button>
-                                                <?php if ($user['status'] === 'active'): ?>
+                                                <?php if ($user['is_active']): ?>
                                                     <button class="btn btn-danger btn-sm" onclick="toggleStatus(<?php echo $user['id']; ?>, 'inactive', '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>')"
                                                             <?php echo $user['id'] == $current_user_id ? 'disabled title="Cannot deactivate your own account"' : ''; ?>>
                                                         <i class="fas fa-user-slash"></i>
@@ -616,7 +929,7 @@ foreach ($users as &$user) {
                                     <tr>
                                         <td colspan="9" class="text-center text-muted py-4">
                                             <i class="fas fa-users fa-2x mb-2"></i><br>
-                                            No users found in the system
+                                            <?php echo t('no_users_found'); ?>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -635,7 +948,7 @@ foreach ($users as &$user) {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> Create New User</h5>
+                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> <?php echo t('modal_create_title'); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="createUserForm" method="POST">
@@ -644,13 +957,13 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>First Name *</label>
+                                    <label><?php echo t('label_first_name'); ?> *</label>
                                     <input type="text" class="form-control" name="first_name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Last Name *</label>
+                                    <label><?php echo t('label_last_name'); ?> *</label>
                                     <input type="text" class="form-control" name="last_name" required>
                                 </div>
                             </div>
@@ -658,14 +971,14 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Username *</label>
+                                    <label><?php echo t('label_username'); ?> *</label>
                                     <input type="text" class="form-control" name="username" required>
-                                    <small class="text-muted">Must be unique</small>
+                                    <small class="text-muted"><?php echo t('label_username'); ?> <?php echo t('label_username'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Email</label>
+                                    <label><?php echo t('label_email'); ?></label>
                                     <input type="email" class="form-control" name="email">
                                 </div>
                             </div>
@@ -673,19 +986,19 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Password *</label>
+                                    <label><?php echo t('label_password'); ?> *</label>
                                     <input type="password" class="form-control" name="password" id="createPassword" required>
                                     <div class="password-strength" id="passwordStrength">
                                         <div class="password-strength-bar"></div>
-                                        <small>Password strength: <span id="strengthText">Enter password</span></small>
+                                        <small><?php echo t('password_enter'); ?>: <span id="strengthText"><?php echo t('password_enter'); ?></span></small>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Role *</label>
+                                    <label><?php echo t('label_role'); ?> *</label>
                                     <select class="form-control" name="role_id" required>
-                                        <option value="">Select Role</option>
+                                        <option value=""><?php echo t('label_role'); ?></option>
                                         <?php foreach ($roles as $role): ?>
                                             <option value="<?php echo $role['id']; ?>"><?php echo htmlspecialchars($role['role_name']); ?></option>
                                         <?php endforeach; ?>
@@ -695,8 +1008,8 @@ foreach ($users as &$user) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create User</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo t('btn_cancel'); ?></button>
+                        <button type="submit" class="btn btn-primary"><?php echo t('btn_create_user'); ?></button>
                     </div>
                 </form>
             </div>
@@ -708,7 +1021,7 @@ foreach ($users as &$user) {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-user-edit"></i> Edit User</h5>
+                    <h5 class="modal-title"><i class="fas fa-user-edit"></i> <?php echo t('modal_edit_title'); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editUserForm" method="POST">
@@ -718,13 +1031,13 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>First Name *</label>
+                                    <label><?php echo t('label_first_name'); ?> *</label>
                                     <input type="text" class="form-control" name="first_name" id="editFirstName" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Last Name *</label>
+                                    <label><?php echo t('label_last_name'); ?> *</label>
                                     <input type="text" class="form-control" name="last_name" id="editLastName" required>
                                 </div>
                             </div>
@@ -732,13 +1045,13 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Username *</label>
+                                    <label><?php echo t('label_username'); ?> *</label>
                                     <input type="text" class="form-control" name="username" id="editUsername" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Email</label>
+                                    <label><?php echo t('label_email'); ?></label>
                                     <input type="email" class="form-control" name="email" id="editEmail">
                                 </div>
                             </div>
@@ -746,7 +1059,7 @@ foreach ($users as &$user) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Role *</label>
+                                    <label><?php echo t('label_role'); ?> *</label>
                                     <select class="form-control" name="role_id" id="editRoleId" required>
                                         <?php foreach ($roles as $role): ?>
                                             <option value="<?php echo $role['id']; ?>"><?php echo htmlspecialchars($role['role_name']); ?></option>
@@ -756,18 +1069,18 @@ foreach ($users as &$user) {
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Status</label>
+                                    <label><?php echo t('label_status'); ?></label>
                                     <select class="form-control" name="status" id="editStatus">
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
+                                        <option value="active"><?php echo t('status_active'); ?></option>
+                                        <option value="inactive"><?php echo t('status_inactive'); ?></option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update User</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo t('btn_cancel'); ?></button>
+                        <button type="submit" class="btn btn-primary"><?php echo t('btn_update_user'); ?></button>
                     </div>
                 </form>
             </div>
@@ -779,7 +1092,7 @@ foreach ($users as &$user) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-key"></i> Reset Password</h5>
+                    <h5 class="modal-title"><i class="fas fa-key"></i> <?php echo t('modal_reset_title'); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="resetPasswordForm" method="POST">
@@ -788,20 +1101,20 @@ foreach ($users as &$user) {
                     <div class="modal-body">
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle"></i>
-                            This will reset the password for <strong id="resetUserName"></strong>
+                            <?php echo t('alert_password_warning'); ?> <strong id="resetUserName"></strong>
                         </div>
                         <div class="form-group">
-                            <label>New Password *</label>
+                            <label><?php echo t('label_password'); ?> *</label>
                             <input type="password" class="form-control" name="new_password" id="resetNewPassword" required>
                             <div class="password-strength" id="resetPasswordStrength">
                                 <div class="password-strength-bar"></div>
-                                <small>Password strength: <span id="resetStrengthText">Enter password</span></small>
+                                <small><?php echo t('password_enter'); ?>: <span id="resetStrengthText"><?php echo t('password_enter'); ?></span></small>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Reset Password</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo t('btn_cancel'); ?></button>
+                        <button type="submit" class="btn btn-danger"><?php echo t('btn_reset_password_confirm'); ?></button>
                     </div>
                 </form>
             </div>
@@ -845,13 +1158,13 @@ function initializeFormSubmissions() {
     // Edit User Form
     document.getElementById('editUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        submitForm(this, 'User updated successfully!');
+        submitForm(this, '<?php echo addslashes(t("js_user_updated")); ?>');
     });
     
     // Reset Password Form
     document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        submitForm(this, 'Password reset successfully!');
+        submitForm(this, '<?php echo addslashes(t("js_password_reset")); ?>');
     });
     
     // Create User Form (keep as regular submit since it needs to refresh user list)
@@ -859,7 +1172,7 @@ function initializeFormSubmissions() {
         const password = document.getElementById('createPassword').value;
         if (password.length < 8) {
             e.preventDefault();
-            showAlert('Password must be at least 8 characters long', 'error');
+            showAlert('<?php echo addslashes(t("password_min_length_error")); ?>', 'error');
             return false;
         }
         showLoading(true);
@@ -914,7 +1227,7 @@ function submitForm(form, successMessage) {
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('An error occurred. Please try again.', 'error');
+        showAlert('<?php echo addslashes(t("js_error_generic")); ?>', 'error');
     })
     .finally(() => {
         showLoading(false);
@@ -965,7 +1278,7 @@ function editUser(userId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('Failed to load user data. Please try again.', 'error');
+            showAlert('<?php echo addslashes(t("js_load_failed")); ?>', 'error');
         })
         .finally(() => {
             showLoading(false);
@@ -982,7 +1295,7 @@ function resetPassword(userId, userName) {
     const container = document.getElementById('resetPasswordStrength');
     const text = document.getElementById('resetStrengthText');
     container.className = 'password-strength';
-    text.textContent = 'Enter password';
+    text.textContent = '<?php echo t("password_enter"); ?>';
     
     const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
     modal.show();
@@ -990,8 +1303,8 @@ function resetPassword(userId, userName) {
 
 // TOGGLE STATUS - Improved with better confirmation
 function toggleStatus(userId, newStatus, userName) {
-    const action = newStatus === 'active' ? 'activate' : 'deactivate';
-    const confirmMessage = `Are you sure you want to ${action} the account for ${userName}?`;
+    const action = newStatus === 'active' ? '<?php echo addslashes(t("confirm_activate")); ?>' : '<?php echo addslashes(t("confirm_deactivate")); ?>';
+    const confirmMessage = `${action} ${userName}?`;
     
     if (confirm(confirmMessage)) {
         showLoading(true);
@@ -1024,8 +1337,8 @@ function toggleStatus(userId, newStatus, userName) {
             } else if (errorAlert) {
                 showAlert(errorAlert.textContent, 'error');
             } else {
-                const actionText = newStatus === 'active' ? 'activated' : 'deactivated';
-                showAlert(`User ${actionText} successfully!`, 'success');
+                const actionText = newStatus === 'active' ? '<?php echo addslashes(t("js_status_activated")); ?>' : '<?php echo addslashes(t("js_status_deactivated")); ?>';
+                showAlert(actionText, 'success');
                 // Reload the page after a short delay to see changes
                 setTimeout(() => {
                     window.location.reload();
@@ -1034,7 +1347,7 @@ function toggleStatus(userId, newStatus, userName) {
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('Failed to update user status. Please try again.', 'error');
+            showAlert('<?php echo addslashes(t("js_status_update_failed")); ?>', 'error');
         })
         .finally(() => {
             showLoading(false);
@@ -1111,7 +1424,7 @@ function checkPasswordStrength(password, containerId, textId) {
     const text = document.getElementById(textId);
     
     let strength = 0;
-    let strengthText = 'Very Weak';
+    let strengthText = '<?php echo t("password_strength_very_weak"); ?>';
     
     if (password.length >= 8) strength++;
     if (/[a-z]/.test(password)) strength++;
@@ -1122,16 +1435,16 @@ function checkPasswordStrength(password, containerId, textId) {
     container.className = 'password-strength';
     
     if (password.length === 0) {
-        strengthText = 'Enter password';
+        strengthText = '<?php echo t("password_enter"); ?>';
     } else if (strength < 2) {
         container.classList.add('weak');
-        strengthText = 'Weak';
+        strengthText = '<?php echo t("password_strength_weak"); ?>';
     } else if (strength < 4) {
         container.classList.add('medium');
-        strengthText = 'Medium';
+        strengthText = '<?php echo t("password_strength_medium"); ?>';
     } else {
         container.classList.add('strong');
-        strengthText = 'Strong';
+        strengthText = '<?php echo t("password_strength_strong"); ?>';
     }
     
     text.textContent = strengthText;

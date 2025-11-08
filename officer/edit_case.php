@@ -3,6 +3,184 @@
 require '../includes/database.php';
 require '../includes/auth.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+$translations = [
+    'en' => [
+        'title' => 'Edit Case - {case_number} - Mattu City Criminal Management System',
+        'edit_case' => 'Edit Case',
+        'update_case_info' => 'Update case information for',
+        'case_information' => 'Case Information',
+        'case_number' => 'Case Number',
+        'current_status' => 'Current Status',
+        'priority' => 'Priority',
+        'date_created' => 'Date Created',
+        'last_updated' => 'Last Updated',
+        'back_to_cases' => 'Back to Cases',
+        'view_case_details' => 'View Case Details',
+        'edit_case_details' => 'Edit Case Details',
+        'case_type' => 'Case Type',
+        'select_case_type' => 'Select Case Type',
+        'status' => 'Status',
+        'open' => 'Open',
+        'in_progress' => 'In Progress',
+        'in_court' => 'In Court',
+        'closed' => 'Closed',
+        'suspended' => 'Suspended',
+        'low' => 'Low',
+        'medium' => 'Medium',
+        'high' => 'High',
+        'location' => 'Location',
+        'where_incident_occurred' => 'Where did the incident occur?',
+        'date_reported' => 'Date Reported',
+        'description' => 'Description',
+        'detailed_description' => 'Detailed description of the case...',
+        'update_case' => 'Update Case',
+        'cancel' => 'Cancel',
+        'success_message' => 'Case updated successfully!',
+        'error_message' => 'Error updating case: {error}',
+        'required_fields' => 'Please fill in all required fields marked with *',
+        'updating_case' => 'Updating Case...',
+        'theft' => 'Theft',
+        'assault' => 'Assault',
+        'burglary' => 'Burglary',
+        'robbery' => 'Robbery',
+        'fraud' => 'Fraud',
+        'drug_offense' => 'Drug Offense',
+        'traffic_violation' => 'Traffic Violation',
+        'domestic_violence' => 'Domestic Violence',
+        'cyber_crime' => 'Cyber Crime',
+        'homicide' => 'Homicide',
+        'sexual_assault' => 'Sexual Assault',
+        'kidnapping' => 'Kidnapping',
+        'arson' => 'Arson',
+        'vandalism' => 'Vandalism',
+        'other' => 'Other',
+    ],
+    'am' => [
+        'title' => 'ጉዳይ አርትዕ - {case_number} - ማቱ ከተማ የወደንጀል አስተዳደር ስርዓት',
+        'edit_case' => 'ጉዳይ አርትዕ',
+        'update_case_info' => 'የጉዳይ መረጃ ይዘውሉ',
+        'case_information' => 'የጉዳይ መረጃ',
+        'case_number' => 'የጉዳይ ቁጥር',
+        'current_status' => 'ዛሬው ሁኔታ',
+        'priority' => 'ቅደም ተብሎ',
+        'date_created' => 'ቀን የተፈጠረ',
+        'last_updated' => 'የመጨረሻ የተዘዋወረ',
+        'back_to_cases' => 'ወደ ጉዳዮች ተመለስ',
+        'view_case_details' => 'የጉዳይ ዝርዝር ይመልከቱ',
+        'edit_case_details' => 'የጉዳይ ዝርዝር አርትዕ',
+        'case_type' => 'የጉዳይ አይነት',
+        'select_case_type' => 'የጉዳይ አይነት ይምረጡ',
+        'status' => 'ሁኔታ',
+        'open' => 'ክፍት',
+        'in_progress' => 'በመረጃ',
+        'in_court' => 'በፍርድ ቤት',
+        'closed' => 'ተዘግቧል',
+        'suspended' => 'ተቋርጧል',
+        'low' => 'ዝቅተኛ',
+        'medium' => 'መካከለኛ',
+        'high' => 'ከፍተኛ',
+        'location' => 'ቦታ',
+        'where_incident_occurred' => 'ተከሰተው ቦታ?',
+        'date_reported' => 'የተመረጠ ቀን',
+        'description' => 'መግለጫ',
+        'detailed_description' => 'የጉዳዩ ዝርዝር መግለጫ...',
+        'update_case' => 'ጉዳይ ይዘውሉ',
+        'cancel' => 'ይቅር',
+        'success_message' => 'ጉዳይ በተሳካ ሁኔታ ተዘዋወረ!',
+        'error_message' => 'ጉዳይ በመዘወር ስህተት: {error}',
+        'required_fields' => 'በ * ተሰማው ሁሉም የሚያስፈልጉ መስኮችን ይሞሉ',
+        'updating_case' => 'ጉዳይ በመዘወር...',
+        'theft' => 'ቃል ማግኘት',
+        'assault' => 'ጥቃት',
+        'burglary' => 'ቤት መበላሸት',
+        'robbery' => 'ጉቦ ማግኘት',
+        'fraud' => 'በሽታ',
+        'drug_offense' => 'የአደገኛ መድሃኒት ጥፋት',
+        'traffic_violation' => 'የትራፊክ ጥፋት',
+        'domestic_violence' => 'ቤታዊ ጥቃት',
+        'cyber_crime' => 'የአየር ገነት ወደንጀል',
+        'homicide' => 'ግዳጅ',
+        'sexual_assault' => 'የጾታ ጥቃት',
+        'kidnapping' => 'መከላከያ',
+        'arson' => 'እሳት',
+        'vandalism' => 'ጉቦ መበላሸት',
+        'other' => 'ሌላ',
+    ],
+    'om' => [
+        'title' => 'Caasaa Editii - {case_number} - Sisteemi Diinagdee Mattu Kuta',
+        'edit_case' => 'Caasaa Editii',
+        'update_case_info' => 'Qoricha caasaa kennuu',
+        'case_information' => 'Qoricha Caasaa',
+        'case_number' => 'Naama Caasaa',
+        'current_status' => 'Hakkina Qoricha',
+        'priority' => 'Qoricha Guyyaa',
+        'date_created' => 'Guyyaa Qophaa',
+        'last_updated' => 'Guyyaa Qoricha Kennuu',
+        'back_to_cases' => 'Deebii Caasoota',
+        'view_case_details' => 'Qoricha Caasaa Argisi',
+        'edit_case_details' => 'Qoricha Caasaa Editii',
+        'case_type' => 'Aangoo Caasaa',
+        'select_case_type' => 'Aangoo Caasaa Argisi',
+        'status' => 'Hakkina',
+        'open' => 'Fufaa',
+        'in_progress' => 'Deebii Kennuu',
+        'in_court' => 'Deebii Biiroo',
+        'closed' => 'Deebii',
+        'suspended' => 'Deebii Kennuu',
+        'low' => 'Gadii',
+        'medium' => 'Meejii',
+        'high' => 'Ol',
+        'location' => 'Mallattoo',
+        'where_incident_occurred' => 'Mallattoo qoricha qabeenya?',
+        'date_reported' => 'Guyyaa Qoricha',
+        'description' => 'Qoricha',
+        'detailed_description' => 'Qoricha caasaa guutummaa...',
+        'update_case' => 'Caasaa Kennuu',
+        'cancel' => 'Deebii',
+        'success_message' => 'Caasaa kennuu argame!',
+        'error_message' => 'Sagadduu caasaa kennuu: {error}',
+        'required_fields' => 'Qoricha * kennuu argisi',
+        'updating_case' => 'Caasaa kennuu...',
+        'theft' => 'Qoricha Qabuu',
+        'assault' => 'Qoricha Qabuu',
+        'burglary' => 'Biiroo Meqbaala',
+        'robbery' => 'Qoricha Qabuu',
+        'fraud' => 'Qoricha Beshitaa',
+        'drug_offense' => 'Qoricha Medhaani',
+        'traffic_violation' => 'Qoricha Tiraafik',
+        'domestic_violence' => 'Qoricha Bitaa',
+        'cyber_crime' => 'Qoricha Aayyaa',
+        'homicide' => 'Qoricha Giddaa',
+        'sexual_assault' => 'Qoricha Goota',
+        'kidnapping' => 'Qoricha Meqbaala',
+        'arson' => 'Qoricha Esa',
+        'vandalism' => 'Qoricha Meqbaala',
+        'other' => 'Biroo',
+    ],
+];
+function t($key) {
+    global $translations, $current_lang, $case;
+    $trans = $translations[$current_lang][$key] ?? $key;
+    // Replace placeholders if any
+    if (strpos($trans, '{') !== false) {
+        $trans = str_replace('{case_number}', htmlspecialchars($case['case_number'] ?? ''), $trans);
+        $trans = str_replace('{error}', $error_message ?? '', $trans);
+    }
+    return $trans;
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -72,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Validate required fields
         if (empty($case_number) || empty($case_type) || empty($description)) {
-            throw new Exception("Please fill in all required fields");
+            throw new Exception(t('required_fields'));
         }
         
         // Update case
@@ -105,18 +283,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
             }
             
-            $success_message = "Case updated successfully!";
+            $success_message = t('success_message');
             
             // Refresh case data
             $stmt = $db->prepare("SELECT * FROM $tableName WHERE id = ?");
             $stmt->execute([$case_id]);
             $case = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {
-            throw new Exception("Failed to update case");
+            throw new Exception(t('error_message'));
         }
         
     } catch (Exception $e) {
-        $error_message = "Error updating case: " . $e->getMessage();
+        $error_message = t('error_message');
         error_log("Case update error: " . $e->getMessage());
     }
 }
@@ -137,23 +315,21 @@ try {
 
 if (empty($case_types)) {
     $case_types = [
-        'Theft', 'Assault', 'Burglary', 'Robbery', 'Fraud', 'Drug Offense',
-        'Traffic Violation', 'Domestic Violence', 'Cyber Crime', 'Homicide',
-        'Sexual Assault', 'Kidnapping', 'Arson', 'Vandalism', 'Other'
+        t('theft'), t('assault'), t('burglary'), t('robbery'), t('fraud'), t('drug_offense'),
+        t('traffic_violation'), t('domestic_violence'), t('cyber_crime'), t('homicide'),
+        t('sexual_assault'), t('kidnapping'), t('arson'), t('vandalism'), t('other')
     ];
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
-   
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>edit case</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Case - <?php echo htmlspecialchars($case['case_number']); ?> - Mattu City Criminal Management System</title>
+    <title><?php echo t('title'); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -161,6 +337,16 @@ if (empty($case_types)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic and Oromo support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
@@ -338,8 +524,8 @@ if (empty($case_types)) {
         <div class="edit-case-container">
             <!-- Header -->
             <div class="edit-case-header">
-                <h3><i class="fas fa-edit me-3"></i>Edit Case</h3>
-                <p class="lead">Update case information for <strong><?php echo htmlspecialchars($case['case_number']); ?></strong></p>
+                <h3><i class="fas fa-edit me-3"></i><?php echo t('edit_case'); ?></h3>
+                <p class="lead"><?php echo t('update_case_info'); ?> <strong><?php echo htmlspecialchars($case['case_number']); ?></strong></p>
             </div>
             
             <!-- Status Messages -->
@@ -361,49 +547,49 @@ if (empty($case_types)) {
                 <!-- Case Information -->
                 <div class="col-md-4">
                     <div class="form-section">
-                        <h5 class="mb-4"><i class="fas fa-info-circle me-2"></i>Case Information</h5>
+                        <h5 class="mb-4"><i class="fas fa-info-circle me-2"></i><?php echo t('case_information'); ?></h5>
                         
                         <div class="case-info-card">
                             <div class="info-item">
-                                <span class="info-label">Case Number:</span>
+                                <span class="info-label"><?php echo t('case_number'); ?>:</span>
                                 <span class="info-value"><?php echo htmlspecialchars($case['case_number']); ?></span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Current Status:</span>
+                                <span class="info-label"><?php echo t('current_status'); ?>:</span>
                                 <span class="info-value">
                                     <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $case['status'] ?? 'Open')); ?>">
-                                        <?php echo htmlspecialchars($case['status'] ?? 'Open'); ?>
+                                        <?php echo htmlspecialchars($case['status'] ?? t('open')); ?>
                                     </span>
                                 </span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Priority:</span>
+                                <span class="info-label"><?php echo t('priority'); ?>:</span>
                                 <span class="info-value">
                                     <span class="priority-badge priority-<?php echo strtolower($case['priority'] ?? 'medium'); ?>">
-                                        <?php echo htmlspecialchars($case['priority'] ?? 'Medium'); ?>
+                                        <?php echo htmlspecialchars($case['priority'] ?? t('medium')); ?>
                                     </span>
                                 </span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Date Created:</span>
+                                <span class="info-label"><?php echo t('date_created'); ?>:</span>
                                 <span class="info-value">
                                     <?php echo date('M j, Y g:i A', strtotime($case['created_at'])); ?>
                                 </span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Last Updated:</span>
+                                <span class="info-label"><?php echo t('last_updated'); ?>:</span>
                                 <span class="info-value">
-                                    <?php echo isset($case['updated_at']) ? date('M j, Y g:i A', strtotime($case['updated_at'])) : 'Never'; ?>
+                                    <?php echo isset($case['updated_at']) ? date('M j, Y g:i A', strtotime($case['updated_at'])) : t('never'); ?>
                                 </span>
                             </div>
                         </div>
                         
                         <div class="d-grid gap-2">
                             <a href="manage_cases.php" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Cases
+                                <i class="fas fa-arrow-left me-2"></i><?php echo t('back_to_cases'); ?>
                             </a>
                             <a href="view_criminal_record.php?id=<?php echo $case_id; ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-eye me-2"></i>View Case Details
+                                <i class="fas fa-eye me-2"></i><?php echo t('view_case_details'); ?>
                             </a>
                         </div>
                     </div>
@@ -412,20 +598,20 @@ if (empty($case_types)) {
                 <!-- Edit Form -->
                 <div class="col-md-8">
                     <div class="form-section">
-                        <h5 class="mb-4"><i class="fas fa-edit me-2"></i>Edit Case Details</h5>
+                        <h5 class="mb-4"><i class="fas fa-edit me-2"></i><?php echo t('edit_case_details'); ?></h5>
                         
                         <form method="POST" id="editCaseForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label-custom">Case Number *</label>
+                                    <label class="form-label-custom"><?php echo t('case_number'); ?> *</label>
                                     <input type="text" class="form-control form-control-custom" name="case_number" 
                                            value="<?php echo htmlspecialchars($case['case_number']); ?>" required>
                                 </div>
                                 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label-custom">Case Type *</label>
+                                    <label class="form-label-custom"><?php echo t('case_type'); ?> *</label>
                                     <select class="form-control form-control-custom" name="case_type" required>
-                                        <option value="">Select Case Type</option>
+                                        <option value=""><?php echo t('select_case_type'); ?></option>
                                         <?php foreach ($case_types as $type): ?>
                                             <option value="<?php echo htmlspecialchars($type); ?>" 
                                                 <?php echo ($case['case_type'] ?? '') === $type ? 'selected' : ''; ?>>
@@ -438,51 +624,51 @@ if (empty($case_types)) {
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label-custom">Status *</label>
+                                    <label class="form-label-custom"><?php echo t('status'); ?> *</label>
                                     <select class="form-control form-control-custom" name="status" required>
-                                        <option value="Open" <?php echo ($case['status'] ?? '') === 'Open' ? 'selected' : ''; ?>>Open</option>
-                                        <option value="In Progress" <?php echo ($case['status'] ?? '') === 'In Progress' ? 'selected' : ''; ?>>In Progress</option>
-                                        <option value="In Court" <?php echo ($case['status'] ?? '') === 'In Court' ? 'selected' : ''; ?>>In Court</option>
-                                        <option value="Closed" <?php echo ($case['status'] ?? '') === 'Closed' ? 'selected' : ''; ?>>Closed</option>
-                                        <option value="Suspended" <?php echo ($case['status'] ?? '') === 'Suspended' ? 'selected' : ''; ?>>Suspended</option>
+                                        <option value="<?php echo t('open'); ?>" <?php echo ($case['status'] ?? '') === t('open') ? 'selected' : ''; ?>><?php echo t('open'); ?></option>
+                                        <option value="<?php echo t('in_progress'); ?>" <?php echo ($case['status'] ?? '') === t('in_progress') ? 'selected' : ''; ?>><?php echo t('in_progress'); ?></option>
+                                        <option value="<?php echo t('in_court'); ?>" <?php echo ($case['status'] ?? '') === t('in_court') ? 'selected' : ''; ?>><?php echo t('in_court'); ?></option>
+                                        <option value="<?php echo t('closed'); ?>" <?php echo ($case['status'] ?? '') === t('closed') ? 'selected' : ''; ?>><?php echo t('closed'); ?></option>
+                                        <option value="<?php echo t('suspended'); ?>" <?php echo ($case['status'] ?? '') === t('suspended') ? 'selected' : ''; ?>><?php echo t('suspended'); ?></option>
                                     </select>
                                 </div>
                                 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label-custom">Priority</label>
+                                    <label class="form-label-custom"><?php echo t('priority'); ?></label>
                                     <select class="form-control form-control-custom" name="priority">
-                                        <option value="low" <?php echo ($case['priority'] ?? '') === 'low' ? 'selected' : ''; ?>>Low</option>
-                                        <option value="medium" <?php echo ($case['priority'] ?? '') === 'medium' ? 'selected' : ''; ?>>Medium</option>
-                                        <option value="high" <?php echo ($case['priority'] ?? '') === 'high' ? 'selected' : ''; ?>>High</option>
+                                        <option value="low" <?php echo ($case['priority'] ?? '') === 'low' ? 'selected' : ''; ?>><?php echo t('low'); ?></option>
+                                        <option value="medium" <?php echo ($case['priority'] ?? '') === 'medium' ? 'selected' : ''; ?>><?php echo t('medium'); ?></option>
+                                        <option value="high" <?php echo ($case['priority'] ?? '') === 'high' ? 'selected' : ''; ?>><?php echo t('high'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label-custom">Location</label>
+                                <label class="form-label-custom"><?php echo t('location'); ?></label>
                                 <input type="text" class="form-control form-control-custom" name="location" 
                                        value="<?php echo htmlspecialchars($case['location'] ?? ''); ?>" 
-                                       placeholder="Where did the incident occur?">
+                                       placeholder="<?php echo t('where_incident_occurred'); ?>">
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label-custom">Date Reported</label>
+                                <label class="form-label-custom"><?php echo t('date_reported'); ?></label>
                                 <input type="date" class="form-control form-control-custom" name="date_reported" 
                                        value="<?php echo htmlspecialchars($case['date_reported'] ?? date('Y-m-d')); ?>">
                             </div>
                             
                             <div class="mb-4">
-                                <label class="form-label-custom">Description *</label>
+                                <label class="form-label-custom"><?php echo t('description'); ?> *</label>
                                 <textarea class="form-control form-control-custom" name="description" rows="5" required 
-                                          placeholder="Detailed description of the case..."><?php echo htmlspecialchars($case['description'] ?? ''); ?></textarea>
+                                          placeholder="<?php echo t('detailed_description'); ?>"><?php echo htmlspecialchars($case['description'] ?? ''); ?></textarea>
                             </div>
                             
                             <div class="d-flex gap-3">
                                 <button type="submit" class="btn btn-primary-custom flex-fill">
-                                    <i class="fas fa-save me-2"></i>Update Case
+                                    <i class="fas fa-save me-2"></i><?php echo t('update_case'); ?>
                                 </button>
                                 <a href="manage_cases.php" class="btn btn-secondary flex-fill">
-                                    <i class="fas fa-times me-2"></i>Cancel
+                                    <i class="fas fa-times me-2"></i><?php echo t('cancel'); ?>
                                 </a>
                             </div>
                         </form>
@@ -496,6 +682,11 @@ if (empty($case_types)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Translations for JS
+        const TRANSLATIONS = <?php echo json_encode($translations[$current_lang]); ?>;
+    </script>
+    
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Form validation
             document.getElementById('editCaseForm').addEventListener('submit', function(e) {
@@ -505,14 +696,14 @@ if (empty($case_types)) {
                 
                 if (!caseNumber || !caseType || !description) {
                     e.preventDefault();
-                    alert('Please fill in all required fields marked with *');
+                    alert(TRANSLATIONS.required_fields);
                     return;
                 }
                 
                 // Show loading state
                 const submitBtn = this.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating Case...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + TRANSLATIONS.updating_case;
             });
         });
     </script>

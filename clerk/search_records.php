@@ -1,7 +1,13 @@
 <?php
 // search_records.php
-require '../includes/database.php';
-require '../includes/auth.php';
+// This file provides a read-only search interface for clerks in the Mattu Criminal Record System.
+// Clerks can search and view criminal records/cases but cannot create, edit, or add new records.
+// All searches query the real-time database via PDO. Results link to view pages only.
+
+// Required includes for authentication, database connection, and clerk-specific functions
+require '../includes/auth.php';      // Handles session validation and login checks
+require '../includes/database.php';  // Provides PDO database connection
+require '../includes/clerk_functions.php'; // Clerk-specific methods (e.g., search)
 
 // Language support
 $languages = ['en', 'am', 'om'];
@@ -15,149 +21,128 @@ if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
 }
+
 $translations = [
     'en' => [
-        'title' => 'Search Criminal Records - Mattu City Criminal Management System',
-        'mattu_criminal_records' => 'Mattu Criminal Records',
+        'title' => 'Search Criminal Records - Mattu Criminal Record System',
+        'navbar_brand' => 'Mattu Criminal Records',
         'dashboard' => 'Dashboard',
-        'search_records' => 'Search Records',
-        'my_cases' => 'My Cases',
-        'add_record' => 'Add Record',
-        'logout' => 'Logout',
-        'officer' => 'Officer',
-        'search_criminal_records' => 'Search Criminal Records',
-        'search_type' => 'Search Type',
-        'name' => 'Name',
-        'national_id' => 'National ID',
-        'case_number' => 'Case Number',
-        'search_query' => 'Search Query',
-        'enter_search_query' => 'Enter search query...',
-        'search' => 'Search',
+        'search_view' => 'Search & View Records',
+        'clerk_badge' => 'Clerk',
+        'logout' => 'Are you sure you want to logout?',
+        'search_header' => 'Search Criminal Records',
+        'search_type_label' => 'Search Type',
+        'search_query_label' => 'Search Query',
+        'search_placeholder' => 'Enter search term...',
+        'search_btn' => 'Search',
         'search_results' => 'Search Results',
-        'found_records' => 'Found {count} record(s) for "{query}"',
+        'found_records' => 'Found',
+        'record(s)' => 'record(s)',
+        'for' => 'for',
         'date_of_birth' => 'Date of Birth',
-        'not_specified' => 'Not specified',
         'gender' => 'Gender',
         'status' => 'Status',
-        'first_offender' => 'First Offender',
-        'repeat' => 'Repeat Offender',
-        'wanted' => 'Wanted',
         'view' => 'View',
-        'case' => 'Case',
         'no_records_found' => 'No Records Found',
         'no_match_criteria' => 'No criminal records match your search criteria. Try adjusting your search terms.',
-        'add_new_record' => 'Add New Record',
         'search_tips' => 'Search Tips',
-        'search_by_name' => 'Search by Name',
-        'search_name_desc' => 'Search using first name, last name, or both',
-        'search_by_national_id' => 'Search by National ID',
-        'search_national_id_desc' => 'Find records using national identification number',
-        'search_by_case' => 'Search by Case',
-        'search_case_desc' => 'Find criminals associated with specific case numbers',
-        'records' => 'records',
+        'tip_name' => 'Search by Name',
+        'tip_name_desc' => 'Search using first name, last name, or both',
+        'tip_id' => 'Search by National ID',
+        'tip_id_desc' => 'Find records using national identification number',
+        'tip_case' => 'Search by Case',
+        'tip_case_desc' => 'Find criminals associated with specific case numbers',
+        'error_search' => 'Error performing search:',
+        'logout_confirm' => 'Logout',
     ],
     'am' => [
-        'title' => 'የወደንጀላዊ መዝገቦች ፍለጋ - ማቱ ከተማ የወደንጀል አስተዳደር ስርዓት',
-        'mattu_criminal_records' => 'ማቱ የወደንጀላዊ መዝገቦች',
-        'dashboard' => 'ጃሽባር',
-        'search_records' => 'መዝገቦች ይፈልጉ',
-        'my_cases' => 'የኔ ጉዳዮች',
-        'add_record' => 'መዝገብ ጨምር',
-        'logout' => 'ውጣ',
-        'officer' => 'መኮንን',
-        'search_criminal_records' => 'የወደንጀላዊ መዝገቦች ይፈልጉ',
-        'search_type' => 'የፍለጋ አይነት',
-        'name' => 'ስም',
-        'national_id' => 'ብሔራዊ መለያ',
-        'case_number' => 'የጉዳይ ቁጥር',
-        'search_query' => 'የፍለጋ ጥያቄ',
-        'enter_search_query' => 'የፍለጋ ጥያቄ ያስገቡ...',
-        'search' => 'ይፈልጉ',
+        'title' => 'የወንጀል መዝገቦች ፍለጋ - ማቱ የወንጀል መዝገብ ስርዓት',
+        'navbar_brand' => 'ማቱ የወንጀል መዝገቦች',
+        'dashboard' => 'ዳሽቦርድ',
+        'search_view' => 'ፍለጋ እና መዝገቦችን ተመልከት',
+        'clerk_badge' => 'ጸሐፊ',
+        'logout' => 'እውቅና ትወጣለህ?',
+        'search_header' => 'የወንጀል መዝገቦች ፍለጋ',
+        'search_type_label' => 'የፍለጋ አይነት',
+        'search_query_label' => 'የፍለጋ ጥያቄ',
+        'search_placeholder' => 'የፍለጋ ቃል ያስገቡ...',
+        'search_btn' => 'ፍለጋ',
         'search_results' => 'የፍለጋ ውጤቶች',
-        'found_records' => '{count} መዝገብ(ዎች) ለ \"{query}\" ተገኝተው',
+        'found_records' => 'ተገኝቷል',
+        'record(s)' => 'መዝገብ',
+        'for' => 'ለ',
         'date_of_birth' => 'የልደት ቀን',
-        'not_specified' => 'የሉም',
         'gender' => 'ጾታ',
         'status' => 'ሁኔታ',
-        'first_offender' => 'የመጀመሪያ ጥፋተኝ',
-        'repeat' => 'የተደጋግፈ',
-        'wanted' => 'የሚፈለግ',
-        'view' => 'ይመልከቱ',
-        'case' => 'ጉዳይ',
+        'view' => 'ተመልከት',
         'no_records_found' => 'መዝገብ አልተገኘም',
-        'no_match_criteria' => 'የወደንጀላዊ መዝገቦች የፍለጋዎ መስፈርት አይጋጥሙም። የፍለጋዎን ቃላት ይለውጡ።',
-        'add_new_record' => 'አዲስ መዝገብ ጨምር',
+        'no_match_criteria' => 'የወንጀል መዝገቦች ያለውን የፍለጋ መስፈርት አይጋጥሙም። የፍለጋ ቃሎቹን ይቀይሩ።',
         'search_tips' => 'የፍለጋ ምክሮች',
-        'search_by_name' => 'በስም ይፈልጉ',
-        'search_name_desc' => 'በመጀመሪያ ስም፣ የመጨረሻ ስም ወይም ሁለቱም ይፈልጉ',
-        'search_by_national_id' => 'በብሔራዊ መለያ ይፈልጉ',
-        'search_national_id_desc' => 'በብሔራዊ መለያ ቁጥር መዝገቦችን ይፈልጉ',
-        'search_by_case' => 'በጉዳይ ይፈልጉ',
-        'search_case_desc' => 'በተወሰኑ የጉዳይ ቁጥሮች ጋር የተገናኙ ወደንጀላዊ አባላትን ይፈልጉ',
-        'records' => 'መዝገቦች',
+        'tip_name' => 'በስም ፍለጋ',
+        'tip_name_desc' => 'በመጀመሪያ ስም፣ የመጨረሻ ስም ወይም ሁለቱ ፍለጋ ያድርጉ',
+        'tip_id' => 'በብሔራዊ መለያ ፍለጋ',
+        'tip_id_desc' => 'በብሔራዊ መለያ ቁጥር መዝገቦችን ይገኙ',
+        'tip_case' => 'በጉዳይ ፍለጋ',
+        'tip_case_desc' => 'በተወሰኑ ጉዳይ ቁጥሮች የተገናኙ ወንጀሮችን ይገኙ',
+        'error_search' => 'በፍለጋ ላይ ስህተት፡',
+        'logout_confirm' => 'ውጣ',
     ],
     'om' => [
-        'title' => 'Qoricha Diinagdee Gammachuu - Sisteemi Diinagdee Mattu Kuta',
-        'mattu_criminal_records' => 'Qoricha Diinagdee Mattu',
-        'dashboard' => 'Dashiboard',
-        'search_records' => 'Qoricha Diinagdee Gammachuu',
-        'my_cases' => 'Caasaa Kee',
-        'add_record' => 'Qoricha Qabuu',
-        'logout' => 'Deebii',
-        'officer' => 'Meekoonnin',
-        'search_criminal_records' => 'Qoricha Diinagdee Gammachuu',
-        'search_type' => 'Aangoo Qoricha',
-        'name' => 'Maatii',
-        'national_id' => 'ID Naamaa',
-        'case_number' => 'Naama Caasaa',
-        'search_query' => 'Qoricha Gammachuu',
-        'enter_search_query' => 'Qoricha gammachuu argisi...',
-        'search' => 'Gammachuu',
-        'search_results' => 'Qoricha Wojjii',
-        'found_records' => '{count} qoricha(s) keessatti \"{query}\" argame',
-        'date_of_birth' => 'Guyyaa Guyyaa',
-        'not_specified' => 'Hin Taane',
-        'gender' => 'Aangoo',
-        'status' => 'Hakkina',
-        'first_offender' => 'Qoricha Qabuu',
-        'repeat' => 'Qoricha Deebii',
-        'wanted' => 'Qoricha Qabuu',
+        'title' => 'Gadii Diinagdeewwan - Sisteemi Mattu Diinagdee',
+        'navbar_brand' => 'Sisteemi Mattu Diinagdee',
+        'dashboard' => 'Dashboardii',
+        'search_view' => 'Gadisi Mattu Diinagdeewwan Argisi',
+        'clerk_badge' => 'Karraa',
+        'logout' => 'Fufiisi barbaadeti?',
+        'search_header' => 'Gadii Diinagdee',
+        'search_type_label' => 'Aangoo Gadisi',
+        'search_query_label' => 'Qorannoo Gadisi',
+        'search_placeholder' => 'Termii gadisi fidu...',
+        'search_btn' => 'Gadisi',
+        'search_results' => 'Waliin Gadii',
+        'found_records' => 'Argame',
+        'record(s)' => 'diinagdee',
+        'for' => 'kan',
+        'date_of_birth' => 'Guyaa Lakkoofsa',
+        'gender' => 'Awwaalummaa',
+        'status' => 'Haala',
         'view' => 'Argisi',
-        'case' => 'Caasaa',
-        'no_records_found' => 'Qoricha Hin Arganne',
-        'no_match_criteria' => 'Qoricha diinagdee qoricha qoricha hin taane. Qoricha qoricha argisi.',
-        'add_new_record' => 'Qoricha Qabuu Argisi',
-        'search_tips' => 'Qoricha Mikkirroota',
-        'search_by_name' => 'Maatii Qoricha',
-        'search_name_desc' => 'Maatii qabuu, maatii deebii, ykn hunda qoricha',
-        'search_by_national_id' => 'ID Naamaa Qoricha',
-        'search_national_id_desc' => 'ID naamaa qoricha qoricha',
-        'search_by_case' => 'Caasaa Qoricha',
-        'search_case_desc' => 'Naama caasaa qoricha qoricha diinagdee',
-        'records' => 'Qoricha',
+        'no_records_found' => 'Diinagdee Hin Argamu',
+        'no_match_criteria' => 'Diinagdeewwan ummataa waliin gadii meeshaa hin taane. Termiwwan gadii dhabu.',
+        'search_tips' => 'Malkaa Gadisi',
+        'tip_name' => 'Gadii Isa',
+        'tip_name_desc' => 'Isa jalqabaa, isa jalqabaa ykn hunda gadisi',
+        'tip_id' => 'Gadii ID Qaama Oromiyaa',
+        'tip_id_desc' => 'Diinagdeewwan ID qamamee argisi',
+        'tip_case' => 'Gadii Caasaa',
+        'tip_case_desc' => 'Caasoota qamamee ummataa diinagdeewwan argisi',
+        'error_search' => 'Saaqaa gadisi:',
+        'logout_confirm' => 'Fufiisi',
     ],
 ];
+
 function t($key) {
-    global $translations, $current_lang, $search_results, $search_query;
-    $trans = $translations[$current_lang][$key] ?? $key;
-    // Replace placeholders if any
-    if (strpos($trans, '{') !== false) {
-        $trans = str_replace('{count}', count($search_results ?? []), $trans);
-        $trans = str_replace('{query}', htmlspecialchars($search_query ?? ''), $trans);
-    }
-    return $trans;
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
 }
 
-// Check if user is logged in
+// Initialize database connection
+$database = new Database();
+$pdo = $database->getConnection();
+
+// Redirect to login if not authenticated
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../index.php");
+    header("Location: ../login.php");
     exit();
 }
 
-// Get current user info
+// Enforce clerk role
+requireRole(['clerk']);
+
+// Get current user info (read-only from session)
 $current_user = [
     'full_name' => $_SESSION['first_name'] . ' ' . $_SESSION['last_name'],
-    'role' => $_SESSION['role'] ?? 'officer',
+    'role' => $_SESSION['role'] ?? 'clerk',
     'user_id' => $_SESSION['user_id']
 ];
 
@@ -166,6 +151,7 @@ $search_results = [];
 $search_performed = false;
 $search_query = '';
 $search_type = 'name';
+$search_error = '';
 
 // Handle search form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
@@ -174,56 +160,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
     $search_performed = true;
     
     if (!empty($search_query)) {
-        $database = new Database();
-        $db = $database->getConnection();
+        $clerk = new ClerkFunctions($pdo); // Use clerk functions for consistent read-only access
         
         try {
-            switch ($search_type) {
-                case 'national_id':
-                    $stmt = $db->prepare("
-                        SELECT * FROM criminal_records 
-                        WHERE national_id LIKE ? 
-                        ORDER BY created_at DESC
-                    ");
-                    $stmt->execute(["%$search_query%"]);
-                    break;
-                    
-                case 'name':
-                    $stmt = $db->prepare("
-                        SELECT * FROM criminal_records 
-                        WHERE first_name LIKE ? OR last_name LIKE ? 
-                        ORDER BY created_at DESC
-                    ");
-                    $stmt->execute(["%$search_query%", "%$search_query%"]);
-                    break;
-                    
-                case 'case_number':
-                    // Search cases and link to criminal records
-                    $stmt = $db->prepare("
-                        SELECT cr.*, c.case_number 
-                        FROM criminal_records cr
-                        INNER JOIN case_persons cp ON cr.id = cp.record_id
-                        INNER JOIN cases c ON cp.case_id = c.id
-                        WHERE c.case_number LIKE ?
-                        ORDER BY cr.created_at DESC
-                    ");
-                    $stmt->execute(["%$search_query%"]);
-                    break;
-                    
-                default:
-                    $stmt = $db->prepare("
-                        SELECT * FROM criminal_records 
-                        WHERE first_name LIKE ? OR last_name LIKE ? OR national_id LIKE ?
-                        ORDER BY created_at DESC
-                    ");
-                    $stmt->execute(["%$search_query%", "%$search_query%", "%$search_query%"]);
+            // Use general search method (adapts to type via query param simulation)
+            // For simplicity, map search_type to ClerkFunctions::searchRecords (which handles name/ID)
+            // Case number requires custom join query (read-only)
+            if ($search_type === 'case_number') {
+                // Custom read-only query for case-linked records
+                $stmt = $pdo->prepare("
+                    SELECT cr.*, c.case_number 
+                    FROM criminal_records cr
+                    INNER JOIN case_persons cp ON cr.id = cp.record_id
+                    INNER JOIN cases c ON cp.case_id = c.id
+                    WHERE c.case_number LIKE ?
+                    AND cr.status != 'deleted'
+                    ORDER BY cr.created_at DESC
+                    LIMIT 20
+                ");
+                $stmt->execute(["%$search_query%"]);
+                $search_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                // Use ClerkFunctions for name/national_id (fuzzy search)
+                $search_results = $clerk->searchRecords($search_query, 20, 0);
             }
-            
-            $search_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (Exception $e) {
             error_log("Search error: " . $e->getMessage());
-            $search_error = t('error_search') . ": " . $e->getMessage();
+            $search_error = t('error_search') . " " . $e->getMessage();
         }
     }
 }
@@ -231,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
 <!DOCTYPE html>
 <html lang="<?php echo $current_lang; ?>">
 <head>
-     <!-- Add these cache control meta tags -->
+    <!-- Cache control to prevent stale data -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -244,23 +208,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Google Fonts for Amharic and Oromo support -->
+    <!-- Google Fonts for Amharic support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
     
-    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <?php if ($current_lang == 'am'): ?>
     <style>
         body {
-            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
     </style>
     <?php endif; ?>
     
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
         }
         
@@ -273,11 +235,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         
         .navbar-brand {
             font-weight: 700;
-            color: #2c3e50 !important;
+            color: #1565c0 !important;
         }
         
-        .officer-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .clerk-badge {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -300,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         }
         
         .card-header-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 20px 25px;
             border: none;
@@ -320,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         }
         
         .form-control-custom {
-            border: 2px solid #e9ecef;
+            border: 2px solid #e3f2fd;
             border-radius: 12px;
             padding: 12px 16px;
             font-size: 1rem;
@@ -331,12 +293,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         
         .form-control-custom:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #1976d2;
+            box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
         }
         
         .btn-primary-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             border: none;
             color: white;
             padding: 12px 30px;
@@ -347,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         
         .btn-primary-custom:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
         }
         
         .result-card {
@@ -355,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1976d2;
             transition: all 0.3s ease;
         }
         
@@ -369,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
             height: 80px;
             border-radius: 10px;
             object-fit: cover;
-            border: 3px solid #e9ecef;
+            border: 3px solid #e3f2fd;
         }
         
         .status-badge {
@@ -397,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         
         .nav-link-custom {
             background: rgba(255, 255, 255, 0.9);
-            color: #495057;
+            color: #1565c0;
             border-radius: 10px;
             padding: 12px 20px;
             margin: 0 5px;
@@ -407,14 +369,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
         }
         
         .nav-link-custom:hover {
-            background: white;
-            color: #667eea;
+            background: #1976d2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
         }
         
         .search-stats {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
             color: white;
             border-radius: 15px;
             padding: 15px;
@@ -434,6 +396,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
             color: #dee2e6;
         }
         
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        
         @media (max-width: 768px) {
             .search-container {
                 padding: 15px 0;
@@ -451,12 +422,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar: Clerk-specific links (read-only) -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
             <a class="navbar-brand" href="dashboard.php">
-                <i class="fas fa-shield-alt me-2"></i>
-                <?php echo t('mattu_criminal_records'); ?>
+                <i class="fas fa-search me-2"></i>
+                <?php echo t('navbar_brand'); ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -472,28 +443,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom active" href="search_records.php">
-                            <i class="fas fa-search me-1"></i> <?php echo t('search_records'); ?>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link-custom" href="manage_cases.php">
-                            <i class="fas fa-folder-open me-1"></i> <?php echo t('my_cases'); ?>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link-custom" href="add_criminal_record.php">
-                            <i class="fas fa-user-plus me-1"></i> <?php echo t('add_record'); ?>
+                            <i class="fas fa-search me-1"></i> <?php echo t('search_view'); ?>
                         </a>
                     </li>
                 </ul>
                 
                 <div class="d-flex align-items-center">
-                    <span class="officer-badge me-3">
-                        <i class="fas fa-user-shield me-1"></i>
-                        <?php echo htmlspecialchars($current_user['full_name']); ?>
+                    <!-- Language Selector -->
+                    <form method="post" class="me-3">
+                        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm">
+                            <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>English</option>
+                            <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>አማርኛ</option>
+                            <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>Afaan Oromoo</option>
+                        </select>
+                    </form>
+                    
+                    <!-- Displays current clerk's name (read-only) -->
+                    <span class="clerk-badge me-3">
+                        <i class="fas fa-user-tie me-1"></i>
+                        <?php echo t('clerk_badge'); ?> <?php echo htmlspecialchars($current_user['full_name']); ?>
                     </span>
-                    <a href="../logout.php" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
+                    <!-- Logout with confirmation -->
+                    <a href="../logout.php" class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo t('logout'); ?>')">
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout_confirm'); ?>
                     </a>
                 </div>
             </div>
@@ -508,14 +480,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                 <div class="col-12">
                     <div class="search-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-search me-2"></i><?php echo t('search_criminal_records'); ?>
+                            <i class="fas fa-search me-2"></i><?php echo t('search_header'); ?>
                         </div>
                         <div class="card-body-custom">
-                            <!-- Search Form -->
+                            <!-- Search Form: Read-only submission -->
                             <form method="POST" class="search-form">
                                 <div class="row g-3 align-items-end">
                                     <div class="col-md-4">
-                                        <label class="form-label fw-bold"><?php echo t('search_type'); ?></label>
+                                        <label class="form-label fw-bold"><?php echo t('search_type_label'); ?></label>
                                         <select name="search_type" class="form-select form-control-custom">
                                             <option value="name" <?php echo $search_type === 'name' ? 'selected' : ''; ?>><?php echo t('name'); ?></option>
                                             <option value="national_id" <?php echo $search_type === 'national_id' ? 'selected' : ''; ?>><?php echo t('national_id'); ?></option>
@@ -523,13 +495,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold"><?php echo t('search_query'); ?></label>
+                                        <label class="form-label fw-bold"><?php echo t('search_query_label'); ?></label>
                                         <input type="text" name="search_query" class="form-control form-control-custom" 
-                                               placeholder="<?php echo t('enter_search_query'); ?>" value="<?php echo htmlspecialchars($search_query); ?>" required>
+                                               placeholder="<?php echo t('search_placeholder'); ?>" value="<?php echo htmlspecialchars($search_query); ?>" required>
                                     </div>
                                     <div class="col-md-2">
                                         <button type="submit" name="search" class="btn btn-primary-custom w-100">
-                                            <i class="fas fa-search me-2"></i><?php echo t('search'); ?>
+                                            <i class="fas fa-search me-2"></i><?php echo t('search_btn'); ?>
                                         </button>
                                     </div>
                                 </div>
@@ -543,8 +515,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                         <?php echo t('search_results'); ?>
                                     </h5>
                                     <p class="mb-0">
-                                        <?php echo t('found_records'); ?>
+                                        <?php echo t('found_records'); ?> <strong><?php echo count($search_results); ?></strong> <?php echo t('record(s)'); ?> 
+                                        <?php echo t('for'); ?> "<?php echo htmlspecialchars($search_query); ?>"
                                     </p>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($search_error): ?>
+                                <div class="alert alert-error">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <?php echo htmlspecialchars($search_error); ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -552,7 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                 </div>
             </div>
             
-            <!-- Search Results -->
+            <!-- Search Results: Read-only view -->
             <?php if ($search_performed): ?>
                 <div class="row">
                     <div class="col-12">
@@ -582,39 +562,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <h6 class="mb-1"><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></h6>
+                                                    <h6 class="mb-1"><?php echo htmlspecialchars(($record['first_name'] ?? '') . ' ' . ($record['last_name'] ?? '')); ?></h6>
                                                     <small class="text-muted">
                                                         <i class="fas fa-id-card me-1"></i>
-                                                        <?php echo htmlspecialchars($record['national_id']); ?>
+                                                        <?php echo htmlspecialchars($record['national_id'] ?? 'N/A'); ?>
                                                     </small>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <small class="text-muted"><?php echo t('date_of_birth'); ?></small>
-                                                    <div><?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : t('not_specified'); ?></div>
+                                                    <div><?php echo !empty($record['date_of_birth']) ? htmlspecialchars($record['date_of_birth']) : 'Not specified'; ?></div>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <small class="text-muted"><?php echo t('gender'); ?></small>
-                                                    <div><?php echo htmlspecialchars($record['gender'] ?? t('not_specified')); ?></div>
+                                                    <div><?php echo htmlspecialchars($record['gender'] ?? 'Not specified'); ?></div>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <small class="text-muted"><?php echo t('status'); ?></small>
                                                     <div>
                                                         <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $record['status'] ?? 'first-offender')); ?>">
-                                                            <?php echo htmlspecialchars($record['status'] ?? t('first_offender')); ?>
+                                                            <?php echo htmlspecialchars($record['status'] ?? 'First Offender'); ?>
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2 text-end">
-                                                    <div class="btn-group">
-                                                        <a href="view_criminal_record.php?id=<?php echo $record['id']; ?>" 
-                                                           class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-eye"></i> <?php echo t('view'); ?>
-                                                        </a>
-                                                        <a href="create_case.php?record_id=<?php echo $record['id']; ?>" 
-                                                           class="btn btn-sm btn-success">
-                                                            <i class="fas fa-plus"></i> <?php echo t('case'); ?>
-                                                        </a>
-                                                    </div>
+                                                    <!-- Read-only: View only, no create/edit -->
+                                                    <a href="view_criminal_record.php?id=<?php echo $record['id']; ?>" 
+                                                       class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-eye"></i> <?php echo t('view'); ?>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -624,11 +599,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                         <i class="fas fa-search"></i>
                                         <h4><?php echo t('no_records_found'); ?></h4>
                                         <p><?php echo t('no_match_criteria'); ?></p>
-                                        <div class="mt-3">
-                                            <a href="add_criminal_record.php" class="btn btn-primary">
-                                                <i class="fas fa-user-plus me-2"></i><?php echo t('add_new_record'); ?>
-                                            </a>
-                                        </div>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -636,7 +606,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                     </div>
                 </div>
             <?php else: ?>
-                <!-- Quick Search Tips -->
+                <!-- Quick Search Tips: Educational content for clerks -->
                 <div class="row">
                     <div class="col-12">
                         <div class="search-card">
@@ -651,8 +621,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                                 <i class="fas fa-user text-white"></i>
                                             </div>
                                             <div>
-                                                <h6><?php echo t('search_by_name'); ?></h6>
-                                                <p class="text-muted mb-0"><?php echo t('search_name_desc'); ?></p>
+                                                <h6><?php echo t('tip_name'); ?></h6>
+                                                <p class="text-muted mb-0"><?php echo t('tip_name_desc'); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -662,8 +632,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                                 <i class="fas fa-id-card text-white"></i>
                                             </div>
                                             <div>
-                                                <h6><?php echo t('search_by_national_id'); ?></h6>
-                                                <p class="text-muted mb-0"><?php echo t('search_national_id_desc'); ?></p>
+                                                <h6><?php echo t('tip_id'); ?></h6>
+                                                <p class="text-muted mb-0"><?php echo t('tip_id_desc'); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -673,8 +643,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
                                                 <i class="fas fa-folder text-white"></i>
                                             </div>
                                             <div>
-                                                <h6><?php echo t('search_by_case'); ?></h6>
-                                                <p class="text-muted mb-0"><?php echo t('search_case_desc'); ?></p>
+                                                <h6><?php echo t('tip_case'); ?></h6>
+                                                <p class="text-muted mb-0"><?php echo t('tip_case_desc'); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -691,7 +661,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Auto-focus on search input
+        // Auto-focus on search input for quick access
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[name="search_query"]');
             if (searchInput) {
@@ -699,7 +669,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
             }
         });
         
-        // Clear search when changing search type
+        // Clear search query when changing type
         document.querySelector('select[name="search_type"]').addEventListener('change', function() {
             document.querySelector('input[name="search_query"]').value = '';
         });

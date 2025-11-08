@@ -8,6 +8,219 @@ require '../includes/auth.php';
 require '../includes/database.php';
 require '../includes/admin_functions.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'title' => 'Security Center - Mattu Criminal Record System',
+        'header_title' => 'Security Center',
+        'status_header' => 'Security System Status:',
+        'status_operational' => 'All components operational',
+        'status_db' => 'Database Connected',
+        'status_policies' => 'Policies Active',
+        'status_monitoring' => 'Real-time Monitoring',
+        'card_password_title' => 'Password Policy',
+        'card_password_desc' => 'Configure password requirements and complexity',
+        'card_password_stat' => 'chars',
+        'card_login_title' => 'Login Security',
+        'card_login_desc' => 'Manage login attempts and session settings',
+        'card_login_stat' => 'attempts',
+        'card_2fa_title' => 'Two-Factor Auth',
+        'card_2fa_desc' => 'Enable additional security layers',
+        'card_2fa_stat_enabled' => 'Enabled',
+        'card_2fa_stat_disabled' => 'Disabled',
+        'card_monitoring_title' => 'Security Monitoring',
+        'card_monitoring_desc' => 'Real-time security event tracking',
+        'card_monitoring_stat' => 'events',
+        'section_password' => 'Password Policy',
+        'label_min_length' => 'Minimum Password Length',
+        'current_length' => 'Current:',
+        'current_applies' => 'Applies to ALL password changes system-wide',
+        'label_uppercase' => 'Require uppercase letters',
+        'label_numbers' => 'Require numbers',
+        'label_special' => 'Require special characters',
+        'btn_update_policy' => 'Update Policy',
+        'section_login' => 'Login Security',
+        'label_max_attempts' => 'Maximum Login Attempts',
+        'desc_attempts' => 'Number of failed attempts before account lockout',
+        'label_lockout_duration' => 'Lockout Duration (minutes)',
+        'desc_lockout' => 'How long to lock account after max attempts',
+        'label_session_timeout' => 'Session Timeout (minutes)',
+        'desc_timeout' => 'Automatically logout after inactivity',
+        'btn_update_settings' => 'Update Settings',
+        'section_stats' => 'Security Statistics',
+        'stat_failed_logins' => 'Failed Logins Today',
+        'stat_locked_accounts' => 'Locked Accounts',
+        'section_recent_events' => 'Recent Security Events',
+        'table_event' => 'Event',
+        'table_description' => 'Description',
+        'table_user' => 'User',
+        'table_time' => 'Time',
+        'no_events' => 'No security events recorded yet.',
+        'section_quick_actions' => 'Quick Security Actions',
+        'btn_force_reset' => 'Force Password Reset',
+        'confirm_force_reset' => 'Are you sure you want to force all users to reset their passwords?',
+        'btn_lock_sessions' => 'Lock All Sessions',
+        'confirm_lock_sessions' => 'This will log out all users immediately. Are you sure?',
+        'btn_scan' => 'Run Security Scan',
+        'msg_policy_updated' => 'Password policy updated successfully! Changes are now active system-wide.',
+        'msg_login_updated' => 'Login policy updated successfully! Changes are now active system-wide.',
+        'msg_2fa_updated' => 'Two-factor authentication settings updated!',
+        'msg_force_reset_success' => 'All users will be required to reset their passwords on next login!',
+        'msg_scan_completed' => 'Security scan completed! No critical issues found.',
+        'msg_error_prefix' => 'Error:',
+        'success_icon' => 'check-circle',
+        'error_icon' => 'exclamation-triangle',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'am' => [
+        'title' => 'ደህንነት ማዕከል - ማቱ የወንጀል መዝገብ ስርዓት',
+        'header_title' => 'ደህንነት ማዕከል',
+        'status_header' => 'የደህንነት ስርዓት ሁኔታ:',
+        'status_operational' => 'ሁሉም ክፍሎች በሥራ ላይ ናቸው',
+        'status_db' => 'የውሂብ ቤዝ የተገናኘ',
+        'status_policies' => 'ፖሊሲዎች ንቁ ናቸው',
+        'status_monitoring' => 'በጊዜው ላይ የሚከታተል',
+        'card_password_title' => 'የይለፍ ቃል ፖሊሲ',
+        'card_password_desc' => 'የይለፍ ቃል መስፈርቶችን እና ውህደትን ያዘጋጁ',
+        'card_password_stat' => 'ቁምፊዎች',
+        'card_login_title' => 'የግባ ደህንነት',
+        'card_login_desc' => 'የግባ ሙከራዎችን እና የግባ ቅንብሮችን ይቆጣጠሩ',
+        'card_login_stat' => 'ሙከራዎች',
+        'card_2fa_title' => 'ሁለት ተኮር ማረጋገጫ',
+        'card_2fa_desc' => 'ተጨማሪ ደህንነት ሽፋኖችን ያንቁ',
+        'card_2fa_stat_enabled' => 'ተክተለ',
+        'card_2fa_stat_disabled' => 'ተሰነሰ',
+        'card_monitoring_title' => 'ደህንነት መከታተያ',
+        'card_monitoring_desc' => 'በጊዜው ላይ የደህንነት ክስተቶችን መከታተል',
+        'card_monitoring_stat' => 'ክስተቶች',
+        'section_password' => 'የይለፍ ቃል ፖሊሲ',
+        'label_min_length' => 'ዝቅተኛ የይለፍ ቃል ርዝመት',
+        'current_length' => 'አሁኑ:',
+        'current_applies' => 'ለሁሉም የይለፍ ቃል ለውጦች በስርዓት ዙሪያ ይሰራል',
+        'label_uppercase' => 'ትልቅ ፊደላት ይጠይቃሉ',
+        'label_numbers' => 'ቁጥሮች ይጠይቃሉ',
+        'label_special' => 'ልዩ ቁምፊዎች ይጠይቃሉ',
+        'btn_update_policy' => 'ፖሊሲን ይዘምኑ',
+        'section_login' => 'የግባ ደህንነት',
+        'label_max_attempts' => 'ከፍተኛ የግባ ሙከራዎች',
+        'desc_attempts' => 'ከአካውንት መቆለፍ በፊት የተሳነው ሙከራዎች ቁጥር',
+        'label_lockout_duration' => 'የመቆለፍ ጊዜ (ደቂቃ)',
+        'desc_lockout' => 'ከከፍተኛ ሙከራዎች በኋላ አካውንት ለምን ያቆላል',
+        'label_session_timeout' => 'የግባ ጊዜ ገደብ (ደቂቃ)',
+        'desc_timeout' => 'ከአያያዝ በኋላ በቀጥታ ይወጣል',
+        'btn_update_settings' => 'ቅንብሮችን ይዘምኑ',
+        'section_stats' => 'ደህንነት ስታቲስቲክስ',
+        'stat_failed_logins' => 'ዛሬ የተሳነው ግባዎች',
+        'stat_locked_accounts' => 'የተቆለፉ አካውንቶች',
+        'section_recent_events' => 'የቅርብ ጊዜ ደህንነት ክስተቶች',
+        'table_event' => 'ክስተት',
+        'table_description' => 'መግለጫ',
+        'table_user' => 'ተጠቃሚ',
+        'table_time' => 'ጊዜ',
+        'no_events' => 'የሚታወቁ ደህንነት ክስተቶች የሉም።',
+        'section_quick_actions' => 'ፈጣን ደህንነት እርምጃዎች',
+        'btn_force_reset' => 'የይለፍ ቃል ዳግም ማስጀመር ያስገድዱ',
+        'confirm_force_reset' => 'ሁሉንም ተጠቃሚዎች የይለፍ ቃላቸውን ዳግም እንዲጠቀሙ ትፈልጋለህ?',
+        'btn_lock_sessions' => 'ሁሉንም ግባዎች ይቆልፉ',
+        'confirm_lock_sessions' => 'ይህ ሁሉንም ተጠቃሚዎች በቀጥታ ያውጣል። ትናገራለህ?',
+        'btn_scan' => 'ደህንነት ምርመራ ያስጀምሩ',
+        'msg_policy_updated' => 'የይለፍ ቃል ፖሊሲ በተሳካ ሁኔታ ተዘመነ! ለውጦቹ አሁን በስርዓት ዙሪያ ንቁ ናቸው።',
+        'msg_login_updated' => 'የግባ ፖሊሲ በተሳካ ሁኔታ ተዘመነ! ለውጦቹ አሁን በስርዓት ዙሪያ ንቁ ናቸው።',
+        'msg_2fa_updated' => 'የሁለት ተኮር ማረጋገጫ ቅንብሮች ተዘመኑ!',
+        'msg_force_reset_success' => 'ሁሉም ተጠቃሚዎች በቀጣዩ ግባ ጊዜ የይለፍ ቃላቸውን መዳግም ይጠይቃሉ!',
+        'msg_scan_completed' => 'ደህንነት ምርመራ ተጠናቅቋል! አስፈላጊ ችግሮች አልተገኙም።',
+        'msg_error_prefix' => 'ስህተት:',
+        'success_icon' => 'check-circle',
+        'error_icon' => 'exclamation-triangle',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+    'om' => [
+        'title' => 'Qabeenya Ammaata - Sisteemi Ummata Mattu Diinagdee',
+        'header_title' => 'Qabeenya Ammaata',
+        'status_header' => 'Balaa Sisteemi Ammaata:',
+        'status_operational' => 'Kompoonentoota hundee yoo taane ykn',
+        'status_db' => 'Database argame',
+        'status_policies' => 'Polisiin Active',
+        'status_monitoring' => 'Yoo taane argamsi',
+        'card_password_title' => 'Polisii Passwordii',
+        'card_password_desc' => 'Maatii passwordii fi balaa argachuu',
+        'card_password_stat' => 'chars',
+        'card_login_title' => 'Qabeenya Loginii',
+        'card_login_desc' => 'Imaammataan loginii fi balaa argachuu',
+        'card_login_stat' => 'mucaa',
+        'card_2fa_title' => 'Authii Lamaan',
+        'card_2fa_desc' => 'Qabeenya sossobaa argachuu',
+        'card_2fa_stat_enabled' => 'Ykn',
+        'card_2fa_stat_disabled' => 'Moo ykn',
+        'card_monitoring_title' => 'Ijaarsa Ammaata',
+        'card_monitoring_desc' => 'Yoo taane argamsi ammaata',
+        'card_monitoring_stat' => 'ija',
+        'section_password' => 'Polisii Passwordii',
+        'label_min_length' => 'Maatii Minimumii Passwordii',
+        'current_length' => 'Yoo taane:',
+        'current_applies' => 'Bilisummaa passwordii hundee argachuu',
+        'label_uppercase' => 'Maatii gadii argachuu',
+        'label_numbers' => 'Qarqaroo argachuu',
+        'label_special' => 'Maatii sossobaa argachuu',
+        'btn_update_policy' => 'Polisii Aadaa',
+        'section_login' => 'Qabeenya Loginii',
+        'label_max_attempts' => 'Mucaa Maksimumii Loginii',
+        'desc_attempts' => 'Mucaa moo ykn awwaaluu bilisummaa',
+        'label_lockout_duration' => 'Maatii Lockout (digii)',
+        'desc_lockout' => 'Mucaa maks mucaa awwaaluu',
+        'label_session_timeout' => 'Maatii Session (digii)',
+        'desc_timeout' => 'Awwaala yoo taane fufiisi',
+        'btn_update_settings' => 'Balaa Aadaa',
+        'section_stats' => 'Statistiki Ammaata',
+        'stat_failed_logins' => "Loginiin Har'aa Moo",
+        'stat_locked_accounts' => 'Akauntaa Lock',
+        'section_recent_events' => "Ija Utuu Ammaata",
+        'table_event' => 'Ija',
+        'table_description' => 'Maatii',
+        'table_user' => 'User',
+        'table_time' => 'Waqti',
+        'no_events' => 'Ija ammaata argamuu miti.',
+        'section_quick_actions' => 'Irmaa Qabsoo Ammaata',
+        'btn_force_reset' => 'Passwordii Force Reset',
+        'confirm_force_reset' => 'Useroota hundee passwordii reset barbaachisu?',
+        'btn_lock_sessions' => 'Sessionota Hundee Lock',
+        'confirm_lock_sessions' => 'Useroota hundee fufiisi yoo taane. Barbaachisa?',
+        'btn_scan' => 'Scan Ammaata Ummisi',
+        'msg_policy_updated' => 'Polisii passwordii yoo taane aadaa! Balaa yoo taane active.',
+        'msg_login_updated' => 'Polisii loginii yoo taane aadaa! Balaa yoo taane active.',
+        'msg_2fa_updated' => 'Balaa Authii lamaan aadaa!',
+        'msg_force_reset_success' => 'Useroota hundee passwordii reset barbaachisu!',
+        'msg_scan_completed' => 'Scan ammaata yoo taane! Caasaa sossobaa miti.',
+        'msg_error_prefix' => 'Maatii:',
+        'success_icon' => 'check-circle',
+        'error_icon' => 'exclamation-triangle',
+        'lang_english' => 'English',
+        'lang_amharic' => 'አማርኛ',
+        'lang_oromo' => 'Afaan Oromoo',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -212,71 +425,67 @@ class SecuritySettings {
         }
     }
     
-    // Lock all sessions (logout all users) - IMPROVED METHOD
-   // In your SecuritySettings class in security.php - REPLACE THE lockAllSessions METHOD:
-
-// Lock all sessions (logout all users) - FIXED VERSION
-// Lock all sessions (logout all users) - COMPLETELY FIXED
-public function lockAllSessions() {
-    try {
-        // METHOD 1: Clear ALL PHP session files regardless of user role
-        $sessionPath = session_save_path();
-        if (empty($sessionPath)) {
-            $sessionPath = sys_get_temp_dir();
-        }
-        
-        $sessionFiles = glob($sessionPath . '/sess_*');
-        $clearedSessions = 0;
-        
-        foreach ($sessionFiles as $file) {
-            if (is_file($file) && basename($file) !== '.gitkeep') {
-                if (unlink($file)) {
-                    $clearedSessions++;
+    // Lock all sessions (logout all users) - FIXED VERSION
+    public function lockAllSessions() {
+        try {
+            // METHOD 1: Clear ALL PHP session files regardless of user role
+            $sessionPath = session_save_path();
+            if (empty($sessionPath)) {
+                $sessionPath = sys_get_temp_dir();
+            }
+            
+            $sessionFiles = glob($sessionPath . '/sess_*');
+            $clearedSessions = 0;
+            
+            foreach ($sessionFiles as $file) {
+                if (is_file($file) && basename($file) !== '.gitkeep') {
+                    if (unlink($file)) {
+                        $clearedSessions++;
+                    }
                 }
             }
-        }
-        
-        // METHOD 2: Update database sessions for ALL user types
-        try {
-            // Update user_sessions table if it exists
-            $checkTable = $this->conn->query("SHOW TABLES LIKE 'user_sessions'");
-            if ($checkTable->rowCount() > 0) {
-                $query = "UPDATE user_sessions SET is_active = 0, logout_time = NOW() WHERE is_active = 1";
-                $stmt = $this->conn->prepare($query);
-                $stmt->execute();
+            
+            // METHOD 2: Update database sessions for ALL user types
+            try {
+                // Update user_sessions table if it exists
+                $checkTable = $this->conn->query("SHOW TABLES LIKE 'user_sessions'");
+                if ($checkTable->rowCount() > 0) {
+                    $query = "UPDATE user_sessions SET is_active = 0, logout_time = NOW() WHERE is_active = 1";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->execute();
+                }
+            } catch (Exception $e) {
+                // Table might not exist, continue with other methods
+                error_log("User sessions table update error: " . $e->getMessage());
             }
+            
+            // METHOD 3: Force password change for all users to ensure re-authentication
+            try {
+                $this->forcePasswordReset();
+            } catch (Exception $e) {
+                error_log("Force password reset error: " . $e->getMessage());
+            }
+            
+            // METHOD 4: Update global security timestamp - ALL users will check this
+            $this->updateSetting('global_session_reset', time());
+            $this->updateSetting('force_session_check', '1');
+            
+            $this->logEvent('security_action', "Locked ALL user sessions. Cleared $clearedSessions session files.");
+            
+            return [
+                'success' => true,
+                'sessions_cleared' => $clearedSessions,
+                'message' => "All user sessions have been locked successfully! $clearedSessions sessions terminated across all user roles."
+            ];
+            
         } catch (Exception $e) {
-            // Table might not exist, continue with other methods
-            error_log("User sessions table update error: " . $e->getMessage());
+            error_log("Lock all sessions error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => "Failed to lock sessions: " . $e->getMessage()
+            ];
         }
-        
-        // METHOD 3: Force password change for all users to ensure re-authentication
-        try {
-            $this->forcePasswordReset();
-        } catch (Exception $e) {
-            error_log("Force password reset error: " . $e->getMessage());
-        }
-        
-        // METHOD 4: Update global security timestamp - ALL users will check this
-        $this->updateSetting('global_session_reset', time());
-        $this->updateSetting('force_session_check', '1');
-        
-        $this->logEvent('security_action', "Locked ALL user sessions. Cleared $clearedSessions session files.");
-        
-        return [
-            'success' => true,
-            'sessions_cleared' => $clearedSessions,
-            'message' => "All user sessions have been locked successfully! $clearedSessions sessions terminated across all user roles."
-        ];
-        
-    } catch (Exception $e) {
-        error_log("Lock all sessions error: " . $e->getMessage());
-        return [
-            'success' => false,
-            'message' => "Failed to lock sessions: " . $e->getMessage()
-        ];
     }
-}
 }
 
 // Initialize security settings
@@ -304,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // BROADCAST THE CHANGE SYSTEM-WIDE - NOW WORKING
             $security->broadcastSecurityUpdate('password_policy');
             
-            $message = "Password policy updated successfully! Changes are now active system-wide.";
+            $message = t('msg_policy_updated');
         }
         elseif ($action === 'update_login_policy') {
             $max_attempts = intval($_POST['max_attempts'] ?? 5);
@@ -318,42 +527,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // BROADCAST THE CHANGE SYSTEM-WIDE - NOW WORKING
             $security->broadcastSecurityUpdate('login_policy');
             
-            $message = "Login policy updated successfully! Changes are now active system-wide.";
+            $message = t('msg_login_updated');
         }
         elseif ($action === 'enable_2fa') {
             $enable_2fa = isset($_POST['enable_2fa']) ? 1 : 0;
             $security->updateSetting('two_factor_enabled', $enable_2fa);
             
             $security->logEvent('settings_update', 'Two-factor authentication settings updated');
-            $message = "Two-factor authentication settings updated!";
+            $message = t('msg_2fa_updated');
         }
         elseif ($action === 'force_password_reset') {
             if ($security->forcePasswordReset()) {
                 $security->logEvent('security_action', 'Forced password reset for all users');
-                $message = "All users will be required to reset their passwords on next login!";
+                $message = t('msg_force_reset_success');
             } else {
                 throw new Exception("Failed to force password reset. Please check database permissions.");
             }
         }
-     // In your security.php - UPDATE THE lock_all_sessions HANDLER:
-
-elseif ($action === 'lock_all_sessions') {
-    $result = $security->lockAllSessions();
-    
-    if ($result['success']) {
-        $message = $result['message'];
-        $security->logEvent('security_action', 'Locked all user sessions - ' . $result['sessions_cleared'] . ' sessions terminated');
-    } else {
-        throw new Exception($result['message']);
-    }
-}
+        elseif ($action === 'lock_all_sessions') {
+            $result = $security->lockAllSessions();
+            
+            if ($result['success']) {
+                $message = $result['message'];
+                $security->logEvent('security_action', 'Locked all user sessions - ' . $result['sessions_cleared'] . ' sessions terminated');
+            } else {
+                throw new Exception($result['message']);
+            }
+        }
         elseif ($action === 'run_security_scan') {
             // Simulate security scan
             $security->logEvent('security_scan', 'Comprehensive security scan initiated');
-            $message = "Security scan completed! No critical issues found.";
+            $message = t('msg_scan_completed');
         }
     } catch (Exception $e) {
-        $message = "Error: " . $e->getMessage();
+        $message = t('msg_error_prefix') . ' ' . $e->getMessage();
         $message_type = 'error';
     }
 }
@@ -373,12 +580,26 @@ $stats = $security->getSecurityStats();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Center - Mattu Criminal Record System</title>
+    <title><?php echo t('title'); ?></title>
+    
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
+    
     <style>
            * {
             margin: 0;
@@ -406,6 +627,10 @@ $stats = $security->getSecurityStats();
             padding: 25px;
             border-radius: 10px 10px 0 0;
             margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .header h1 {
@@ -414,6 +639,31 @@ $stats = $security->getSecurityStats();
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+        
+        /* Language Selector in Header */
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .lang-selector form {
+            display: inline;
+        }
+        
+        .lang-selector select {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .lang-selector select option {
+            background: #667eea;
+            color: white;
         }
         
         .content {
@@ -746,6 +996,12 @@ $stats = $security->getSecurityStats();
                 width: 100%;
                 justify-content: center;
             }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
         }
         .system-status-indicator {
             display: inline-block;
@@ -760,12 +1016,15 @@ $stats = $security->getSecurityStats();
 </head>
 <body>
     <div class="container">
-        
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> <?php echo t('header_title'); ?></h1>
+          
+        </div>
         
         <div class="content">
             <?php if ($message): ?>
                 <div class="alert alert-<?php echo $message_type === 'error' ? 'error' : 'success'; ?>">
-                    <i class="fas fa-<?php echo $message_type === 'error' ? 'exclamation-triangle' : 'check-circle'; ?>"></i> 
+                    <i class="fas fa-<?php echo $message_type === 'error' ? t('error_icon') : t('success_icon'); ?>"></i> 
                     <?php echo htmlspecialchars($message); ?>
                 </div>
             <?php endif; ?>
@@ -773,10 +1032,10 @@ $stats = $security->getSecurityStats();
             <!-- System Status Indicator -->
             <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
                 <i class="fas fa-check-circle"></i> 
-                <strong>Security System Status:</strong> All components operational | 
-                <span class="status-active system-status-indicator"></span>Database Connected | 
-                <span class="status-active system-status-indicator"></span>Policies Active |
-                <span class="status-active system-status-indicator"></span>Real-time Monitoring
+                <strong><?php echo t('status_header'); ?></strong> <?php echo t('status_operational'); ?> | 
+                <span class="status-active system-status-indicator"></span><?php echo t('status_db'); ?> | 
+                <span class="status-active system-status-indicator"></span><?php echo t('status_policies'); ?> |
+                <span class="status-active system-status-indicator"></span><?php echo t('status_monitoring'); ?>
             </div>
             
             <!-- Security Overview Cards -->
@@ -785,36 +1044,36 @@ $stats = $security->getSecurityStats();
                     <div class="security-icon">
                         <i class="fas fa-lock"></i>
                     </div>
-                    <h4>Password Policy</h4>
-                    <p>Configure password requirements and complexity</p>
-                    <div class="stat-number"><?php echo $password_min_length; ?>+ chars</div>
+                    <h4><?php echo t('card_password_title'); ?></h4>
+                    <p><?php echo t('card_password_desc'); ?></p>
+                    <div class="stat-number"><?php echo $password_min_length; ?>+ <?php echo t('card_password_stat'); ?></div>
                 </div>
                 
                 <div class="security-card">
                     <div class="security-icon">
                         <i class="fas fa-user-shield"></i>
                     </div>
-                    <h4>Login Security</h4>
-                    <p>Manage login attempts and session settings</p>
-                    <div class="stat-number"><?php echo $login_max_attempts; ?> attempts</div>
+                    <h4><?php echo t('card_login_title'); ?></h4>
+                    <p><?php echo t('card_login_desc'); ?></p>
+                    <div class="stat-number"><?php echo $login_max_attempts; ?> <?php echo t('card_login_stat'); ?></div>
                 </div>
                 
                 <div class="security-card">
                     <div class="security-icon">
                         <i class="fas fa-fingerprint"></i>
                     </div>
-                    <h4>Two-Factor Auth</h4>
-                    <p>Enable additional security layers</p>
-                    <div class="stat-number"><?php echo $two_factor_enabled ? 'Enabled' : 'Disabled'; ?></div>
+                    <h4><?php echo t('card_2fa_title'); ?></h4>
+                    <p><?php echo t('card_2fa_desc'); ?></p>
+                    <div class="stat-number"><?php echo $two_factor_enabled ? t('card_2fa_stat_enabled') : t('card_2fa_stat_disabled'); ?></div>
                 </div>
                 
                 <div class="security-card">
                     <div class="security-icon">
                         <i class="fas fa-history"></i>
                     </div>
-                    <h4>Security Monitoring</h4>
-                    <p>Real-time security event tracking</p>
-                    <div class="stat-number"><?php echo $stats['failed_logins_today']; ?> events</div>
+                    <h4><?php echo t('card_monitoring_title'); ?></h4>
+                    <p><?php echo t('card_monitoring_desc'); ?></p>
+                    <div class="stat-number"><?php echo $stats['failed_logins_today']; ?> <?php echo t('card_monitoring_stat'); ?></div>
                 </div>
             </div>
             
@@ -823,19 +1082,19 @@ $stats = $security->getSecurityStats();
                     <!-- Password Policy -->
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-lock"></i> Password Policy</h3>
+                            <h3><i class="fas fa-lock"></i> <?php echo t('section_password'); ?></h3>
                         </div>
                         <div class="card-body">
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_password_policy">
                                 
                                 <div class="form-group">
-                                    <label for="min_length">Minimum Password Length</label>
+                                    <label for="min_length"><?php echo t('label_min_length'); ?></label>
                                     <input type="number" class="form-control" id="min_length" name="min_length" 
                                            value="<?php echo htmlspecialchars($password_min_length); ?>" min="6" max="20">
                                     <small style="color: #6c757d; display: block; margin-top: 5px;">
-                                        Current: <?php echo $password_min_length; ?> characters | 
-                                        Applies to ALL password changes system-wide
+                                        <?php echo t('current_length'); ?> <?php echo $password_min_length; ?> <?php echo t('card_password_stat'); ?> | 
+                                        <?php echo t('current_applies'); ?>
                                     </small>
                                 </div>
                                 
@@ -845,7 +1104,7 @@ $stats = $security->getSecurityStats();
                                                <?php echo $password_require_uppercase ? 'checked' : ''; ?>>
                                         <span class="slider"></span>
                                     </label>
-                                    <label>Require uppercase letters</label>
+                                    <label><?php echo t('label_uppercase'); ?></label>
                                 </div>
                                 
                                 <div class="checkbox-group">
@@ -854,7 +1113,7 @@ $stats = $security->getSecurityStats();
                                                <?php echo $password_require_numbers ? 'checked' : ''; ?>>
                                         <span class="slider"></span>
                                     </label>
-                                    <label>Require numbers</label>
+                                    <label><?php echo t('label_numbers'); ?></label>
                                 </div>
                                 
                                 <div class="checkbox-group">
@@ -863,11 +1122,11 @@ $stats = $security->getSecurityStats();
                                                <?php echo $password_require_special ? 'checked' : ''; ?>>
                                         <span class="slider"></span>
                                     </label>
-                                    <label>Require special characters</label>
+                                    <label><?php echo t('label_special'); ?></label>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Policy
+                                    <i class="fas fa-save"></i> <?php echo t('btn_update_policy'); ?>
                                 </button>
                             </form>
                         </div>
@@ -880,35 +1139,35 @@ $stats = $security->getSecurityStats();
                     <!-- Login Security -->
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-user-shield"></i> Login Security</h3>
+                            <h3><i class="fas fa-user-shield"></i> <?php echo t('section_login'); ?></h3>
                         </div>
                         <div class="card-body">
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_login_policy">
                                 
                                 <div class="form-group">
-                                    <label for="max_attempts">Maximum Login Attempts</label>
+                                    <label for="max_attempts"><?php echo t('label_max_attempts'); ?></label>
                                     <input type="number" class="form-control" id="max_attempts" name="max_attempts" 
                                            value="<?php echo htmlspecialchars($login_max_attempts); ?>" min="3" max="10">
-                                    <small style="color: #6c757d;">Number of failed attempts before account lockout</small>
+                                    <small style="color: #6c757d;"><?php echo t('desc_attempts'); ?></small>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="lockout_duration">Lockout Duration (minutes)</label>
+                                    <label for="lockout_duration"><?php echo t('label_lockout_duration'); ?></label>
                                     <input type="number" class="form-control" id="lockout_duration" name="lockout_duration" 
                                            value="<?php echo htmlspecialchars($login_lockout_duration); ?>" min="5" max="1440">
-                                    <small style="color: #6c757d;">How long to lock account after max attempts</small>
+                                    <small style="color: #6c757d;"><?php echo t('desc_lockout'); ?></small>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="session_timeout">Session Timeout (minutes)</label>
+                                    <label for="session_timeout"><?php echo t('label_session_timeout'); ?></label>
                                     <input type="number" class="form-control" id="session_timeout" name="session_timeout" 
                                            value="<?php echo htmlspecialchars($session_timeout); ?>" min="15" max="480">
-                                    <small style="color: #6c757d;">Automatically logout after inactivity</small>
+                                    <small style="color: #6c757d;"><?php echo t('desc_timeout'); ?></small>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Settings
+                                    <i class="fas fa-save"></i> <?php echo t('btn_update_settings'); ?>
                                 </button>
                             </form>
                         </div>
@@ -917,33 +1176,33 @@ $stats = $security->getSecurityStats();
                     <!-- Security Statistics -->
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-chart-bar"></i> Security Statistics</h3>
+                            <h3><i class="fas fa-chart-bar"></i> <?php echo t('section_stats'); ?></h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="stat-card">
                                         <div class="stat-number"><?php echo $stats['failed_logins_today']; ?></div>
-                                        <div class="stat-label">Failed Logins Today</div>
+                                        <div class="stat-label"><?php echo t('stat_failed_logins'); ?></div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="stat-card">
                                         <div class="stat-number"><?php echo $stats['locked_accounts']; ?></div>
-                                        <div class="stat-label">Locked Accounts</div>
+                                        <div class="stat-label"><?php echo t('stat_locked_accounts'); ?></div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div style="margin-top: 20px;">
-                                <h4>Recent Security Events</h4>
+                                <h4><?php echo t('section_recent_events'); ?></h4>
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Event</th>
-                                            <th>Description</th>
-                                            <th>User</th>
-                                            <th>Time</th>
+                                            <th><?php echo t('table_event'); ?></th>
+                                            <th><?php echo t('table_description'); ?></th>
+                                            <th><?php echo t('table_user'); ?></th>
+                                            <th><?php echo t('table_time'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -966,7 +1225,7 @@ $stats = $security->getSecurityStats();
                                         <?php else: ?>
                                             <tr>
                                                 <td colspan="4" style="text-align: center; color: #6c757d;">
-                                                    No security events recorded yet.
+                                                    <?php echo t('no_events'); ?>
                                                 </td>
                                             </tr>
                                         <?php endif; ?>
@@ -981,28 +1240,28 @@ $stats = $security->getSecurityStats();
             <!-- Quick Actions -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Security Actions</h3>
+                    <h3><i class="fas fa-bolt"></i> <?php echo t('section_quick_actions'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="quick-actions">
                         <form method="POST" style="display: inline;">
                             <input type="hidden" name="action" value="force_password_reset">
-                            <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to force all users to reset their passwords?')">
-                                <i class="fas fa-key"></i> Force Password Reset
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('<?php echo addslashes(t('confirm_force_reset')); ?>')">
+                                <i class="fas fa-key"></i> <?php echo t('btn_force_reset'); ?>
                             </button>
                         </form>
                         
                         <form method="POST" style="display: inline;">
                             <input type="hidden" name="action" value="lock_all_sessions">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('This will log out all users immediately. Are you sure?')">
-                                <i class="fas fa-lock"></i> Lock All Sessions
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('<?php echo addslashes(t('confirm_lock_sessions')); ?>')">
+                                <i class="fas fa-lock"></i> <?php echo t('btn_lock_sessions'); ?>
                             </button>
                         </form>
                         
                         <form method="POST" style="display: inline;">
                             <input type="hidden" name="action" value="run_security_scan">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Run Security Scan
+                                <i class="fas fa-search"></i> <?php echo t('btn_scan'); ?>
                             </button>
                         </form>
                         

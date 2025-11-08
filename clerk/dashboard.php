@@ -1,28 +1,166 @@
 <?php
 // dashboard.php
-require '../includes/auth.php';
-require '../includes/database.php';
-require '../includes/clerk_functions.php';
+// This file serves as the main dashboard for users with the 'clerk' role in the Mattu Criminal Record System.
+// A 'clerk' is a non-administrative user who can search, view, and browse criminal records but cannot create, edit, or delete them.
+// Clerks focus on data retrieval, case tracking, and viewing system updates. No write access to prevent unauthorized changes.
 
-// Check if user is logged in, otherwise redirect to login page
-if (!isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+// Required includes for authentication, database connection, and clerk-specific functions
+require '../includes/auth.php';      // Handles session validation and login checks
+require '../includes/database.php';  // Provides PDO database connection
+require '../includes/clerk_functions.php'; // Clerk-specific methods (e.g., stats, search)
+
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
 }
+
+$translations = [
+    'en' => [
+        'title' => 'Clerk Dashboard - Mattu Criminal Record System',
+        'navbar_brand' => 'Mattu Criminal Records',
+        'dashboard' => 'Dashboard',
+        'search_view' => 'Search & View Records',
+        'clerk_badge' => 'Clerk',
+        'logout' => 'Logout',
+        'hero_title' => 'Criminal Record Search',
+        'hero_sub' => 'Search by Criminal Name, National ID, or Case File ID',
+        'search_placeholder' => 'Enter name, ID number, or case file ID...',
+        'search_btn' => 'Search Records',
+        'search_tips' => 'Search Tips',
+        'tip1' => 'Use full names for better results (e.g., "John Smith")',
+        'tip2' => 'National ID format: 12-digit number',
+        'tip3' => 'Case IDs start with "CASE-" followed by numbers',
+        'tip4' => 'Search is case-insensitive',
+        'total_records' => 'Total Criminal Records',
+        'active_cases' => 'Active Cases',
+        'pending_cases' => 'Pending Cases',
+        'closed_cases' => 'Closed Cases',
+        'quick_view' => 'Quick View Links',
+        'view_active' => 'View Active Cases',
+        'view_pending' => 'View Pending Cases',
+        'recent_records' => 'Recent Records',
+        'browse_all' => 'Browse All Records',
+        'system_news' => 'System News & Updates',
+        'no_updates' => 'No Recent Updates',
+        'updates_desc' => 'System announcements and data entry guidelines will appear here.',
+        'search_term_alert' => 'Please enter a search term',
+    ],
+    'am' => [
+        'title' => 'የጸሐፊ ዳሽቦርድ - ማቱ የወንጀል መዝገብ ስርዓት',
+        'navbar_brand' => 'ማቱ የወንጀል መዝገቦች',
+        'dashboard' => 'ዳሽቦርድ',
+        'search_view' => 'ፍለጋ እና መዝገቦችን ተመልከት',
+        'clerk_badge' => 'ጸሐፊ',
+        'logout' => 'ውጣ',
+        'hero_title' => 'የወንጀል መዝገብ ፍለጋ',
+        'hero_sub' => 'በወንጀል ስም ብሔራዊ መለያ ወይም ጉዳይ ፋይል መለያ ፍለጋ',
+        'search_placeholder' => 'ስም፣ መለያ ቁጥር ወይም ጉዳይ ፋይል መለያ ያስገቡ...',
+        'search_btn' => 'መዝገቦች ፍለጋ',
+        'search_tips' => 'የፍለጋ ምክሮች',
+        'tip1' => 'በተሻለ ውጤት ለመስጠት ሙሉ ስሞችን ይጠቀሙ (ለምሳሌ፣ "ጆን ስሚት")',
+        'tip2' => 'ብሔራዊ መለያ ቅርጸት፡ 12-ቁጥር',
+        'tip3' => 'ጉዳይ መለያዎች "CASE-" በመጀመሪያ ቁጥሮች ይከተላሉ',
+        'tip4' => 'የፍለጋ ጥልቅ የለም',
+        'total_records' => 'ጠቃሚ የወንጀል መዝገቦች',
+        'active_cases' => 'ንቁ ጉዳዮች',
+        'pending_cases' => 'ተረጋጋ ጉዳዮች',
+        'closed_cases' => 'ዝጋ ጉዳዮች',
+        'quick_view' => 'ፈጣን እይታ ማገናኛዎች',
+        'view_active' => 'ንቁ ጉዳዮችን ተመልከት',
+        'view_pending' => 'ተረጋጋ ጉዳዮችን ተመልከት',
+        'recent_records' => 'የቅርብ ጊዜ መዝገቦች',
+        'browse_all' => 'ሁሉንም መዝገቦች ማግለፍ',
+        'system_news' => 'ስርዓት ዜናዎች እና ዝማኔዎች',
+        'no_updates' => 'የቅርብ ጊዜ ዝማኔ የለም',
+        'updates_desc' => 'ስርዓት ጋዜጣዎች እና ውሂብ ግብዝ መመሪያዎች እዚህ ይታያሉ',
+        'search_term_alert' => 'እባክዎ የፍለጋ ቃል ያስገቡ',
+    ],
+    'om' => [
+        'title' => 'Dashboardii Karraa - Sisteemi Ummata Mattu Diinagdee',
+        'navbar_brand' => 'Sisteemi Ummata Mattu Diinagdee',
+        'dashboard' => 'Dashboardii',
+        'search_view' => 'Gadisi Mattu Diinagdeewwan Argisi',
+        'clerk_badge' => 'Karraa',
+        'logout' => 'Fufiisi',
+        'hero_title' => 'Gadii Ummata Diinagdee',
+        'hero_sub' => 'Gadii Ummata Isa, ID Qaama Oromiyaa ykn ID Fayila Caasaa',
+        'search_placeholder' => 'Isa, ID naamma ykn ID Fayila Caasaa fidu...',
+        'search_btn' => 'Diinagdeewwan Gadisi',
+        'search_tips' => 'Malkaa Gadisi',
+        'tip1' => 'Waliin gadii fiigicha (e.g., "John Smith") barbaachisu',
+        'tip2' => 'ID Qaama Oromiyaa: 12-digit naamma',
+        'tip3' => 'ID Caasaa "CASE-" jedhamuun hojjetu',
+        'tip4' => 'Gadii case-insensitive',
+        'total_records' => 'Diinagdeewwan Ummata Hundee',
+        'active_cases' => 'Caasoota Hojiin',
+        'pending_cases' => 'Caasoota Barumsa',
+        'closed_cases' => 'Caasoota Dhabame',
+        'quick_view' => 'Magaalaa Fiigicicha',
+        'view_active' => 'Caasoota Hojiin Argisi',
+        'view_pending' => 'Caasoota Barumsa Argisi',
+        'recent_records' => 'Diinagdeewwan Utuu',
+        'browse_all' => 'Diinagdeewwan Hundee Baradisi',
+        'system_news' => 'Yaadni Sisteemi Mattu Ijaarsa',
+        'no_updates' => 'Ijaarsa Utuu Hin Taane',
+        'updates_desc' => 'Ijaarsa Sisteemi Mattu Ibbaan Qorannoo Dataa Ijaarsa Kannee Barameera',
+        'search_term_alert' => 'Gadii termii dhiisi',
+    ],
+];
+
+function t($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $key;
+}
+
+// Initialize database connection (FIX: This was missing, causing undefined $pdo error leading to 500)
+$database = new Database();
+$pdo = $database->getConnection();
+
+// Redirect to login if not authenticated
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php"); // Fixed redirect to login page (was dashboard.php, which would loop)
+    exit();
+}
+
+// Enforce clerk role (defined in auth.php - assumes requireRole(['clerk']) is called there or here)
+requireRole(['clerk']); // Ensures only clerks can access this page
+
+// Fetch system stats and news using clerk functions (these query the real-time database)
+$clerk = new ClerkFunctions($pdo); // $pdo from database.php
+$systemStats = $clerk->getSystemStats(); // Gets counts from DB: total records, active/pending/closed cases
+$systemNews = $clerk->getSystemNews();   // Gets recent announcements from DB
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clerk Dashboard - Mattu Criminal Record System</title>
+    <title><?php echo t('title'); ?></title>
     
-    <!-- Bootstrap 5 CSS -->
+    <!-- External CSS/JS for styling and interactivity -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
+        /* Custom CSS for a modern, responsive dashboard */
         body {
             box-sizing: border-box;
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
@@ -151,7 +289,7 @@ if (!isset($_SESSION['user_id'])) {
             transition: background-color 0.2s ease;
         }
         
-        .suggestion-item:hover {
+        .suggestion-item:hover, .suggestion-item.active {
             background-color: #f8f9fa;
         }
         
@@ -361,12 +499,12 @@ if (!isset($_SESSION['user_id'])) {
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar: Provides quick access to dashboard and search pages -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="dashboard.php">
                 <i class="fas fa-search me-2"></i>
-                Mattu Criminal Records
+                <?php echo t('navbar_brand'); ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -376,37 +514,48 @@ if (!isset($_SESSION['user_id'])) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link-custom" href="dashboard.php">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        <a class="nav-link-custom active" href="dashboard.php">
+                            <i class="fas fa-tachometer-alt me-1"></i> <?php echo t('dashboard'); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="search_records.php">
-                            <i class="fas fa-search me-1"></i> Search & View Records
+                            <i class="fas fa-search me-1"></i> <?php echo t('search_view'); ?>
                         </a>
                     </li>
                 </ul>
                 
                 <div class="d-flex align-items-center">
+                    <!-- Language Selector -->
+                    <form method="post" class="me-3">
+                        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm">
+                            <option value="en" <?php echo $current_lang=='en'?'selected':''; ?>>English</option>
+                            <option value="am" <?php echo $current_lang=='am'?'selected':''; ?>>አማርኛ</option>
+                            <option value="om" <?php echo $current_lang=='om'?'selected':''; ?>>Afaan Oromoo</option>
+                        </select>
+                    </form>
+                    
+                    <!-- Displays current clerk's name (read-only from session) -->
                     <span class="clerk-badge me-3">
                         <i class="fas fa-user-tie me-1"></i>
-                        Clerk <?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?>
+                        <?php echo t('clerk_badge'); ?> <?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?>
                     </span>
-                    <a href="../logout.php" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    <!-- Logout button: Confirms before logging out (redirects to logout.php which destroys session) -->
+                    <a href="../logout.php" class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo t('logout'); ?>?')">
+                        <i class="fas fa-sign-out-alt me-1"></i> <?php echo t('logout'); ?>
                     </a>
                 </div>
             </div>
         </div>
     </nav>
     
-    <!-- Main Dashboard Content -->
+    <!-- Main Dashboard Content: Dynamic via PHP and AJAX for real-time feel -->
     <div class="dashboard-container">
         <div class="container">
-            <!-- Global Search Hero Section -->
+            <!-- Global Search Hero: Central search interface with real-time suggestions -->
             <div class="search-hero">
-                <h1><i class="fas fa-search me-3"></i>Criminal Record Search</h1>
-                <p>Search by Criminal Name, National ID, or Case File ID</p>
+                <h1><i class="fas fa-search me-3"></i><?php echo t('hero_title'); ?></h1>
+                <p><?php echo t('hero_sub'); ?></p>
                 
                 <div class="global-search-container">
                     <div class="position-relative">
@@ -415,90 +564,90 @@ if (!isset($_SESSION['user_id'])) {
                             type="text" 
                             class="global-search-input" 
                             id="globalSearch"
-                            placeholder="Enter name, ID number, or case file ID..."
+                            placeholder="<?php echo t('search_placeholder'); ?>"
                             autocomplete="off"
                         >
                         <div class="search-suggestions" id="searchSuggestions"></div>
                     </div>
                     <button class="search-btn" onclick="performSearch()">
-                        <i class="fas fa-search me-2"></i>Search Records
+                        <i class="fas fa-search me-2"></i><?php echo t('search_btn'); ?>
                     </button>
                 </div>
                 
                 <div class="search-tips">
-                    <h6><i class="fas fa-lightbulb me-2"></i>Search Tips</h6>
+                    <h6><i class="fas fa-lightbulb me-2"></i><?php echo t('search_tips'); ?></h6>
                     <ul class="text-start">
-                        <li>Use full names for better results (e.g., "John Smith")</li>
-                        <li>National ID format: 12-digit number</li>
-                        <li>Case IDs start with "CASE-" followed by numbers</li>
-                        <li>Search is case-insensitive</li>
+                        <li><?php echo t('tip1'); ?></li>
+                        <li><?php echo t('tip2'); ?></li>
+                        <li><?php echo t('tip3'); ?></li>
+                        <li><?php echo t('tip4'); ?></li>
                     </ul>
                 </div>
             </div>
             
-            <!-- System Statistics -->
+            <!-- System Statistics: Real-time counts from database (refreshes every 5 min via JS) -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="stat-number" id="totalRecords">
                         <?php echo number_format($systemStats['total_records']); ?>
                     </span>
-                    <div class="stat-label">Total Criminal Records</div>
+                    <div class="stat-label"><?php echo t('total_records'); ?></div>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);">
                     <span class="stat-number" id="activeCases">
                         <?php echo number_format($systemStats['active_cases']); ?>
                     </span>
-                    <div class="stat-label">Active Cases</div>
+                    <div class="stat-label"><?php echo t('active_cases'); ?></div>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);">
                     <span class="stat-number" id="pendingCases">
                         <?php echo number_format($systemStats['pending_cases']); ?>
                     </span>
-                    <div class="stat-label">Pending Cases</div>
+                    <div class="stat-label"><?php echo t('pending_cases'); ?></div>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);">
                     <span class="stat-number" id="closedCases">
                         <?php echo number_format($systemStats['closed_cases']); ?>
                     </span>
-                    <div class="stat-label">Closed Cases</div>
+                    <div class="stat-label"><?php echo t('closed_cases'); ?></div>
                 </div>
             </div>
             
             <div class="row">
-                <!-- Quick View Links -->
+                <!-- Quick View Links: Direct links to filtered searches (read-only views) -->
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-bolt me-2"></i>Quick View Links
+                            <i class="fas fa-bolt me-2"></i><?php echo t('quick_view'); ?>
                         </div>
                         <div class="card-body-custom">
                             <div class="quick-view-grid">
                                 <a href="search_records.php?filter=active" class="quick-view-btn">
                                     <i class="fas fa-folder-open"></i>
-                                    View Active Cases
+                                    <?php echo t('view_active'); ?>
                                 </a>
                                 <a href="search_records.php?filter=pending" class="quick-view-btn">
                                     <i class="fas fa-clock"></i>
-                                    View Pending Cases
+                                    <?php echo t('view_pending'); ?>
                                 </a>
                                 <a href="search_records.php?filter=recent" class="quick-view-btn">
                                     <i class="fas fa-history"></i>
-                                    Recent Records
+                                    <?php echo t('recent_records'); ?>
                                 </a>
                                 <a href="search_records.php?filter=all" class="quick-view-btn">
                                     <i class="fas fa-database"></i>
-                                    Browse All Records
+                                    <?php echo t('browse_all'); ?>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- System News/Updates -->
+                <!-- System News/Updates: Displays announcements from DB (clerk-targeted) -->
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <div class="card-header-custom">
-                            <i class="fas fa-bullhorn me-2"></i>System News & Updates
+                            <i class="fas fa-bullhorn me-2"></i><?php echo t('system_news'); ?>
                         </div>
                         <div class="card-body-custom">
                             <?php if (!empty($systemNews)): ?>
@@ -515,8 +664,8 @@ if (!isset($_SESSION['user_id'])) {
                             <?php else: ?>
                                 <div class="text-center text-muted py-4">
                                     <i class="fas fa-newspaper fa-3x mb-3"></i>
-                                    <h5>No Recent Updates</h5>
-                                    <p>System announcements and data entry guidelines will appear here.</p>
+                                    <h5><?php echo t('no_updates'); ?></h5>
+                                    <p><?php echo t('updates_desc'); ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -526,29 +675,31 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
     
-    <!-- Bootstrap 5 JS -->
+    <!-- Bootstrap JS for responsive navbar and components -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Global variables
+        // JavaScript for interactive features: Real-time search suggestions and stats refresh
+        // All interactions are read-only; no data modification
+        
+        // Global variables for search state
         let searchTimeout;
         let currentSuggestions = [];
         
-        // Initialize dashboard
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeSearch();
-            updateStats();
+            updateStats(); // Initial stats load (already PHP-loaded, but JS refreshes)
         });
         
-        // Initialize search functionality
+        // Set up real-time search with AJAX suggestions (queries DB via api/search_suggestions.php)
         function initializeSearch() {
             const searchInput = document.getElementById('globalSearch');
             const suggestionsContainer = document.getElementById('searchSuggestions');
             
-            // Real-time search suggestions
+            // Debounced input for suggestions (min 2 chars)
             searchInput.addEventListener('input', function() {
                 const query = this.value.trim();
-                
                 clearTimeout(searchTimeout);
                 
                 if (query.length >= 2) {
@@ -560,7 +711,7 @@ if (!isset($_SESSION['user_id'])) {
                 }
             });
             
-            // Handle Enter key
+            // Keyboard navigation for suggestions
             searchInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -573,7 +724,7 @@ if (!isset($_SESSION['user_id'])) {
                 }
             });
             
-            // Hide suggestions when clicking outside
+            // Hide on outside click
             document.addEventListener('click', function(e) {
                 if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                     hideSuggestions();
@@ -581,7 +732,7 @@ if (!isset($_SESSION['user_id'])) {
             });
         }
         
-        // Fetch search suggestions
+        // AJAX fetch suggestions from DB (real-time query)
         function fetchSearchSuggestions(query) {
             fetch(`api/search_suggestions.php?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -598,7 +749,7 @@ if (!isset($_SESSION['user_id'])) {
                 });
         }
         
-        // Display search suggestions
+        // Render suggestions dropdown
         function displaySuggestions(suggestions) {
             const container = document.getElementById('searchSuggestions');
             currentSuggestions = suggestions;
@@ -623,20 +774,20 @@ if (!isset($_SESSION['user_id'])) {
             container.style.display = 'block';
         }
         
-        // Hide suggestions
+        // Hide suggestions dropdown
         function hideSuggestions() {
             document.getElementById('searchSuggestions').style.display = 'none';
             currentSuggestions = [];
         }
         
-        // Select suggestion
+        // Handle suggestion click: Redirect to view page (read-only)
         function selectSuggestion(index) {
             if (currentSuggestions[index]) {
                 const suggestion = currentSuggestions[index];
                 document.getElementById('globalSearch').value = suggestion.title;
                 hideSuggestions();
                 
-                // Navigate to the record/case
+                // Redirect based on type (view_record.php or view_criminal_record.php - assume these exist for viewing)
                 if (suggestion.type === 'record') {
                     window.location.href = `view_record.php?id=${suggestion.id}`;
                 } else if (suggestion.type === 'case') {
@@ -645,7 +796,7 @@ if (!isset($_SESSION['user_id'])) {
             }
         }
         
-        // Navigate suggestions with arrow keys
+        // Arrow key navigation in suggestions
         function navigateSuggestions(direction) {
             const suggestions = document.querySelectorAll('.suggestion-item');
             if (suggestions.length === 0) return;
@@ -665,20 +816,19 @@ if (!isset($_SESSION['user_id'])) {
             suggestions[newIndex].classList.add('active');
         }
         
-        // Perform main search
+        // Perform full search: Redirect to search_results.php with query param
         function performSearch() {
             const query = document.getElementById('globalSearch').value.trim();
             
             if (query.length === 0) {
-                alert('Please enter a search term');
+                alert('<?php echo t('search_term_alert'); ?>');
                 return;
             }
             
-            // Redirect to search results page
             window.location.href = `search_records.php?q=${encodeURIComponent(query)}`;
         }
         
-        // Update statistics
+        // AJAX refresh stats from DB (api/clerk_stats.php) every 5 minutes for "real-time" updates
         function updateStats() {
             fetch('api/clerk_stats.php')
                 .then(response => response.json())
@@ -699,145 +849,7 @@ if (!isset($_SESSION['user_id'])) {
                 });
         }
         
-        // Auto-refresh stats every 5 minutes
-        setInterval(updateStats, 300000);
+        setInterval(updateStats, 300000); // Refresh every 5 minutes
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985c96b82205f7f3',t:'MTc1ODk5Mjc1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
-
-<?php
-// api/search_suggestions.php
-session_start();
-require_once '../includes/auth.php';
-require_once '../includes/database.php';
-
-// Enforce clerk access
-requireRole(['clerk']);
-
-header('Content-Type: application/json');
-
-$database = new Database();
-$db = $database->getConnection();
-
-$query = $_GET['q'] ?? '';
-
-if (strlen($query) < 2) {
-    echo json_encode(['success' => false, 'message' => 'Query too short']);
-    exit;
-}
-
-try {
-    $suggestions = [];
-    
-    // Search criminal records
-    $stmt = $db->prepare("
-        SELECT 
-            id,
-            CONCAT(first_name, ' ', last_name) as full_name,
-            national_id,
-            'record' as type
-        FROM criminal_records 
-        WHERE (CONCAT(first_name, ' ', last_name) LIKE ? 
-               OR national_id LIKE ? 
-               OR record_number LIKE ?)
-        AND status != 'deleted'
-        ORDER BY created_at DESC
-        LIMIT 5
-    ");
-    
-    $searchTerm = "%$query%";
-    $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
-    $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    foreach ($records as $record) {
-        $suggestions[] = [
-            'id' => $record['id'],
-            'type' => 'record',
-            'title' => $record['full_name'],
-            'subtitle' => 'ID: ' . $record['national_id']
-        ];
-    }
-    
-    // Search cases
-    $stmt = $db->prepare("
-        SELECT 
-            c.id,
-            c.case_number,
-            c.title,
-            'case' as type
-        FROM cases c
-        WHERE (c.case_number LIKE ? OR c.title LIKE ?)
-        AND c.status != 'deleted'
-        ORDER BY c.created_at DESC
-        LIMIT 5
-    ");
-    
-    $stmt->execute([$searchTerm, $searchTerm]);
-    $cases = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    foreach ($cases as $case) {
-        $suggestions[] = [
-            'id' => $case['id'],
-            'type' => 'case',
-            'title' => $case['case_number'],
-            'subtitle' => $case['title']
-        ];
-    }
-    
-    echo json_encode([
-        'success' => true,
-        'suggestions' => array_slice($suggestions, 0, 8) // Limit to 8 total suggestions
-    ]);
-    
-} catch (Exception $e) {
-    error_log("Search suggestions error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Search error']);
-}
-
-// api/clerk_stats.php
-session_start();
-require_once '../includes/auth.php';
-require_once '../includes/database.php';
-
-// Enforce clerk access
-requireRole(['clerk']);
-
-header('Content-Type: application/json');
-
-$database = new Database();
-$db = $database->getConnection();
-
-try {
-    $stats = [];
-    
-    // Total criminal records
-    $stmt = $db->prepare("SELECT COUNT(*) as count FROM criminal_records WHERE status != 'deleted'");
-    $stmt->execute();
-    $stats['total_records'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
-    // Active cases
-    $stmt = $db->prepare("SELECT COUNT(*) as count FROM cases WHERE status = 'active'");
-    $stmt->execute();
-    $stats['active_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
-    // Pending cases
-    $stmt = $db->prepare("SELECT COUNT(*) as count FROM cases WHERE status = 'pending'");
-    $stmt->execute();
-    $stats['pending_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
-    // Closed cases
-    $stmt = $db->prepare("SELECT COUNT(*) as count FROM cases WHERE status = 'closed'");
-    $stmt->execute();
-    $stats['closed_cases'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
-    echo json_encode([
-        'success' => true,
-        'stats' => $stats
-    ]);
-    
-} catch (Exception $e) {
-    error_log("Clerk stats error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Stats error']);
-}
-
-// includes/clerk_functions.php

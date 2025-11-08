@@ -5,6 +5,212 @@ ini_set('display_errors', 1);
 
 session_start();
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+$translations = [
+    'en' => [
+        'title' => 'Case File #{case_number} - Mattu City Criminal Management System',
+        'case_file' => 'Case File',
+        'back_to_cases' => 'Back to Cases',
+        'add_evidence' => 'Add Evidence',
+        'update_status' => 'Update Status',
+        'case_details' => 'Case Details',
+        'linked_suspects' => 'Linked Suspects',
+        'evidence' => 'Evidence',
+        'case_notes_updates' => 'Case Notes & Updates',
+        'case_number' => 'Case Number',
+        'case_type' => 'Case Type',
+        'date_reported' => 'Date Reported',
+        'location' => 'Location',
+        'severity' => 'Severity',
+        'priority' => 'Priority',
+        'lead_officer' => 'Lead Officer',
+        'created_by' => 'Created By',
+        'case_description' => 'Case Description',
+        'view_record' => 'View Record',
+        'no_suspects_linked' => 'No suspects linked to this case',
+        'link_suspect' => 'Link Suspect',
+        'dob' => 'DOB',
+        'not_specified' => 'Not specified',
+        'items' => 'items',
+        'found' => 'Found',
+        'collected_by' => 'Collected by',
+        'date' => 'Date',
+        'no_evidence_collected' => 'No evidence collected yet',
+        'add_first_evidence' => 'Add First Evidence',
+        'add_new_note' => 'Add New Note',
+        'enter_case_notes' => 'Enter case notes, updates, or observations...',
+        'note_type' => 'Note Type',
+        'general' => 'General',
+        'investigation' => 'Investigation',
+        'court' => 'Court',
+        'follow_up' => 'Follow-up',
+        'mark_as_important' => 'Mark as Important',
+        'add_note' => 'Add Note',
+        'important' => 'Important',
+        'no_notes_added' => 'No notes added yet',
+        'update_case_status' => 'Update Case Status',
+        'update_status_for' => 'Update status for',
+        'current_status' => 'Current status',
+        'evidence_media' => 'Evidence Media',
+        'download' => 'Download',
+        'note_added_successfully' => 'Note added successfully',
+        'case_status_updated' => 'Case status updated to {status}',
+        'please_enter_note_content' => 'Please enter note content.',
+        'failed_to_add_note' => 'Failed to add note. Please try again.',
+        'failed_to_update_status' => 'Failed to update case status. Please try again.',
+        'open' => 'Open',
+        'in_progress' => 'In Progress',
+        'in_court' => 'In Court',
+        'closed' => 'Closed',
+        'suspended' => 'Suspended',
+        'suspect_photo' => 'Suspect Photo',
+        'suspect' => 'Suspect',
+        'relationship' => 'Relationship to Case',
+    ],
+    'am' => [
+        'title' => 'የጉዳይ ፋይል #{case_number} - ማቱ ከተማ የወደንጀል አስተዳደር ስርዓት',
+        'case_file' => 'የጉዳይ ፋይል',
+        'back_to_cases' => 'ወደ ጉዳዮች',
+        'add_evidence' => 'የውህደት ጨምር',
+        'update_status' => 'ሁኔታ ዝውውር',
+        'case_details' => 'የጉዳይ ዝርዝሮች',
+        'linked_suspects' => 'የተገናኙ ተጠያቂዎች',
+        'evidence' => 'የውህደት',
+        'case_notes_updates' => 'የጉዳይ ማስታወቂያዎች እና ዝውውሮች',
+        'case_number' => 'የጉዳይ ቁጥር',
+        'case_type' => 'የጉዳይ አይነት',
+        'date_reported' => 'የተአስረው ቀን',
+        'location' => 'ቦታ',
+        'severity' => 'ክብረት',
+        'priority' => 'ቅደም ተቀዳሚነት',
+        'lead_officer' => 'መሪ መኮንን',
+        'created_by' => 'የተፈጠረ በ',
+        'case_description' => 'የጉዳይ መግለጫ',
+        'view_record' => 'መዝገብ ይመልከቱ',
+        'no_suspects_linked' => 'ለዚህ ጉዳይ ተጠያቂ የሉም',
+        'link_suspect' => 'ተጠያቂ ያገናኙ',
+        'dob' => 'የልደት ቀን',
+        'not_specified' => 'የሉም',
+        'items' => 'ንጥሎች',
+        'found' => 'ተገኝቷል',
+        'collected_by' => 'ተገባ በ',
+        'date' => 'ቀን',
+        'no_evidence_collected' => 'የውህደት አልተገባም',
+        'add_first_evidence' => 'የመጀመሪያ የውህደት ጨምር',
+        'add_new_note' => 'አዲስ ማስታወቂያ ጨምር',
+        'enter_case_notes' => 'የጉዳይ ማስታወቂያዎች፣ ዝውውሮች ወይም ምልከታዎችን ያስገቡ...',
+        'note_type' => 'የማስታወቂያ አይነት',
+        'general' => 'አጠቃላይ',
+        'investigation' => 'መረጃ መሰብሰብ',
+        'court' => 'ፍርድ ቤት',
+        'follow_up' => 'መከታተያ',
+        'mark_as_important' => 'እንደ አስፈላጊ አስቀምጥ',
+        'add_note' => 'ማስታወቂያ ጨምር',
+        'important' => 'አስፈላጊ',
+        'no_notes_added' => 'ማስታወቂያ አልተጨምረም',
+        'update_case_status' => 'የጉዳይ ሁኔታ ዝውውር',
+        'update_status_for' => 'ለ... ሁኔታ ዝውውር',
+        'current_status' => 'ወቅታዊ ሁኔታ',
+        'evidence_media' => 'የውህደት ሚዲያ',
+        'download' => 'ይገኙ',
+        'note_added_successfully' => 'ማስታወቂያ በተሳካ ተጨምሯል',
+        'case_status_updated' => 'የጉዳይ ሁኔታ ወደ {status} ተዘዋወረ',
+        'please_enter_note_content' => 'ማስታወቂያ ይይዛቸው አስቀምጠው።',
+        'failed_to_add_note' => 'ማስታወቂያ መጨመር አልተሳካም። እንደገና ይሞክሩ።',
+        'failed_to_update_status' => 'የጉዳይ ሁኔታ ዝውውር አልተሳካም። እንደገና ይሞክሩ።',
+        'open' => 'ክፍት',
+        'in_progress' => 'በመስመር ላይ',
+        'in_court' => 'በፍርድ ቤት',
+        'closed' => 'ተዘግቧል',
+        'suspended' => 'ተቋርጧል',
+        'suspect_photo' => 'የተጠያቂ ፎቶ',
+        'suspect' => 'ተጠያቂ',
+        'relationship' => 'ከጉዳይ ጋር ያለው ግንኙነት',
+    ],
+    'om' => [
+        'title' => 'Qoricha Fayila #{case_number} - Sisteemi Diinagdee Mattu Kuta',
+        'case_file' => 'Qoricha Fayila',
+        'back_to_cases' => 'Deebii Caasaa',
+        'add_evidence' => 'Wojjii Qabuu',
+        'update_status' => 'Hakkina Ijji',
+        'case_details' => 'Qoricha Zariya',
+        'linked_suspects' => 'Qoricha Gammachu',
+        'evidence' => 'Wojjii',
+        'case_notes_updates' => 'Qoricha Mikkirroota & Ijji',
+        'case_number' => 'Naama Caasaa',
+        'case_type' => 'Aangoo Caasaa',
+        'date_reported' => 'Guyyaa Guyyaa',
+        'location' => 'Lakkii',
+        'severity' => 'Hakkina',
+        'priority' => 'Qarqara',
+        'lead_officer' => 'Meekoonnin Qabe',
+        'created_by' => 'Qabe Deebii',
+        'case_description' => 'Qoricha Miya',
+        'view_record' => 'Qoricha Argisi',
+        'no_suspects_linked' => 'Qoricha hin qabne',
+        'link_suspect' => 'Qoricha Gammachuu',
+        'dob' => 'Guyyaa Guyyaa',
+        'not_specified' => 'Hin Taane',
+        'items' => 'Qoricha',
+        'found' => 'Argame',
+        'collected_by' => 'Qabde Deebii',
+        'date' => 'Guyyaa',
+        'no_evidence_collected' => 'Wojjii hin qabne',
+        'add_first_evidence' => 'Qoricha Qabuu Argisi',
+        'add_new_note' => 'Qoricha Qabuu Argisi',
+        'enter_case_notes' => 'Qoricha mikkirroota argisi...',
+        'note_type' => 'Aangoo Mikkirroota',
+        'general' => 'Aate',
+        'investigation' => 'Maree',
+        'court' => 'Kitaaba',
+        'follow_up' => 'Maree Deebii',
+        'mark_as_important' => 'Qarqara As Gammachuu',
+        'add_note' => 'Mikkirroota Qabuu',
+        'important' => 'Qarqara',
+        'no_notes_added' => 'Mikkirroota hin qabne',
+        'update_case_status' => 'Qoricha Hakkina Ijji',
+        'update_status_for' => 'Hakkina Ijji',
+        'current_status' => 'Hakkina Guyyaa',
+        'evidence_media' => 'Wojjii Midiyaa',
+        'download' => 'Gammachuu',
+        'note_added_successfully' => 'Mikkirroota qabde',
+        'case_status_updated' => 'Qoricha hakkina {status} ijje',
+        'please_enter_note_content' => 'Mikkirroota argisi.',
+        'failed_to_add_note' => 'Mikkirroota qabuu hin taane.',
+        'failed_to_update_status' => 'Hakkina ijji hin taane.',
+        'open' => 'Fufaa',
+        'in_progress' => 'Maree',
+        'in_court' => 'Kitaaba',
+        'closed' => 'Dhabame',
+        'suspended' => 'Dhiibame',
+        'suspect_photo' => 'Qoricha Foto',
+        'suspect' => 'Qoricha',
+        'relationship' => 'Qoricha Gammachuu',
+    ],
+];
+function t($key, $params = []) {
+    global $translations, $current_lang;
+    $trans = $translations[$current_lang][$key] ?? $key;
+    // Replace placeholders if any
+    if (strpos($trans, '{') !== false) {
+        foreach ($params as $placeholder => $value) {
+            $trans = str_replace('{' . $placeholder . '}', $value, $trans);
+        }
+    }
+    return $trans;
+}
+
 // Check if required files exist before including them
 $required_files = [
     '../includes/auth.php',
@@ -125,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $is_important = isset($input['is_important']) ? 1 : 0;
                 
                 if (empty($note_content)) {
-                    throw new Exception("Note content cannot be empty.");
+                    throw new Exception(t('please_enter_note_content'));
                 }
                 
                 // Insert case note
@@ -147,14 +353,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Note added successfully',
+                    'message' => t('note_added_successfully'),
                     'note' => $new_note
                 ]);
                 break;
                 
             case 'update_status':
                 $new_status = trim($input['status'] ?? '');
-                $allowed_statuses = ['Open', 'In Progress', 'In Court', 'Closed', 'Suspended'];
+                $allowed_statuses = [t('open'), t('in_progress'), t('in_court'), t('closed'), t('suspended')];
                 
                 if (!in_array($new_status, $allowed_statuses)) {
                     throw new Exception("Invalid status value.");
@@ -165,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Case status updated successfully'
+                    'message' => t('case_status_updated', ['status' => $new_status])
                 ]);
                 break;
                 
@@ -184,16 +390,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case File #<?php echo htmlspecialchars($case['case_number']); ?> - Mattu City Criminal Management System</title>
+    <title><?php echo t('title', ['case_number' => htmlspecialchars($case['case_number'])]); ?></title>
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic and Oromo support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am' || $current_lang == 'om'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         * {
@@ -751,18 +967,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Case Header -->
             <div class="case-header">
                 <div class="case-title">
-                    <h3><i class="fas fa-folder me-3"></i>Case File: <?php echo htmlspecialchars($case['case_number']); ?></h3>
+                    <h3><i class="fas fa-folder me-3"></i><?php echo t('case_file'); ?>: <?php echo htmlspecialchars($case['case_number']); ?></h3>
                     <p><?php echo htmlspecialchars($case['case_type']); ?> - <?php echo htmlspecialchars($case['location']); ?></p>
                 </div>
                 <div class="case-actions">
                     <a href="manage_cases.php" class="btn-secondary-custom">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Cases
+                        <i class="fas fa-arrow-left me-2"></i><?php echo t('back_to_cases'); ?>
                     </a>
                     <a href="add_evidence.php?case_id=<?php echo $case_id; ?>" class="btn-primary-custom">
-                        <i class="fas fa-plus-circle me-2"></i>Add Evidence
+                        <i class="fas fa-plus-circle me-2"></i><?php echo t('add_evidence'); ?>
                     </a>
                     <button class="btn-primary-custom" onclick="showStatusModal()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
-                        <i class="fas fa-sync me-2"></i>Update Status
+                        <i class="fas fa-sync me-2"></i><?php echo t('update_status'); ?>
                     </button>
                 </div>
             </div>
@@ -775,7 +991,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Case Details -->
                 <div class="case-section">
                     <div class="section-header">
-                        <h4 class="section-title"><i class="fas fa-info-circle me-2"></i>Case Details</h4>
+                        <h4 class="section-title"><i class="fas fa-info-circle me-2"></i><?php echo t('case_details'); ?></h4>
                         <button class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $case['status'])); ?>" onclick="showStatusModal()">
                             <?php echo htmlspecialchars($case['status']); ?>
                         </button>
@@ -783,50 +999,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="info-grid">
                         <div class="info-item">
-                            <div class="info-label">Case Number</div>
+                            <div class="info-label"><?php echo t('case_number'); ?></div>
                             <div class="info-value"><?php echo htmlspecialchars($case['case_number']); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Case Type</div>
+                            <div class="info-label"><?php echo t('case_type'); ?></div>
                             <div class="info-value"><?php echo htmlspecialchars($case['case_type']); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Date Reported</div>
+                            <div class="info-label"><?php echo t('date_reported'); ?></div>
                             <div class="info-value"><?php echo date('F j, Y', strtotime($case['date_reported'])); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Location</div>
+                            <div class="info-label"><?php echo t('location'); ?></div>
                             <div class="info-value"><?php echo htmlspecialchars($case['location']); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Severity</div>
+                            <div class="info-label"><?php echo t('severity'); ?></div>
                             <div class="info-value"><?php echo htmlspecialchars($case['severity']); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Priority</div>
+                            <div class="info-label"><?php echo t('priority'); ?></div>
                             <div class="info-value"><?php echo htmlspecialchars($case['priority']); ?></div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Lead Officer</div>
+                            <div class="info-label"><?php echo t('lead_officer'); ?></div>
                             <div class="info-value">
                                 <?php 
                                 if ($case['lead_first_name']) {
                                     echo htmlspecialchars($case['lead_first_name'] . ' ' . $case['lead_last_name']);
                                 } else {
-                                    echo 'Not assigned';
+                                    echo t('not_specified');
                                 }
                                 ?>
                             </div>
                         </div>
                         
                         <div class="info-item">
-                            <div class="info-label">Created By</div>
+                            <div class="info-label"><?php echo t('created_by'); ?></div>
                             <div class="info-value">
                                 <?php 
                                 if ($case['creator_first_name']) {
@@ -841,7 +1057,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <?php if (!empty($case['description'])): ?>
                         <div class="info-item" style="grid-column: 1 / -1;">
-                            <div class="info-label">Case Description</div>
+                            <div class="info-label"><?php echo t('case_description'); ?></div>
                             <div class="info-value"><?php echo nl2br(htmlspecialchars($case['description'])); ?></div>
                         </div>
                     <?php endif; ?>
@@ -850,7 +1066,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Suspects Information -->
                 <div class="case-section">
                     <div class="section-header">
-                        <h4 class="section-title"><i class="fas fa-user-tie me-2"></i>Linked Suspects</h4>
+                        <h4 class="section-title"><i class="fas fa-user-tie me-2"></i><?php echo t('linked_suspects'); ?></h4>
                         <span class="badge bg-primary"><?php echo count($suspects); ?></span>
                     </div>
                     
@@ -860,7 +1076,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="d-flex align-items-center">
                                     <?php if (!empty($suspect['photo'])): ?>
                                         <img src="../<?php echo htmlspecialchars($suspect['photo']); ?>" 
-                                             alt="Suspect Photo" class="suspect-photo me-3">
+                                             alt="<?php echo t('suspect_photo'); ?>" class="suspect-photo me-3">
                                     <?php else: ?>
                                         <div class="suspect-photo bg-light d-flex align-items-center justify-content-center me-3">
                                             <i class="fas fa-user text-muted"></i>
@@ -875,7 +1091,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </p>
                                         <p class="text-muted mb-0">
                                             <i class="fas fa-calendar me-1"></i>
-                                            DOB: <?php echo !empty($suspect['date_of_birth']) ? htmlspecialchars($suspect['date_of_birth']) : 'Not specified'; ?>
+                                            <?php echo t('dob'); ?>: <?php echo !empty($suspect['date_of_birth']) ? htmlspecialchars($suspect['date_of_birth']) : t('not_specified'); ?>
                                         </p>
                                         <?php if (!empty($suspect['relationship_to_case'])): ?>
                                             <p class="text-muted mb-0">
@@ -888,7 +1104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="text-end">
                                         <a href="view_criminal_record.php?id=<?php echo $suspect['id']; ?>" 
                                            class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye"></i> View Record
+                                            <i class="fas fa-eye"></i> <?php echo t('view_record'); ?>
                                         </a>
                                     </div>
                                 </div>
@@ -897,9 +1113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php else: ?>
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-user-slash fa-3x mb-3"></i>
-                            <p>No suspects linked to this case</p>
+                            <p><?php echo t('no_suspects_linked'); ?></p>
                             <a href="create_case.php?record_id=NEW" class="btn btn-primary btn-sm">
-                                <i class="fas fa-link me-2"></i>Link Suspect
+                                <i class="fas fa-link me-2"></i><?php echo t('link_suspect'); ?>
                             </a>
                         </div>
                     <?php endif; ?>
@@ -909,8 +1125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Evidence Section -->
             <div class="case-section">
                 <div class="section-header">
-                    <h4 class="section-title"><i class="fas fa-fingerprint me-2"></i>Evidence</h4>
-                    <span class="badge bg-success"><?php echo count($evidence); ?> items</span>
+                    <h4 class="section-title"><i class="fas fa-fingerprint me-2"></i><?php echo t('evidence'); ?></h4>
+                    <span class="badge bg-success"><?php echo count($evidence); ?> <?php echo t('items'); ?></span>
                 </div>
                 
                 <?php if (!empty($evidence)): ?>
@@ -950,7 +1166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-video text-muted fa-2x"></i>
                                                 </div>
                                                 <small class="text-muted d-block mt-1">
-                                                    <i class="fas fa-play-circle me-1"></i>Click to play video
+                                                    <i class="fas fa-play-circle me-1"></i><?php echo t('click_to_play_video'); ?>
                                                 </small>
                                             <?php else: ?>
                                                 <div class="file-preview bg-light d-flex align-items-center justify-content-center">
@@ -961,8 +1177,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php endif; ?>
                                     
                                     <div class="small text-muted">
-                                        <div><strong>Found:</strong> <?php echo $item['location_found'] ? htmlspecialchars($item['location_found']) : 'Not specified'; ?></div>
-                                        <div><strong>Collected by:</strong> 
+                                        <div><strong><?php echo t('found'); ?>:</strong> <?php echo $item['location_found'] ? htmlspecialchars($item['location_found']) : t('not_specified'); ?></div>
+                                        <div><strong><?php echo t('collected_by'); ?>:</strong> 
                                             <?php 
                                             if (isset($item['first_name']) && isset($item['last_name'])) {
                                                 echo htmlspecialchars($item['first_name'] . ' ' . $item['last_name']);
@@ -971,7 +1187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             }
                                             ?>
                                         </div>
-                                        <div><strong>Date:</strong> <?php echo $item['date_found'] ? date('M j, Y', strtotime($item['date_found'])) : 'Not specified'; ?></div>
+                                        <div><strong><?php echo t('date'); ?>:</strong> <?php echo $item['date_found'] ? date('M j, Y', strtotime($item['date_found'])) : t('not_specified'); ?></div>
                                     </div>
                                 </div>
                             </div>
@@ -980,9 +1196,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php else: ?>
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-box-open fa-3x mb-3"></i>
-                        <p>No evidence collected yet</p>
+                        <p><?php echo t('no_evidence_collected'); ?></p>
                         <a href="add_evidence.php?case_id=<?php echo $case_id; ?>" class="btn btn-success">
-                            <i class="fas fa-plus-circle me-2"></i>Add First Evidence
+                            <i class="fas fa-plus-circle me-2"></i><?php echo t('add_first_evidence'); ?>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -991,28 +1207,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Case Notes Section -->
             <div class="case-section">
                 <div class="section-header">
-                    <h4 class="section-title"><i class="fas fa-sticky-note me-2"></i>Case Notes & Updates</h4>
-                    <span class="badge bg-warning text-dark"><?php echo count($case_notes); ?> notes</span>
+                    <h4 class="section-title"><i class="fas fa-sticky-note me-2"></i><?php echo t('case_notes_updates'); ?></h4>
+                    <span class="badge bg-warning text-dark"><?php echo count($case_notes); ?> <?php echo t('notes'); ?></span>
                 </div>
                 
                 <!-- Add Note Form -->
                 <div class="add-note-form">
                     <form id="addNoteForm">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Add New Note</label>
+                            <label class="form-label fw-bold"><?php echo t('add_new_note'); ?></label>
                             <textarea class="form-control-custom" id="noteContent" rows="3" 
-                                      placeholder="Enter case notes, updates, or observations..." required></textarea>
+                                      placeholder="<?php echo t('enter_case_notes'); ?>" required></textarea>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Note Type</label>
+                                    <label class="form-label fw-bold"><?php echo t('note_type'); ?></label>
                                     <select class="form-control-custom" id="noteType">
-                                        <option value="general">General</option>
-                                        <option value="investigation">Investigation</option>
-                                        <option value="court">Court</option>
-                                        <option value="followup">Follow-up</option>
+                                        <option value="general"><?php echo t('general'); ?></option>
+                                        <option value="investigation"><?php echo t('investigation'); ?></option>
+                                        <option value="court"><?php echo t('court'); ?></option>
+                                        <option value="followup"><?php echo t('follow_up'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -1021,7 +1237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="form-check mt-4">
                                         <input class="form-check-input" type="checkbox" id="isImportant">
                                         <label class="form-check-label fw-bold" for="isImportant">
-                                            Mark as Important
+                                            <?php echo t('mark_as_important'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -1029,7 +1245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Add Note
+                            <i class="fas fa-plus me-2"></i><?php echo t('add_note'); ?>
                         </button>
                     </form>
                 </div>
@@ -1049,7 +1265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <?php echo ucfirst($note['note_type']); ?>
                                         </span>
                                         <?php if ($note['is_important']): ?>
-                                            <span class="badge bg-danger ms-1">Important</span>
+                                            <span class="badge bg-danger ms-1"><?php echo t('important'); ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="note-date">
@@ -1064,7 +1280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php else: ?>
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-clipboard-list fa-3x mb-3"></i>
-                            <p>No notes added yet</p>
+                            <p><?php echo t('no_notes_added'); ?></p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -1076,12 +1292,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div id="statusModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Update Case Status</h3>
+                <h3 class="modal-title"><?php echo t('update_case_status'); ?></h3>
                 <button type="button" class="modal-close" onclick="closeStatusModal()">&times;</button>
             </div>
             <div id="statusModalContent">
-                <p>Update status for <strong><?php echo htmlspecialchars($case['case_number']); ?></strong></p>
-                <p>Current status: <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $case['status'])); ?>"><?php echo htmlspecialchars($case['status']); ?></span></p>
+                <p><?php echo t('update_status_for'); ?> <strong><?php echo htmlspecialchars($case['case_number']); ?></strong></p>
+                <p><?php echo t('current_status'); ?>: <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $case['status'])); ?>"><?php echo htmlspecialchars($case['status']); ?></span></p>
                 <div class="mt-3">
                     <?php
                     $statuses = ['Open', 'In Progress', 'In Court', 'Closed', 'Suspended'];
@@ -1103,7 +1319,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div id="mediaModal" class="modal-overlay" style="display: none;">
         <div class="modal-content media-modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Evidence Media</h3>
+                <h3 class="modal-title"><?php echo t('evidence_media'); ?></h3>
                 <button type="button" class="modal-close" onclick="closeMediaModal()">&times;</button>
             </div>
             <div class="modal-body text-center">
@@ -1112,7 +1328,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Your browser does not support the video tag.
                 </video>
                 <a id="downloadMedia" href="#" class="btn btn-primary mt-3" download style="display: none;">
-                    <i class="fas fa-download me-2"></i>Download
+                    <i class="fas fa-download me-2"></i><?php echo t('download'); ?>
                 </a>
             </div>
         </div>
@@ -1185,7 +1401,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    showMessage(`Case status updated to ${newStatus}`, 'success');
+                    showMessage(`<?php echo t('case_status_updated', ['status' => '{status}']); ?>`.replace('{status}', newStatus), 'success');
                     closeStatusModal();
                     // Reload page to reflect changes
                     setTimeout(() => {
@@ -1197,7 +1413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showMessage('Failed to update case status. Please try again.', 'danger');
+                showMessage('<?php echo t('failed_to_update_status'); ?>', 'danger');
             });
         }
         
@@ -1211,13 +1427,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const submitBtn = this.querySelector('button[type="submit"]');
             
             if (!noteContent) {
-                showMessage('Please enter note content.', 'danger');
+                showMessage('<?php echo t('please_enter_note_content'); ?>', 'danger');
                 return;
             }
             
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Adding...';
+            submitBtn.innerHTML = '<span class="loading-spinner me-2"></span><?php echo t('adding'); ?>...';
             
             fetch(window.location.href, {
                 method: 'POST',
@@ -1247,7 +1463,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <span class="note-type-badge badge-${noteType}">
                                         ${noteType.charAt(0).toUpperCase() + noteType.slice(1)}
                                     </span>
-                                    ${isImportant ? '<span class="badge bg-danger ms-1">Important</span>' : ''}
+                                    ${isImportant ? '<span class="badge bg-danger ms-1"><?php echo t('important'); ?></span>' : ''}
                                 </div>
                                 <div class="note-date">
                                     ${new Date().toLocaleString()}
@@ -1269,19 +1485,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Clear form
                     document.getElementById('noteContent').value = '';
                     document.getElementById('isImportant').checked = false;
-                    showMessage('Note added successfully', 'success');
+                    showMessage('<?php echo t('note_added_successfully'); ?>', 'success');
                 } else {
                     showMessage(result.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showMessage('Failed to add note. Please try again.', 'danger');
+                showMessage('<?php echo t('failed_to_add_note'); ?>', 'danger');
             })
             .finally(() => {
                 // Reset button state
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Note';
+                submitBtn.innerHTML = '<i class="fas fa-plus me-2"></i><?php echo t('add_note'); ?>';
             });
         });
         

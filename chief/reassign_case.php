@@ -3,6 +3,160 @@
 require '../includes/auth.php';
 require '../includes/database.php';
 
+// Language support
+$languages = ['en', 'am', 'om'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (isset($_POST['lang']) && in_array($_POST['lang'], $languages)) {
+    $_SESSION['lang'] = $_POST['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+} elseif (isset($_GET['lang']) && in_array($_GET['lang'], $languages)) {
+    $_SESSION['lang'] = $_GET['lang'];
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+$translations = [
+    'en' => [
+        'page_title' => 'Reassign Case - %s - Mattu City Criminal Management System',
+        'header_title' => 'Reassign Case',
+        'header_subtitle' => 'Transfer case responsibility to another officer',
+        'section_case_info' => 'Case Information',
+        'label_case_number' => 'Case Number',
+        'label_case_type' => 'Case Type',
+        'label_status' => 'Status',
+        'label_date_reported' => 'Date Reported',
+        'label_description' => 'Description',
+        'label_current_assignment' => 'Current Assignment',
+        'label_case_creator' => 'Case Creator',
+        'text_not_assigned' => 'Not assigned',
+        'text_unknown' => 'Unknown',
+        'text_badge' => 'Badge:',
+        'btn_back_to_cases' => 'Back to Cases',
+        'btn_view_case_details' => 'View Case Details',
+        'section_assign_officer' => 'Assign to Officer',
+        'label_select_officer' => 'Select Officer *',
+        'label_reason_reassignment' => 'Reason for Reassignment *',
+        'placeholder_reason' => 'Explain why this case is being reassigned...',
+        'text_reason_note' => 'This reason will be recorded in the case history for audit purposes.',
+        'btn_reassign_case' => 'Reassign Case',
+        'btn_cancel' => 'Cancel',
+        'alert_no_officers' => 'No active officers or investigators found in the system.',
+        'alert_no_officers_note' => 'You need to have officers or investigators in the system to reassign cases.',
+        'link_manage_users' => 'Manage Users',
+        'text_currently_assigned' => 'Currently assigned',
+        'text_role_officer' => 'Officer',
+        'text_role_investigator' => 'Investigator',
+        'error_access_denied' => 'Access denied. Chief role required.',
+        'error_invalid_case_id' => 'Invalid case ID',
+        'error_case_not_found' => 'Case not found',
+        'error_database' => 'Database error',
+        'error_select_officer' => 'Please select an officer to assign the case to',
+        'error_reason_required' => 'Please provide a reason for reassignment',
+        'error_officer_not_found' => 'Selected officer not found',
+        'error_reassign_failed' => 'Failed to reassign case',
+        'success_reassign' => 'Case successfully reassigned to %s',
+        'js_loading_reassign' => 'Reassigning Case...',
+        'js_alert_select_officer' => 'Please select an officer to assign the case to',
+        'js_alert_reason_required' => 'Please provide a reason for reassignment',
+    ],
+    'am' => [
+        'page_title' => 'ጉዳይ ይቀይሩ - %s - ማቱ ከተማ የወንጀል አስተዳደር ስርዓት',
+        'header_title' => 'ጉዳይ ይቀይሩ',
+        'header_subtitle' => 'የጉዳይ ሃላፊነት ወደ ሌላ ባለሙያ ይተላልፋል',
+        'section_case_info' => 'የጉዳይ መረጃ',
+        'label_case_number' => 'የጉዳይ ቁጥር',
+        'label_case_type' => 'የጉዳይ አይነት',
+        'label_status' => 'ሁኔታ',
+        'label_date_reported' => 'የተመዘገበ ቀን',
+        'label_description' => 'መግለጫ',
+        'label_current_assignment' => 'ወቅታዊ ማመዛቢያ',
+        'label_case_creator' => 'የጉዳይ ፈጣሪ',
+        'text_not_assigned' => 'ያልተሰጠ',
+        'text_unknown' => 'ያልታወቀ',
+        'text_badge' => 'ባጄ:',
+        'btn_back_to_cases' => 'ወደ ጉዳዮች',
+        'btn_view_case_details' => 'የጉዳይ ዝርዝሮችን ይመልከቱ',
+        'section_assign_officer' => 'አድራጅ ባለሙያ',
+        'label_select_officer' => 'ባለሙያ ይመርጡ *',
+        'label_reason_reassignment' => 'የተላላፊነት ምክንያት *',
+        'placeholder_reason' => 'ይህ ጉዳይ ለምን እየተቀየረ እንደሆነ ይተረጉሙ...',
+        'text_reason_note' => 'ይህ ምክንያት በጉዳይ ታሪክ ውስጥ ለፍተሻ ዓላማ ይመዘገባል።',
+        'btn_reassign_case' => 'ጉዳይ ይቀይሩ',
+        'btn_cancel' => 'ይቅር',
+        'alert_no_officers' => 'በስርዓቱ ውስጥ አንድ ባለሙያ ወይም ተጠቃሪ አልተገኘም።',
+        'alert_no_officers_note' => 'ጉዳዮችን ለመቀየር በስርዓቱ ውስጥ ባለሙያዎች ወይም ተጠቃሪዎች መኖር አለበት።',
+        'link_manage_users' => 'ተጠቃሚዎችን ይቆጣጠሩ',
+        'text_currently_assigned' => 'አሁን ተመደበ',
+        'text_role_officer' => 'ባለሙያ',
+        'text_role_investigator' => 'ተጠቃሪ',
+        'error_access_denied' => 'መግባት ተከላከለ። የጂኔራል ሚና ያስፈልጋል።',
+        'error_invalid_case_id' => 'የጉዳይ መለያ የለም',
+        'error_case_not_found' => 'ጉዳይ አልተገኘም',
+        'error_database' => 'የውሂብ ቤት ስህተት',
+        'error_select_officer' => 'ጉዳዩን ለማመዝገብ ባለሙያ ይመርጡ',
+        'error_reason_required' => 'የተላላፊነት ምክንያት ይስጡ',
+        'error_officer_not_found' => 'ተመረጠው ባለሙያ አልተገኘም',
+        'error_reassign_failed' => 'ጉዳይ መቀየር አልተሳካም',
+        'success_reassign' => 'ጉዳይ በተሳካ ሁኔታ ወደ %s ተቀየረ',
+        'js_loading_reassign' => 'ጉዳይ በማቀየር...',
+        'js_alert_select_officer' => 'ጉዳዩን ለማመዝገብ ባለሙያ ይመርጡ',
+        'js_alert_reason_required' => 'የተላላፊነት ምክንያት ይስጡ',
+    ],
+    'om' => [
+        'page_title' => 'Caasaa Ilaalchisi - %s - Mattu City Criminal Management System',
+        'header_title' => 'Caasaa Ilaalchisi',
+        'header_subtitle' => 'Caasaa haala ilaalchisi officer garaa',
+        'section_case_info' => 'Case Information',
+        'label_case_number' => 'Case Number',
+        'label_case_type' => 'Case Type',
+        'label_status' => 'Status',
+        'label_date_reported' => 'Date Reported',
+        'label_description' => 'Description',
+        'label_current_assignment' => 'Current Assignment',
+        'label_case_creator' => 'Case Creator',
+        'text_not_assigned' => 'Not assigned',
+        'text_unknown' => 'Unknown',
+        'text_badge' => 'Badge:',
+        'btn_back_to_cases' => 'Back to Cases',
+        'btn_view_case_details' => 'View Case Details',
+        'section_assign_officer' => 'Assign to Officer',
+        'label_select_officer' => 'Select Officer *',
+        'label_reason_reassignment' => 'Reason for Reassignment *',
+        'placeholder_reason' => 'Explain why this case is being reassigned...',
+        'text_reason_note' => 'This reason will be recorded in the case history for audit purposes.',
+        'btn_reassign_case' => 'Reassign Case',
+        'btn_cancel' => 'Cancel',
+        'alert_no_officers' => 'No active officers or investigators found in the system.',
+        'alert_no_officers_note' => 'You need to have officers or investigators in the system to reassign cases.',
+        'link_manage_users' => 'Manage Users',
+        'text_currently_assigned' => 'Currently assigned',
+        'text_role_officer' => 'Officer',
+        'text_role_investigator' => 'Investigator',
+        'error_access_denied' => 'Access denied. Chief role required.',
+        'error_invalid_case_id' => 'Invalid case ID',
+        'error_case_not_found' => 'Case not found',
+        'error_database' => 'Database error',
+        'error_select_officer' => 'Please select an officer to assign the case to',
+        'error_reason_required' => 'Please provide a reason for reassignment',
+        'error_officer_not_found' => 'Selected officer not found',
+        'error_reassign_failed' => 'Failed to reassign case',
+        'success_reassign' => 'Case successfully reassigned to %s',
+        'js_loading_reassign' => 'Reassigning Case...',
+        'js_alert_select_officer' => 'Please select an officer to assign the case to',
+        'js_alert_reason_required' => 'Please provide a reason for reassignment',
+    ],
+];
+
+function t($key, $args = []) {
+    global $translations, $current_lang;
+    $text = $translations[$current_lang][$key] ?? $key;
+    if (!empty($args)) {
+        $text = vsprintf($text, $args);
+    }
+    return $text;
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -12,14 +166,14 @@ if (!isset($_SESSION['user_id'])) {
 // Check if user is chief or admin
 $is_chief = ($_SESSION['role'] === 'chief' || $_SESSION['role'] === 'admin');
 if (!$is_chief) {
-    header("Location: manage_cases.php?error=Access denied. Chief role required.");
+    header("Location: manage_cases.php?error=" . urlencode(t('error_access_denied')));
     exit();
 }
 
 // Check if case_id is provided
 $case_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($case_id <= 0) {
-    header("Location: manage_cases.php?error=Invalid case ID");
+    header("Location: manage_cases.php?error=" . urlencode(t('error_invalid_case_id')));
     exit();
 }
 
@@ -46,13 +200,13 @@ try {
     $case = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$case) {
-        header("Location: manage_cases.php?error=Case not found");
+        header("Location: manage_cases.php?error=" . urlencode(t('error_case_not_found')));
         exit();
     }
     
 } catch (Exception $e) {
     error_log("Error fetching case: " . $e->getMessage());
-    header("Location: manage_cases.php?error=Database error");
+    header("Location: manage_cases.php?error=" . urlencode(t('error_database')));
     exit();
 }
 
@@ -100,11 +254,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Validate required fields
         if (empty($assigned_officer_id)) {
-            throw new Exception("Please select an officer to assign the case to");
+            throw new Exception(t('error_select_officer'));
         }
         
         if (empty($reassignment_reason)) {
-            throw new Exception("Please provide a reason for reassignment");
+            throw new Exception(t('error_reason_required'));
         }
         
         // Get officer information - FIXED: use user_id instead of id
@@ -113,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $officer = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$officer) {
-            throw new Exception("Selected officer not found");
+            throw new Exception(t('error_officer_not_found'));
         }
         
         // Update case assignment
@@ -164,14 +318,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Don't throw error - reassignment should still work even if logging fails
             }
             
-            $success_message = "Case successfully reassigned to {$officer['first_name']} {$officer['last_name']}";
+            $success_message = sprintf(t('success_reassign'), $officer['first_name'] . ' ' . $officer['last_name']);
             
             // Refresh case data
             $stmt = $db->prepare("SELECT * FROM $tableName WHERE id = ?");
             $stmt->execute([$case_id]);
             $case = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {
-            throw new Exception("Failed to reassign case");
+            throw new Exception(t('error_reassign_failed'));
         }
         
     } catch (Exception $e) {
@@ -205,11 +359,11 @@ if (!empty($case['created_by'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reassign Case - <?php echo htmlspecialchars($case['case_number']); ?> - Mattu City Criminal Management System</title>
+    <title><?php echo sprintf(t('page_title'), htmlspecialchars($case['case_number'])); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -217,6 +371,16 @@ if (!empty($case['created_by'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Amharic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <?php if ($current_lang == 'am'): ?>
+    <style>
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    </style>
+    <?php endif; ?>
     
     <style>
         body {
@@ -388,6 +552,12 @@ if (!empty($case['created_by'])) {
             border: 2px solid #dc3545;
         }
         
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border: 2px solid #ffc107;
+        }
+        
         .officer-card {
             border: 2px solid #e9ecef;
             border-radius: 12px;
@@ -463,8 +633,8 @@ if (!empty($case['created_by'])) {
         <div class="reassign-case-container">
             <!-- Header -->
             <div class="reassign-case-header">
-                <h3><i class="fas fa-exchange-alt me-3"></i>Reassign Case</h3>
-                <p class="lead">Transfer case responsibility to another officer</p>
+                <h3><i class="fas fa-exchange-alt me-3"></i><?php echo t('header_title'); ?></h3>
+                <p class="lead"><?php echo t('header_subtitle'); ?></p>
             </div>
             
             <!-- Status Messages -->
@@ -486,20 +656,20 @@ if (!empty($case['created_by'])) {
                 <!-- Case Information -->
                 <div class="col-md-5">
                     <div class="form-section">
-                        <h5 class="mb-4"><i class="fas fa-info-circle me-2"></i>Case Information</h5>
+                        <h5 class="mb-4"><i class="fas fa-info-circle me-2"></i><?php echo t('section_case_info'); ?></h5>
                         
                         <div class="case-info-card">
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <span class="info-label">Case Number</span>
+                                    <span class="info-label"><?php echo t('label_case_number'); ?></span>
                                     <span class="info-value"><?php echo htmlspecialchars($case['case_number']); ?></span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Case Type</span>
+                                    <span class="info-label"><?php echo t('label_case_type'); ?></span>
                                     <span class="info-value"><?php echo htmlspecialchars($case['case_type']); ?></span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Status</span>
+                                    <span class="info-label"><?php echo t('label_status'); ?></span>
                                     <span class="info-value">
                                         <span class="status-badge status-<?php echo strtolower(str_replace(' ', '-', $case['status'] ?? 'Open')); ?>">
                                             <?php echo htmlspecialchars($case['status'] ?? 'Open'); ?>
@@ -507,7 +677,7 @@ if (!empty($case['created_by'])) {
                                     </span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Date Reported</span>
+                                    <span class="info-label"><?php echo t('label_date_reported'); ?></span>
                                     <span class="info-value">
                                         <?php echo date('M j, Y', strtotime($case['date_reported'] ?? $case['created_at'])); ?>
                                     </span>
@@ -515,34 +685,34 @@ if (!empty($case['created_by'])) {
                             </div>
                             
                             <div class="info-item">
-                                <span class="info-label">Description</span>
-                                <span class="info-value"><?php echo htmlspecialchars($case['description'] ?? 'No description available'); ?></span>
+                                <span class="info-label"><?php echo t('label_description'); ?></span>
+                                <span class="info-value"><?php echo htmlspecialchars($case['description'] ?? t('text_no_description')); ?></span>
                             </div>
                             
                             <div class="mt-3 pt-3 border-top">
                                 <div class="info-item">
-                                    <span class="info-label">Current Assignment</span>
+                                    <span class="info-label"><?php echo t('label_current_assignment'); ?></span>
                                     <span class="info-value">
                                         <?php if ($current_officer): ?>
                                             <i class="fas fa-user-shield me-2 text-primary"></i>
                                             <?php echo htmlspecialchars($current_officer['first_name'] . ' ' . $current_officer['last_name']); ?>
                                             <?php if ($current_officer['badge_number']): ?>
-                                                <br><small class="text-muted">Badge: <?php echo htmlspecialchars($current_officer['badge_number']); ?></small>
+                                                <br><small class="text-muted"><?php echo t('text_badge'); ?> <?php echo htmlspecialchars($current_officer['badge_number']); ?></small>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <span class="text-muted">Not assigned</span>
+                                            <span class="text-muted"><?php echo t('text_not_assigned'); ?></span>
                                         <?php endif; ?>
                                     </span>
                                 </div>
                                 
                                 <div class="info-item">
-                                    <span class="info-label">Case Creator</span>
+                                    <span class="info-label"><?php echo t('label_case_creator'); ?></span>
                                     <span class="info-value">
                                         <?php if ($case_creator): ?>
                                             <i class="fas fa-user me-2 text-success"></i>
                                             <?php echo htmlspecialchars($case_creator['first_name'] . ' ' . $case_creator['last_name']); ?>
                                         <?php else: ?>
-                                            <span class="text-muted">Unknown</span>
+                                            <span class="text-muted"><?php echo t('text_unknown'); ?></span>
                                         <?php endif; ?>
                                     </span>
                                 </div>
@@ -551,10 +721,10 @@ if (!empty($case['created_by'])) {
                         
                         <div class="d-grid gap-2">
                             <a href="manage_cases.php" class="btn btn-secondary-custom">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Cases
+                                <i class="fas fa-arrow-left me-2"></i><?php echo t('btn_back_to_cases'); ?>
                             </a>
                             <a href="view_criminal_record.php?id=<?php echo $case_id; ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-eye me-2"></i>View Case Details
+                                <i class="fas fa-eye me-2"></i><?php echo t('btn_view_case_details'); ?>
                             </a>
                         </div>
                     </div>
@@ -563,24 +733,25 @@ if (!empty($case['created_by'])) {
                 <!-- Reassignment Form -->
                 <div class="col-md-7">
                     <div class="form-section">
-                        <h5 class="mb-4"><i class="fas fa-users me-2"></i>Assign to Officer</h5>
+                        <h5 class="mb-4"><i class="fas fa-users me-2"></i><?php echo t('section_assign_officer'); ?></h5>
                         
                         <form method="POST" id="reassignForm">
                             <div class="mb-4">
-                                <label class="form-label-custom">Select Officer *</label>
+                                <label class="form-label-custom"><?php echo t('label_select_officer'); ?></label>
                                 <?php if (empty($officers)): ?>
                                     <div class="alert alert-warning">
                                         <i class="fas fa-exclamation-triangle me-2"></i>
-                                        No active officers or investigators found in the system.
+                                        <?php echo t('alert_no_officers'); ?>
                                         <br><small class="mt-1 d-block">
-                                            You need to have officers or investigators in the system to reassign cases.
-                                            <a href="../admin/manage_users.php" class="alert-link">Manage Users</a>
+                                            <?php echo t('alert_no_officers_note'); ?>
+                                            <a href="../admin/manage_users.php" class="alert-link"><?php echo t('link_manage_users'); ?></a>
                                         </small>
                                     </div>
                                 <?php else: ?>
                                     <div class="officers-list">
                                         <?php foreach ($officers as $officer): 
                                             $is_current = ($current_officer && $current_officer['first_name'] . ' ' . $current_officer['last_name'] === $officer['first_name'] . ' ' . $officer['last_name']);
+                                            $role_text = $officer['role'] === 'officer' ? t('text_role_officer') : t('text_role_investigator');
                                         ?>
                                             <div class="officer-card <?php echo $is_current ? 'selected' : ''; ?>" 
                                                  onclick="selectOfficer(<?php echo $officer['user_id']; ?>, this)">
@@ -591,18 +762,18 @@ if (!empty($case['created_by'])) {
                                                             <?php echo htmlspecialchars($officer['first_name'] . ' ' . $officer['last_name']); ?>
                                                         </div>
                                                         <div class="officer-badge">
-                                                            Badge: <?php echo htmlspecialchars($officer['badge_number'] ?? 'N/A'); ?>
-                                                            | Role: <?php echo htmlspecialchars(ucfirst($officer['role'])); ?>
+                                                            <?php echo t('text_badge'); ?> <?php echo htmlspecialchars($officer['badge_number'] ?? 'N/A'); ?>
+                                                            | <?php echo t('text_role'); ?>: <?php echo htmlspecialchars($role_text); ?>
                                                         </div>
                                                     </div>
                                                     <div class="officer-role">
-                                                        <?php echo htmlspecialchars(ucfirst($officer['role'])); ?>
+                                                        <?php echo htmlspecialchars($role_text); ?>
                                                     </div>
                                                 </div>
                                                 <?php if ($is_current): ?>
                                                     <div class="mt-2 text-success">
                                                         <i class="fas fa-check-circle me-1"></i>
-                                                        Currently assigned
+                                                        <?php echo t('text_currently_assigned'); ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
@@ -614,20 +785,20 @@ if (!empty($case['created_by'])) {
                             </div>
                             
                             <div class="mb-4">
-                                <label class="form-label-custom">Reason for Reassignment *</label>
+                                <label class="form-label-custom"><?php echo t('label_reason_reassignment'); ?></label>
                                 <textarea class="form-control form-control-custom" name="reassignment_reason" 
-                                          rows="4" required placeholder="Explain why this case is being reassigned..."><?php echo htmlspecialchars($_POST['reassignment_reason'] ?? ''); ?></textarea>
+                                          rows="4" required placeholder="<?php echo t('placeholder_reason'); ?>"><?php echo htmlspecialchars($_POST['reassignment_reason'] ?? ''); ?></textarea>
                                 <div class="form-text">
-                                    This reason will be recorded in the case history for audit purposes.
+                                    <?php echo t('text_reason_note'); ?>
                                 </div>
                             </div>
                             
                             <div class="d-flex gap-3">
                                 <button type="submit" class="btn btn-primary-custom flex-fill" <?php echo empty($officers) ? 'disabled' : ''; ?>>
-                                    <i class="fas fa-exchange-alt me-2"></i>Reassign Case
+                                    <i class="fas fa-exchange-alt me-2"></i><?php echo t('btn_reassign_case'); ?>
                                 </button>
                                 <a href="manage_cases.php" class="btn btn-secondary flex-fill">
-                                    <i class="fas fa-times me-2"></i>Cancel
+                                    <i class="fas fa-times me-2"></i><?php echo t('btn_cancel'); ?>
                                 </a>
                             </div>
                         </form>
@@ -661,20 +832,20 @@ if (!empty($case['created_by'])) {
             
             if (!officerId) {
                 e.preventDefault();
-                alert('Please select an officer to assign the case to');
+                alert('<?php echo addslashes(t("js_alert_select_officer")); ?>');
                 return;
             }
             
             if (!reason) {
                 e.preventDefault();
-                alert('Please provide a reason for reassignment');
+                alert('<?php echo addslashes(t("js_alert_reason_required")); ?>');
                 return;
             }
             
             // Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Reassigning Case...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><?php echo addslashes(t("js_loading_reassign")); ?>';
         });
         
         // Auto-select current officer if exists
