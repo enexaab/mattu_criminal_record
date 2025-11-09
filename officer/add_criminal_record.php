@@ -1195,7 +1195,6 @@ $current_user = [
                                     <option value=""><?php echo t('gender_select'); ?></option>
                                     <option value="Male"><?php echo t('gender_male'); ?></option>
                                     <option value="Female"><?php echo t('gender_female'); ?></option>
-                                    <option value="Other"><?php echo t('gender_other'); ?></option>
                                 </select>
                                 <div class="invalid-feedback"><?php echo t('gender_invalid'); ?></div>
                             </div>
