@@ -1,0 +1,11 @@
+id,national_id,first_name,last_name,date_of_birth,gender,height,weight,eye_color,hair_color,distinguishing_marks,status,created_at,updated_at
+10,475752442,David,Mrzyglocki,2007-06-15,Male,155.00,51.00,Black,Brown,,"First Offender","2025-11-09 08:52:03","2025-11-09 08:52:03"
+9,444422,Jason,Zhou,2004-02-10,Male,150.00,60.00,Blue,Brown,,"First Offender","2025-11-09 08:50:59","2025-11-09 08:50:59"
+8,54546262323,Abebe,fdf,2002-02-24,Male,175.00,50.00,Black,Brown,enfehfjehgjeghefjkgh,"First Offender","2025-11-06 13:00:40","2025-11-06 13:00:40"
+7,57557,Enyew,Rostro,2002-05-05,Female,75.00,56.00,Black,Blonde,gshdfgdf,"First Offender","2025-11-04 10:43:32","2025-11-04 10:43:32"
+6,"4545\745",rre,grg,1954-04-22,Female,78.00,22.00,Brown,Blonde,hghg,"First Offender","2025-11-04 10:41:58","2025-11-04 10:41:58"
+5,"4444\55",Enyew,Huang,2002-02-25,Male,55.00,57.00,Black,Blonde,jhgfjth,"First Offender","2025-11-04 10:40:47","2025-11-04 10:40:47"
+4,475755,Alex,Zhou,2002-04-24,Female,82.00,42.00,Blue,Red,ggsgdfd,"First Offender","2025-11-04 10:31:56","2025-11-04 10:31:56"
+3,47575,Alex,Zhou,2002-04-24,Female,82.00,42.00,Blue,Red,ggsgdfd,"First Offender","2025-11-04 10:27:49","2025-11-04 10:27:49"
+2,9876543210987,Jason,Rostro,2001-02-06,Male,175.00,60.00,Brown,Brown,jjj,"First Offender","2025-11-03 09:54:11","2025-11-03 09:54:11"
+1,1234567890123,John,Doe,1990-05-15,Male,175.50,70.20,Brown,Black,"Scar on left cheek","First Offender","2025-11-03 09:42:31","2025-11-03 09:42:31"

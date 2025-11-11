@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 // Check if this is a forced password change
 $forced = isset($_GET['forced']) && $_GET['forced'] == 1;
 if (!$forced) {
-    header("Location: dashboard.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $securityEnforcer->logSecurityEvent('password_change', 'User changed password successfully', $user_id);
                     
                     // Redirect after 2 seconds
-                    header("Refresh: 2; URL=dashboard.php");
+                    header("Refresh: 2; URL=index.php");
                 } else {
                     $error = "Failed to update password. Please try again.";
                 }
@@ -411,7 +411,7 @@ try {
                 
                 <?php if (!$forced): ?>
                 <div class="text-center mt-4">
-                    <a href="dashboard.php" class="text-blue-600 hover:text-blue-500 text-sm">
+                    <a href="index.php" class="text-blue-600 hover:text-blue-500 text-sm">
                         ← Back to Dashboard
                     </a>
                 </div>
